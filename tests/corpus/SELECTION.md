@@ -19,6 +19,7 @@ These rules picked the repos of the `sealed` split. I wrote them on 2026-10-04, 
 
 ## The set stays sealed after labeling
 
-- Independent labelers label every repo with [LABELING.md](LABELING.md). They never see vibexray's code, its skill, or its output.
-- After the labels land, nobody reads them, changes them, or checks which of them vibexray missed.
+- Two independent labelers label every repo with [LABELING.md](LABELING.md). They never see vibexray's code, its skill, or its output.
+- The second labelers started after the first labels landed and before any vibexray run on the set. They never read the first labels.
+- After both labels land, nobody reads them, changes them, or checks which of them vibexray missed.
 - vibexray runs on the set once, at one commit, and the README publishes the result as it comes out.

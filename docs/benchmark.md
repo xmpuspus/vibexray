@@ -5,6 +5,7 @@ vibexray publishes two numbers together. One number alone is easy to game: a too
 ## The first number is the share of labeled problems that vibexray finds
 
 - The answer key is the label files in `tests/corpus/labels/`. [LABELING.md](../tests/corpus/LABELING.md) explains how independent labelers made them.
+- Two labelers labeled each sealed repo on their own. `scripts/merge_labels.py` joins their files. A problem that both labelers marked counts once.
 - A label counts unless its confidence is `low` or its category is `note_public_key`.
 - A finding finds a label when both have the same category, in the same file.
 - Their line spans must overlap, with 3 lines of slack on each side of the label. A finding on the label's related file and line also counts.

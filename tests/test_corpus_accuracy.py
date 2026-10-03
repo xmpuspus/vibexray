@@ -29,6 +29,8 @@ REPORT = Path(__file__).resolve().parents[1] / "tmp" / "accuracy.txt"
 SLACK = 3
 MIN_DEV_PRECISION = 0.60
 IGNORED = {"note_public_key"}
+# The reviewers labeled only these categories, so findings outside them cannot be scored.
+UNLABELED = {"ai_no_tests", "ai_no_cost_limit"}
 
 pytestmark = pytest.mark.corpus
 
@@ -65,7 +67,11 @@ def score_repo(name: str) -> dict:
         if lb["category"] not in IGNORED and lb.get("confidence") != "low"
     ]
     reviewed = reviewed_files(data, labels)
-    findings = [f for f in run_rules(collect_files(repo)) if f.file in reviewed]
+    findings = [
+        f
+        for f in run_rules(collect_files(repo))
+        if f.file in reviewed and f.category not in UNLABELED
+    ]
     return {
         "repo": name,
         "labels": labels,

@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections import defaultdict
 
 from vibexray.model import CATEGORIES, Finding, ScanResult
-from vibexray.rules.base import SECRET_VALUE
+from vibexray.rules.base import hide
 
 LABEL_NAMES = {"keep": "Keep", "rewrite": "Rewrite", "throwaway": "Throw away", "check": "Check"}
 LABEL_MEANING = {
@@ -29,7 +29,7 @@ def plural(n: int, one: str, many: str | None = None) -> str:
 
 def hide_secrets(text: str) -> str:
     # Rules redact snippets already. This second pass covers every other string.
-    return SECRET_VALUE.sub(lambda m: m.group(0)[:6] + "...[hidden]", text)
+    return hide(text)
 
 
 def app_line(result: ScanResult) -> str:

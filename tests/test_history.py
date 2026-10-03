@@ -177,3 +177,16 @@ def test_prompts_that_ask_for_vibexray_are_not_build_chat(tmp_path, monkeypatch)
     monkeypatch.setenv("VIBEXRAY_CLAUDE_HOME", str(home))
     monkeypatch.setenv("VIBEXRAY_CODEX_HOME", str(tmp_path / "no-codex"))
     assert read_history(ROOT, "auto").prompts == []
+
+
+def test_key_block_pasted_in_a_prompt_is_hidden_across_its_lines(tmp_path, monkeypatch):
+    begin, end = "-----BEGIN " + "PRIVATE KEY-----", "-----END " + "PRIVATE KEY-----"
+    body = "QUJDREVGR0hJSktMTU5PUFFSU1RVVldY"
+    home = _claude_home_with_prompt(
+        tmp_path, f"Use this key:\n{begin}\n{body}\n{end}\nOnly admins can export."
+    )
+    monkeypatch.setenv("VIBEXRAY_CLAUDE_HOME", str(home))
+    monkeypatch.setenv("VIBEXRAY_CODEX_HOME", str(tmp_path / "no-codex"))
+    text = read_history(ROOT, "auto").prompts[0].text
+    assert body not in text
+    assert "Only admins can export." in text

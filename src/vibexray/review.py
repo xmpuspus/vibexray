@@ -28,7 +28,7 @@ from vibexray.model import (
 from vibexray.parts import build_parts
 from vibexray.questions import build_questions
 from vibexray.report import write_reports
-from vibexray.rules.base import SECRET_VALUE, redact
+from vibexray.rules.base import hide, hide_env_line, is_env_file, redact
 from vibexray.walker import collect_files
 
 RESULT_NAME = "review-result.json"
@@ -89,8 +89,8 @@ def load_result(data: dict) -> ScanResult:
 
 
 def hide_keys(text: str) -> str:
-    """Hide key-shaped strings like redact() does, with no length cap for long review text."""
-    return SECRET_VALUE.sub(lambda m: m.group(0)[:6] + "...[hidden]", text.strip())
+    """Hide key and password values like redact() does, with no length cap for long review text."""
+    return hide(text.strip())
 
 
 def _whole(value: object) -> int | None:
@@ -165,7 +165,8 @@ def check_entry(entry: object, root: Path) -> tuple[Finding | None, str]:
         other, other_lines, _ = _read(root, entry["related_file"])
         if other_lines is not None and 1 <= rel_line <= len(other_lines):
             related_file, related_line = other, rel_line
-            related_snippet = redact(other_lines[rel_line - 1])
+            text = other_lines[rel_line - 1]
+            related_snippet = redact(hide_env_line(text) if is_env_file(other) else text)
 
     return Finding(
         rule_id="review",
@@ -173,7 +174,7 @@ def check_entry(entry: object, root: Path) -> tuple[Finding | None, str]:
         severity=severity,
         file=rel,
         line=line,
-        snippet=redact(lines[line - 1]),
+        snippet=redact(hide_env_line(lines[line - 1]) if is_env_file(rel) else lines[line - 1]),
         pm_text=hide_keys(texts["pm_text"]),
         engineer_text=hide_keys(texts["engineer_text"]),
         label=label,
@@ -183,7 +184,7 @@ def check_entry(entry: object, root: Path) -> tuple[Finding | None, str]:
         related_snippet=related_snippet,
         source="review",
         verified=True,
-        quote=redact(quote),
+        quote=redact(hide_env_line(quote) if is_env_file(rel) else quote),
     ), ""
 
 

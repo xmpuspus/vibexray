@@ -9,7 +9,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from vibexray.model import History, Prompt
-from vibexray.rules.base import redact
+from vibexray.rules.base import hide
 
 PROMPT_MAX = 600
 
@@ -51,8 +51,8 @@ def _clean(text: str) -> str:
     # A request to run vibexray itself is not part of the build.
     if _SELF.search(text):
         return ""
-    # redact() also truncates, so hide secrets word by word and cap the whole prompt after.
-    text = " ".join(redact(word) for word in text.split())
+    # Hide over the whole prompt first, so a pasted key block is caught across its lines.
+    text = " ".join(hide(text).split())
     return text if len(text) <= PROMPT_MAX else text[: PROMPT_MAX - 3] + "..."
 
 

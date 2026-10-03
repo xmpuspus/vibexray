@@ -12,7 +12,10 @@ from vibexray.walker import SourceFile
 SNIPPET_MAX = 160
 SECRET_VALUE = re.compile(
     r"(sk-[A-Za-z0-9_\-]{8,}|sk_live_[A-Za-z0-9]{8,}|eyJ[A-Za-z0-9_\-]{20,}\.[A-Za-z0-9_\-]{10,}"
-    r"|AKIA[0-9A-Z]{12,}|ghp_[A-Za-z0-9]{20,}|xox[bap]-[A-Za-z0-9\-]{10,})"
+    r"|AKIA[0-9A-Z]{12,}|ghp_[A-Za-z0-9]{20,}|xox[bap]-[A-Za-z0-9\-]{10,}"
+    r"|rk_live_[A-Za-z0-9]{8,}|whsec_[A-Za-z0-9]{8,}|github_pat_[A-Za-z0-9_]{20,}"
+    r"|SG\.[A-Za-z0-9_\-]{16,}|sb_secret_[A-Za-z0-9_\-]{8,}|AIza[0-9A-Za-z_\-]{20,}"
+    r"|-----BEGIN [A-Z ]*PRIVATE KEY-----)"
 )
 
 

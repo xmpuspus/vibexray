@@ -82,10 +82,15 @@ Doc fixtures sit under `tests/fixtures/docs/` and name the page they come from.
 | https://github.com/velcont/yana-contabila | 648fb73b87cebb592ab57c1aa2f1894c38cce8cf | Apache-2.0 | `src/components/VisualFeedback.tsx` | 105-125 |
 | https://github.com/velcont/yana-contabila | 648fb73b87cebb592ab57c1aa2f1894c38cce8cf | Apache-2.0 | `src/pages/PlatformCosts.tsx` | 105-125 |
 | https://github.com/velcont/yana-contabila | 648fb73b87cebb592ab57c1aa2f1894c38cce8cf | Apache-2.0 | `src/pages/StrategicAdvisor.tsx` | 300-360 |
+| https://github.com/velcont/yana-contabila | 648fb73b87cebb592ab57c1aa2f1894c38cce8cf | Apache-2.0 | `supabase/config.toml` | 1-316 |
+| https://github.com/velcont/yana-contabila | 648fb73b87cebb592ab57c1aa2f1894c38cce8cf | Apache-2.0 | `supabase/functions/awaken-yana/index.ts` | 1-178 |
+| https://github.com/velcont/yana-contabila | 648fb73b87cebb592ab57c1aa2f1894c38cce8cf | Apache-2.0 | `supabase/functions/capture-soul-state/index.ts` | 1-166 |
 | https://github.com/velcont/yana-contabila | 648fb73b87cebb592ab57c1aa2f1894c38cce8cf | Apache-2.0 | `supabase/functions/capture-soul-state/index.ts` | 105-120 |
 | https://github.com/velcont/yana-contabila | 648fb73b87cebb592ab57c1aa2f1894c38cce8cf | Apache-2.0 | `supabase/functions/consciousness-engine/index.ts` | 1415-1430 |
 | https://github.com/velcont/yana-contabila | 648fb73b87cebb592ab57c1aa2f1894c38cce8cf | Apache-2.0 | `supabase/functions/email-client/index.ts` | 95-125 |
 | https://github.com/velcont/yana-contabila | 648fb73b87cebb592ab57c1aa2f1894c38cce8cf | Apache-2.0 | `supabase/functions/samanta-voice-incoming/index.ts` | 180-200 |
+| https://github.com/velcont/yana-contabila | 648fb73b87cebb592ab57c1aa2f1894c38cce8cf | Apache-2.0 | `supabase/functions/yana-local-bridge/index.ts` | 1-134 |
+| https://github.com/velcont/yana-contabila | 648fb73b87cebb592ab57c1aa2f1894c38cce8cf | Apache-2.0 | `supabase/functions/yana-local-claim/index.ts` | 1-90 |
 
 ## Doc fixtures
 

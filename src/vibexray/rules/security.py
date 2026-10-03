@@ -27,28 +27,38 @@ from vibexray.walker import SourceFile
 CAT = "security_other"
 
 
-def _has_variable(f: SourceFile, start: int, end: int) -> bool:
-    """True when the assigned text holds a template placeholder or a non-literal name."""
-    raw = f.text[start:end]
-    if "${" in raw:
-        return True
+_UNTRUSTED = re.compile(
+    r"message|content|text|html|markdown|reply|answer|response|comment|body|input|prompt|completion"
+    r"|output|summary|description|query|review|post",
+    re.I,
+)
+_SANITIZER = re.compile(r"escapeHtml|escape_html|escapeHTML|sanitize|DOMPurify|he\.encode")
+
+
+def _untrusted_variable(f: SourceFile, start: int, end: int) -> bool:
+    """A template placeholder or a name that looks like user or model text."""
     code = code_only(f.text)[start:end]
-    return bool(re.search(r"[A-Za-z_$]", re.sub(r"""['"`\\\s+()]""", "", code)))
+    names = re.sub(r"""['"`\\\s+()]""", "", code)
+    if "${" in f.text[start:end]:
+        names += f.text[start:end]
+    return bool(_UNTRUSTED.search(names))
 
 
 def _xss_refine(f: SourceFile, m: re.Match, t: str) -> dict | None:
+    if _SANITIZER.search(f.text):
+        return None
     if m.group("val") is not None:
         value = m.group("val")
         if "JSON.stringify" in value:
             return None
-        return {} if _has_variable(f, m.start("val"), m.end("val")) else None
+        return {} if _untrusted_variable(f, m.start("val"), m.end("val")) else None
     if m.group("val3") is not None:
         return {}
     code = code_only(f.text)
     start = m.start("val2")
     stop = code.find(";", start)
     stop = len(code) if stop == -1 else min(stop, start + 3000)
-    return {} if _has_variable(f, start, stop) else None
+    return {} if _untrusted_variable(f, start, stop) else None
 
 
 xss = line_rule(

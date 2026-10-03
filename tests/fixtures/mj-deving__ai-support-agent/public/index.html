@@ -1,0 +1,56 @@
+    ab.appendChild(el("div", "drawer-label", "Prüfkette (" + (data.audit ? data.audit.length : 0) + " Einträge)"));
+    const chain = el("div", "chain");
+    (data.audit || []).forEach(e => {
+      const row = el("div", "chain-row");
+      row.appendChild(el("div", "chain-seq", String(e.seq)));
+      row.appendChild(el("div", "chain-type", e.eventType));
+      row.appendChild(el("div", "chain-detail", compactDetail(e.detail)));
+      chain.appendChild(row);
+    });
+    ab.appendChild(chain);
+    const verify = el("div", "chain-verify " + (data.auditVerified ? "ok" : "bad"));
+    verify.innerHTML = (data.auditVerified ? ICON_CHECK : ICON_HANDOFF) +
+      "<span>" + (data.auditVerified ? "Kette verifiziert" : "Kette NICHT verifiziert") + "</span>";
+    ab.appendChild(verify);
+
+    // Signing status, stated honestly per answer. Signed only when the server carries a signature: the
+    // page never claims "signiert" over a chain the server merely hashed.
+    const sig = el("div", "chain-sig" + (data.auditSignature ? " signed" : ""));
+    if (data.auditSignature) {
+      const head = el("div", "sig-head");
+      head.innerHTML = ICON_CHECK + "<span>Ed25519-signiert · seq " + data.auditSignature.seq + "</span>";
+      sig.appendChild(head);
+      sig.appendChild(el("div", "sig-body", data.auditSignature.signature.slice(0, 32) + "…"));
+      sig.appendChild(el("div", "sig-note", "Kopf der Kette signiert, mit öffentlichem Schlüssel allein prüfbar."));
+    } else {
+      sig.appendChild(el("div", "sig-note", "SHA-256-verkettet, nicht signiert."));
+    }
+    ab.appendChild(sig);
+    inner.appendChild(ab);
+
+    drawer.appendChild(inner);
+    return drawer;
+  }
+
+  function addAnswer(pending, data) {
+    const body = pending.querySelector(".agent-body");
+    body.innerHTML = "";
+
+    // A run that filed a human-handoff ticket is escalated even when its answer shipped grounded: a
+    // customer asking for a human produces a shippable acknowledgment (blocked=false, handoffCount=1).
+    // design.md lists "der Kunde hat einen Menschen angefragt" as an amber trigger, so the seal keys off
+    // the handoff too and never shows green "belegt & auditiert" over an answer that queued a person.
+    const escalated = data.blocked || data.handoffCount > 0;
+    const ans = el("div", "agent-answer" + (escalated ? " escalated-text" : ""), data.answer);
+    body.appendChild(ans);
+
+    const row = el("div", "status-row");
+    const seal = el("div", "seal " + (escalated ? "escalated" : "grounded"));
+    seal.innerHTML = '<span class="dot"></span>' + (escalated ? ICON_HANDOFF : ICON_CHECK) +
+      "<span>" + (escalated ? "an einen Menschen übergeben" : "belegt & auditiert") + "</span>";
+    row.appendChild(seal);
+    row.appendChild(el("div", "steps", data.steps + (data.steps === 1 ? " Schritt" : " Schritte")));
+
+    const drawer = buildDrawer(data);
+    const toggle = el("button", "evidence-toggle");
+    toggle.type = "button";

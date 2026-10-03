@@ -171,8 +171,9 @@ preview_url = line_rule(
     "The app points at a temporary address from a build tool.",
     "Replace preview and tunnel hosts with the real production domain from config.",
     pattern=re.compile(
-        r"https?://[\w.-]+\.(?:vercel\.app|netlify\.app|lovable\.app|lovableproject\.com|bolt\.host|stackblitz\.io"
-        r"|replit\.(?:dev|app)|ngrok(?:-free)?\.(?:io|app|dev)|trycloudflare\.com|loca\.lt|github\.dev)"
+        r"https?://(?:[\w.-]*preview--[\w.-]+\.lovable\.app|[\w.-]+-git-[\w-]+\.vercel\.app"
+        r"|[\w.-]+\.(?:lovableproject\.com|bolt\.host|stackblitz\.io|replit\.(?:dev|app)"
+        r"|ngrok(?:-free)?\.(?:io|app|dev)|trycloudflare\.com|loca\.lt|github\.dev))"
     ),
     suffixes=SRC + SQL + ENVFILE,
     allow_config=True,

@@ -38,10 +38,6 @@ def test_preview_host_in_native_config_is_flagged():
     )
 
 
-def test_preview_host_in_page_meta_is_flagged():
-    assert hit_with("preview-or-tunnel-url", "lovable.app", "my-wealth-view/src/routes/__root.tsx")
-
-
 def test_fixed_user_uuid_in_query_is_flagged():
     path = "yana-contabila/supabase/functions/consciousness-engine/index.ts"
     assert hit_with("hardcoded-record-id", "a0eebc99", path)

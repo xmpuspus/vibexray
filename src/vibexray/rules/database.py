@@ -88,6 +88,28 @@ rls_missing = custom_rule(
 )
 
 
+_DEFINER_FN = re.compile(
+    r"create\s+(?:or\s+replace\s+)?function[^$]*?security\s+definer[^$]*(\$\w*\$)[\s\S]*?\1", re.I
+)
+
+
+def _definer_only(name: str, blob: str) -> bool:
+    """RLS with no policy is on purpose when only definer functions reach the table."""
+    revoked = rf'revoke\s+[^;]*on\s+(?:table\s+)?(?:"?public"?\.)?"?{re.escape(name)}"?'
+    if re.search(revoked, blob, re.I):
+        return True
+    return any(re.search(rf"\b{re.escape(name)}\b", m.group(0)) for m in _DEFINER_FN.finditer(blob))
+
+
+def _read_only_function(name: str, blob: str) -> bool:
+    pattern = (
+        rf'create\s+(?:or\s+replace\s+)?function\s+(?:"?public"?\.)?"?{re.escape(name)}"?\b'
+        r"[^$]*(\$\w*\$)([\s\S]*?)\1"
+    )
+    m = re.search(pattern, blob, re.I)
+    return bool(m) and not re.search(r"\b(?:insert|update|delete|upsert)\b", m.group(2), re.I)
+
+
 def _rls_no_policy(rule: Rule, files: list[SourceFile]) -> Iterable[Finding]:
     sqls = _sql_files(files)
     blob = "\n".join(f.text for f in sqls)
@@ -105,9 +127,10 @@ def _rls_no_policy(rule: Rule, files: list[SourceFile]) -> Iterable[Finding]:
             re.I,
         ):
             name = m.group(1)
-            if not re.search(
+            has_policy = re.search(
                 rf'create\s+policy[^;]*\son\s+(?:"?public"?\.)?"?{re.escape(name)}"?', blob, re.I
-            ):
+            )
+            if not has_policy and not _definer_only(name, blob):
                 ln = line_of(f.text, m.start())
                 fnd = rule.finding(
                     f,
@@ -231,6 +254,7 @@ client_write = line_rule(
 
 
 def _rpc_open(rule: Rule, files: list[SourceFile]) -> Iterable[Finding]:
+    blob = "\n".join(f.text for f in _sql_files(files))
     for f in _sql_files(files):
         text = f.text
         for m in re.finditer(r"create\s+(?:or\s+replace\s+)?function\b", text, re.I):
@@ -248,8 +272,12 @@ def _rpc_open(rule: Rule, files: list[SourceFile]) -> Iterable[Finding]:
             ln = line_of(text, m.start())
             yield rule.finding(f, ln, f.lines[ln - 1])
         for m in re.finditer(
-            r"grant\s+execute\s+on\s+function[^;\n]*\sto\s+(?:anon|public)\b", text, re.I
+            r"grant\s+execute\s+on\s+function\s+(?:\"?public\"?\.)?(\w+)[^;\n]*\sto\s+(?:anon|public)\b",
+            text,
+            re.I,
         ):
+            if _read_only_function(m.group(1), blob):
+                continue
             ln = line_of(text, m.start())
             yield rule.finding(f, ln, f.lines[ln - 1])
 

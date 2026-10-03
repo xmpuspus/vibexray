@@ -46,32 +46,43 @@ vibexray checks each review finding line by line. It keeps a finding only if the
 Each item names the category to write in `review.json`.
 
 - Fake data and fake actions:
-  - `mock_data`: sample or seed data that the app shows as real.
+  - `mock_data`: sample or seed data that the app shows or loads as real.
+  - Seed scripts count, for example `seed.ts` or `seed.sql`. Cite each block of sample records.
+  - Sample help articles or knowledge-base files with invented prices or policies count.
+  - A mock AI provider that gives canned replies counts.
   - `fake_action`: a button, form, or message that says it did something but did nothing real.
-  - `hardcoded_config`: a fixed value that must come from settings or data. Examples are a price, a limit, or a URL.
-- Login and access, for every route, page, API handler, and AI tool:
+  - `hardcoded_config`: a fixed value that must come from settings or data, for example a price, a limit, or a URL.
+- Login and access, for every route, page, and API handler:
   - `auth_gap`: anyone can call it, or it does not check that the caller owns the record.
   - For example, any customer can open any order by its number alone.
 - Database rules:
   - `database_rules`: open Firebase or Supabase rules, or a policy that lets any user read or change all rows.
-  - A table with no row-level policy also counts.
+  - A table with no row-level policy counts. A policy with `USING (true)` on user data counts.
 - Secrets:
   - `secret_exposure`: a key or token in client code, in a committed `.env` file, or in a public variable.
+  - A demo password or default admin login in a seed file or `.env.example` counts.
   - `ai_browser_call`: the browser calls an AI provider with a key.
-- Every AI tool. Find the tool list that the model can call, and check each tool:
-  - `ai_tool_unbounded`: the tool can change data, send messages, or spend money, and the code puts no limit on it.
+- Every AI tool. Find every tool that the model can call, also in server functions such as `supabase/functions/`. Check each tool on its own:
+  - `ai_tool_unbounded`: the tool changes data, sends messages, or spends money with no limit in code.
+  - Examples: no check that the record belongs to the caller, no allowed-status rule, no length limit on its input.
+  - `ai_no_human_review`: the tool refunds, cancels, sends, or changes a record as soon as the model calls it.
+  - Report each such tool. One finding for the whole tool list is not enough.
   - `ai_prompt_only_rule`: the prompt states a limit or a rule, but the code does not enforce it.
-  - `ai_no_human_review`: the tool acts with no person's approval where a person must approve, for example a refund.
-  - `ai_fake_tool`: the tool returns sample data or a fixed answer, not real data.
+  - `ai_fake_tool`: the tool returns sample data or a fixed answer, or says it did an action that it did not do.
 - The AI as a whole:
   - `ai_no_cost_limit`: nothing caps how much the AI writes or spends per request, for example no `max_tokens`.
   - `ai_no_tests`: no tests check the AI's answers, so a prompt change can break the product.
-- Other security risks, all as `security_other`:
+- Other security risks, all as `security_other`. Use this category only for these five cases:
   - HTML from users or from the AI shown with no escape (XSS).
   - SQL built from strings.
   - Open CORS.
   - No rate limit on a paid AI endpoint.
   - User text that can change the AI's instructions (prompt injection).
+
+Pick one category for each problem:
+
+- A problem inside an AI tool gets an `ai_` category, not `auth_gap` or `fake_action`.
+- A missing login or ownership check on a route or page is `auth_gap`, not `security_other`.
 
 Report each problem once. If a rule finding already covers the same file, category, and lines, skip it. vibexray skips repeats.
 

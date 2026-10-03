@@ -20,7 +20,7 @@ from vibexray.rules.util import (
     line_rule,
     live,
 )
-from vibexray.walker import SourceFile
+from vibexray.walker import SourceFile, split_lines
 
 _SUCCESS = re.compile(
     r"set(?:Success|Submitted|Sent|Saved|Done|Complete)\w*\(|toast(?:\.success)?\(|setStatus\(['\"](?:success|sent|done)",
@@ -39,7 +39,7 @@ def _handler_for(f: SourceFile, pos: int) -> str | None:
     if fn is not None:
         return code[fn[1] : fn[2]]
     ln = line_of(f.text, pos)
-    lines = code.splitlines()
+    lines = split_lines(code)
     return "\n".join(lines[max(0, ln - 12) : ln + 10])
 
 
@@ -54,7 +54,7 @@ def _settimeout_success(rule: Rule, files: list[SourceFile]) -> Iterable[Finding
         code = code_only(f.text)
         for m in _TIMER.finditer(code):
             ln = line_of(f.text, m.start())
-            region = "\n".join(code.splitlines()[ln - 1 : ln + 10])
+            region = "\n".join(split_lines(code)[ln - 1 : ln + 10])
             if not _SUCCESS.search(region):
                 continue
             body = _handler_for(f, m.start())

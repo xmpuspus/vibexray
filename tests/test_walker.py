@@ -41,3 +41,17 @@ def test_walker_skips_dependencies_and_lockfiles(tmp_path):
     (tmp_path / "app.ts").write_text("export const a = 1;\n")
     paths = {f.path for f in collect_files(tmp_path)}
     assert paths == {"app.ts"}
+
+
+def test_line_numbers_and_snippets_agree_after_a_form_feed(tmp_path):
+    # Python's splitlines() also breaks on form feeds and  . The rules count "\n" only.
+    from vibexray.rules import run_rules
+
+    (tmp_path / "api.ts").write_text(
+        "const a = 1;\x0c\nexport const load = () => fetch('http://localhost:3000/api/orders');\n"
+        "const b = 2;\n"
+    )
+    hits = [f for f in run_rules(collect_files(tmp_path)) if "localhost" in f.rule_id]
+    assert hits, "the localhost rule found nothing"
+    for f in hits:
+        assert "localhost" in f.snippet, (f.line, f.snippet)

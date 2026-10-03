@@ -74,6 +74,18 @@ MAX_BYTES = 400_000
 SELF_DIRS = (".claude/skills/vibexray/", ".agents/skills/vibexray/")
 
 
+def split_lines(text: str) -> list[str]:
+    """Split on "\n" only, the way editors and rules.util.line_of count lines.
+
+    str.splitlines() also breaks on form feeds, "\u2028", and lone "\r", so its line
+    numbers drift from the ones the rules report.
+    """
+    lines = text.split("\n")
+    if lines and lines[-1] == "":
+        lines.pop()
+    return [line[:-1] if line.endswith("\r") else line for line in lines]
+
+
 @dataclass
 class SourceFile:
     path: str
@@ -81,7 +93,7 @@ class SourceFile:
 
     @property
     def lines(self) -> list[str]:
-        return self.text.splitlines()
+        return split_lines(self.text)
 
     @property
     def suffix(self) -> str:

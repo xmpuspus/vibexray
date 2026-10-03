@@ -29,7 +29,7 @@ from vibexray.parts import build_parts
 from vibexray.questions import build_questions
 from vibexray.report import write_reports
 from vibexray.rules.base import hide, hide_env_line, is_env_file, redact
-from vibexray.walker import collect_files
+from vibexray.walker import collect_files, split_lines
 
 RESULT_NAME = "review-result.json"
 
@@ -117,8 +117,8 @@ def _read(root: Path, rel: object) -> tuple[str, list[str] | None, str]:
         return rel, None, f"file {rel} not found in the scanned folder"
     clean = path.relative_to(root).as_posix()
     try:
-        # splitlines() numbers lines the same way the rules do.
-        return clean, path.read_text(encoding="utf-8").splitlines(), ""
+        # split_lines() numbers lines the same way the rules do.
+        return clean, split_lines(path.read_text(encoding="utf-8")), ""
     except (OSError, UnicodeDecodeError):
         return clean, None, f"file {clean} is not readable text"
 

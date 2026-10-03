@@ -1,4 +1,4 @@
-# The corpus holds 16 real prototype repos and 221 hand labels
+# The corpus holds 23 real prototype repos and 320 hand labels
 
 - `corpus.lock.json` pins each public repo to one commit. All are MIT or Apache-2.0.
 - `make corpus` clones them into `.cache/corpus/`. This repo does not copy their code.

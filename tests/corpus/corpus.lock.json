@@ -142,5 +142,75 @@
     "kind": "general",
     "boot_state": "ran",
     "folder": "workfamilai"
+  },
+  {
+    "url": "https://github.com/jawwad-ali/ai-customer-support-agent",
+    "sha": "f3b7a3f82688cfe374b3a478d0c01111ce27544b",
+    "license": "MIT",
+    "builder": "claude-code",
+    "kind": "ai-chatbot",
+    "boot_state": "not attempted",
+    "folder": "jawwad-ali__ai-customer-support-agent",
+    "builder_evidence": "CLAUDE.md at root. Commit trailer: commit co-author trailer names Claude Opus 4.6 (1M context) <noreply@anthropic.com>"
+  },
+  {
+    "url": "https://github.com/gokapso/whatsapp-support-agent",
+    "sha": "9edc7ba1b33522556c6c10f13cb8f89f63136358",
+    "license": "MIT",
+    "builder": "claude-code",
+    "kind": "ai-chatbot",
+    "boot_state": "not attempted",
+    "folder": "gokapso__whatsapp-support-agent",
+    "builder_evidence": "AGENTS.md at root. Commit trailer: commit co-author trailer names Claude Opus 4.6 <noreply@anthropic.com>"
+  },
+  {
+    "url": "https://github.com/IObert/twilio-conversations-eve-agent",
+    "sha": "ce8cc3fb05092403433f57ce9f9681892b6dd78c",
+    "license": "Apache-2.0",
+    "builder": "claude-code",
+    "kind": "ai-chatbot",
+    "boot_state": "could not boot",
+    "folder": "IObert__twilio-conversations-eve-agent",
+    "builder_evidence": "CLAUDE.md and AGENTS.md at root. Commit trailer: commit co-author trailer names Claude Opus 4.7 <noreply@anthropic.com>"
+  },
+  {
+    "url": "https://github.com/Hesper-Labs/owly",
+    "sha": "430c646e51aea8367d1e1a88953e9b56d059fa8d",
+    "license": "MIT",
+    "builder": "claude-code",
+    "kind": "ai-chatbot",
+    "boot_state": "could not boot",
+    "folder": "Hesper-Labs__owly",
+    "builder_evidence": "CLAUDE.md and AGENTS.md at root. Commit trailer: commit co-author trailer names Claude Opus 4.6 (1M context) <noreply@anthropic.com>"
+  },
+  {
+    "url": "https://github.com/suissa/redis-agents",
+    "sha": "d986d6e912b34ae1eb10a82295472c89a03df200",
+    "license": "MIT",
+    "builder": "codex",
+    "kind": "ai-chatbot",
+    "boot_state": "could not boot",
+    "folder": "suissa__redis-agents",
+    "builder_evidence": "Merge commits from Codex branches: Merge pull request #4 from suissa/codex/create-ai-agent-unique-identity-library and #2 from suissa/codex/implement-multi-agent-system-with-redis-dug182. AGENTS.md is absent."
+  },
+  {
+    "url": "https://github.com/laughingkid-sg/sg-remote-food-order",
+    "sha": "c0bc8beb0982f1a84b1f235965afa7fc36d118fe",
+    "license": "MIT",
+    "builder": "codex",
+    "kind": "general",
+    "boot_state": "could not boot",
+    "folder": "laughingkid-sg__sg-remote-food-order",
+    "builder_evidence": "Commit trailer: commit co-author trailer names Codex <codex@openai.com>. The repo also has a .claude folder, so Claude Code may have been used too."
+  },
+  {
+    "url": "https://github.com/gg-mo/agent-tea",
+    "sha": "899af5bc010413bac3e4d333a8bb582cb77b3c82",
+    "license": "MIT",
+    "builder": "codex",
+    "kind": "general",
+    "boot_state": "could not boot",
+    "folder": "gg-mo__agent-tea",
+    "builder_evidence": "Merge commit: Merge pull request #16 from gg-mo/codex/fix-vercel-analytics-dependency. Codex branch name only, no trailer seen."
   }
 ]

@@ -1,0 +1,72 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "vibexray"
+dynamic = ["version"]
+description = "X-ray an AI-built prototype: what is real, what is fake, what can break, and what the PM still has to decide"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.11"
+authors = [
+    { name = "Xavier Puspus", email = "xpuspus@gmail.com" },
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Quality Assurance",
+    "Environment :: Console",
+]
+keywords = ["ai", "vibe-coding", "prototype", "handoff", "product-management", "claude-code", "codex", "agent-skills", "security", "llm"]
+dependencies = []
+
+[project.optional-dependencies]
+run = ["playwright>=1.45"]
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.15,<0.16",
+    "playwright>=1.45",
+]
+
+[project.scripts]
+vibexray = "vibexray.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/xmpuspus/vibexray"
+Repository = "https://github.com/xmpuspus/vibexray"
+"Bug Tracker" = "https://github.com/xmpuspus/vibexray/issues"
+
+[tool.hatch.version]
+path = "src/vibexray/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/vibexray"]
+
+[tool.hatch.build.targets.sdist]
+exclude = ["docs/*.gif", "docs/*.mp4", "tmp", ".cache"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+extend-exclude = ["dist", "build", ".venv", "tmp", ".cache", "skills/vibexray/scripts/vibexray"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "B", "C4", "SIM", "I", "UP", "N"]
+ignore = ["E501"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["vibexray"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+markers = [
+    "corpus: runs against the pinned real prototype repos (fetch with make corpus)",
+    "browser: needs Playwright and Chromium",
+]

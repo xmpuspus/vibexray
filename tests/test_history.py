@@ -152,3 +152,20 @@ def test_injected_text_inside_a_prompt_is_stripped(tmp_path, monkeypatch):
     monkeypatch.setenv("VIBEXRAY_CODEX_HOME", str(tmp_path / "no-codex"))
     h = read_history(ROOT, "auto")
     assert h.prompts[0].text == "Only paid users can refund."
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        '<teammate-message teammate_id="b-review" summary="Review done">The review is ready.'
+        "</teammate-message>",
+        "<task-notification><task-id>b0phjst2y</task-id><status>completed</status>"
+        "</task-notification>",
+    ],
+)
+def test_agent_team_messages_are_not_pm_prompts(tmp_path, monkeypatch, text):
+    # Claude Code agent teams and background tasks write these as user turns.
+    home = _claude_home_with_prompt(tmp_path, text)
+    monkeypatch.setenv("VIBEXRAY_CLAUDE_HOME", str(home))
+    monkeypatch.setenv("VIBEXRAY_CODEX_HOME", str(tmp_path / "no-codex"))
+    assert read_history(ROOT, "auto").prompts == []

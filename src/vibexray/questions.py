@@ -69,7 +69,11 @@ _NUMBER = re.compile(
     re.I,
 )
 _ROUTE = re.compile(r"""["'](/[A-Za-z0-9_\-/{}:.]*)["']""")
-_TOOL_NAME = re.compile(r"""(?:name\s*[:=]\s*|def\s+|function\s+)["']?([A-Za-z_][\w\-]*)""")
+_TOOL_NAME = re.compile(
+    r"""name\s*[:=]\s*["']([A-Za-z_][\w\-]*)["']|(?:def|function)\s+([A-Za-z_]\w*)"""
+    r"""|([A-Za-z_]\w*)\s*[:=]\s*(?:tool|createTool|defineTool)\("""
+)
+_PAGE_FILES = ("route", "page")
 
 
 def _words(text: str) -> int:
@@ -105,23 +109,55 @@ def _sample_data(f: Finding, noun: str) -> Question:
     )
 
 
-def _auth(f: Finding) -> Question:
+def _web_address(path: str) -> str | None:
+    """Next.js turns app/api/orders/[id]/route.ts and pages/api/orders.ts into a URL."""
+    parts = path.split("/")
+    stem = parts[-1].rsplit(".", 1)[0]
+    if "app" in parts and stem in _PAGE_FILES:
+        segs = parts[parts.index("app") + 1 : -1]
+    elif "pages" in parts:
+        segs = parts[parts.index("pages") + 1 : -1] + ([] if stem == "index" else [stem])
+    else:
+        return None
+    # A folder in brackets, such as (dashboard), groups files and is not part of the URL.
+    return "/" + "/".join(s for s in segs if not (s.startswith("(") and s.endswith(")")))
+
+
+def _auth_target(f: Finding) -> str:
     route = _ROUTE.search(f.snippet)
-    target = route.group(1) if route else f.file
-    return Question(
-        text=f"Who may open {target}?",
-        why="Nothing in the code checks who is asking, so anyone who finds it can use it.",
-        source="finding",
-        file=f.file,
-        line=f.line,
-    )
+    return route.group(1) if route else _web_address(f.file) or f.file
+
+
+def _auth(gaps: list[Finding]) -> Question:
+    places = list(dict.fromkeys(_auth_target(f) for f in gaps))
+    if len(places) == 1:
+        text = f"Who may open {places[0]}?"
+        why = "Nothing in the code checks who is asking, so anyone who finds it can use it."
+    else:
+        rest = (
+            f"and {places[1]}"
+            if len(places) == 2
+            else f"{places[1]}, and {len(places) - 2} more places"
+        )
+        sep = " " if len(places) == 2 else ", "
+        text = f"Who may open {places[0]}{sep}{rest}?"
+        why = (
+            f"Nothing in the code checks who is asking at {len(places)} places, "
+            "so anyone who finds them can use them."
+        )
+    return Question(text=text, why=why, source="finding", file=gaps[0].file, line=gaps[0].line)
 
 
 def _human_review(f: Finding) -> Question:
-    name = _TOOL_NAME.search(f.snippet)
-    action = re.sub(r"[_\-]+", " ", name.group(1)) if name else f.file
+    m = _TOOL_NAME.search(f.snippet)
+    name = next((g for g in m.groups() if g), None) if m else None
+    text = (
+        f"Should a person approve '{re.sub(r'[_-]+', ' ', name)}' before it happens?"
+        if name
+        else f"The AI acts on its own in {f.file}. Should a person approve its actions first?"
+    )
     return Question(
-        text=f"Should a person approve '{action}' before it happens?",
+        text=text,
         why="The AI does this on its own today. A person check costs time but stops a bad action.",
         source="finding",
         file=f.file,
@@ -159,8 +195,6 @@ def _from_finding(f: Finding) -> Question | None:
         return _sample_data(f, "screen")
     if f.category == "ai_fake_tool":
         return _sample_data(f, "tool")
-    if f.category == "auth_gap":
-        return _auth(f)
     if f.category == "ai_no_human_review":
         return _human_review(f)
     if f.category == "hardcoded_config" and f.related_snippet:
@@ -215,7 +249,15 @@ def _chat_questions(findings: list[Finding], history: History) -> list[Question]
 
 def build_questions(findings: list[Finding], history: History) -> list[Question]:
     ranked = sorted(findings, key=lambda f: _SEVERITY_ORDER.get(f.severity, 3))
-    questions = [q for f in ranked if (q := _from_finding(f))]
+    gaps = [f for f in ranked if f.category == "auth_gap"]
+    questions = []
+    for f in ranked:
+        # One question covers every open place, so the PM does not answer the same thing 8 times.
+        if f.category == "auth_gap":
+            if f is gaps[0]:
+                questions.append(_auth(gaps))
+        elif q := _from_finding(f):
+            questions.append(q)
     questions += _chat_questions(findings, history)
     seen: set[str] = set()
     out = []

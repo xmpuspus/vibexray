@@ -211,14 +211,85 @@ def test_duplicate_findings_give_one_question():
 
 
 def test_cap_is_ten():
+    # Each action is its own decision, so 14 actions give 14 questions before the cap.
     many = [
         finding(
-            "auth_gap", "auth_gap", "high", "src/server.ts", 61 + i, f"app.post('/api/route{i}', h)"
+            "ai_no_human_review",
+            "ai_no_human_review",
+            "high",
+            "src/tools.ts",
+            189 + i,
+            f"    name: 'book_callback_{i}',",
         )
         for i in range(14)
     ]
     qs = build_questions(many, CHAT)
     assert len(qs) == 10
+
+
+def _auth_gap(file: str, line: int, snippet: str) -> Finding:
+    return finding("auth_gap", "auth_gap", "high", file, line, snippet)
+
+
+# Real handler lines of ai-customer-support-agent (see SOURCES.md).
+ORDER = _auth_gap(
+    "src/app/api/orders/[id]/route.ts",
+    6,
+    "export async function GET(_req: Request, { params }: { params: { id: string } }) {",
+)
+TICKETS = _auth_gap("src/app/api/tickets/route.ts", 7, "export async function GET(req: Request) {")
+CONVOS = _auth_gap(
+    "src/app/api/conversations/route.ts", 6, "export async function GET(req: Request) {"
+)
+CHAT_ROUTE = _auth_gap(
+    "src/app/api/chat/route.ts", 19, "export async function POST(req: Request) {"
+)
+ADMIN = _auth_gap(
+    "src/app/admin/(dashboard)/page.tsx", 55, "export default async function AdminOverviewPage() {"
+)
+
+
+def test_next_route_file_names_the_web_address():
+    (q,) = build_questions([ORDER], NO_CHAT)
+    assert q.text == "Who may open /api/orders/[id]?"
+
+
+def test_route_groups_in_brackets_are_not_part_of_the_address():
+    (q,) = build_questions([ADMIN], NO_CHAT)
+    assert q.text == "Who may open /admin?"
+
+
+TICKETS_POST = _auth_gap(
+    "src/app/api/tickets/route.ts", 33, "export async function POST(req: Request) {"
+)
+
+
+def test_many_open_places_become_one_question():
+    qs = build_questions([CHAT_ROUTE, TICKETS, TICKETS_POST, CONVOS, ORDER, ADMIN], NO_CHAT)
+    assert [q.text for q in qs] == ["Who may open /api/chat, /api/tickets, and 3 more places?"]
+    assert (qs[0].file, qs[0].line) == ("src/app/api/chat/route.ts", 19)
+    assert "5 places" in qs[0].why
+
+
+def test_two_open_places_are_both_named():
+    (q,) = build_questions([CHAT_ROUTE, TICKETS], NO_CHAT)
+    assert q.text == "Who may open /api/chat and /api/tickets?"
+
+
+def test_two_handlers_at_one_address_count_once():
+    (q,) = build_questions([TICKETS, TICKETS_POST], NO_CHAT)
+    assert q.text == "Who may open /api/tickets?"
+
+
+def test_human_review_without_a_tool_name_names_the_file():
+    # Snodrod__ai-support-agent src/agent.ts:103 passes every tool to the model.
+    f = finding(
+        "review", "ai_no_human_review", "high", "src/agent.ts", 103, "        tools: this.tools,"
+    )
+    (q,) = build_questions([f], NO_CHAT)
+    assert q.text == (
+        "The AI acts on its own in src/agent.ts. Should a person approve its actions first?"
+    )
 
 
 def test_empty_inputs_give_no_questions():

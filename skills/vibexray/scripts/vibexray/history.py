@@ -23,6 +23,8 @@ _INJECTED_PREFIXES = (
     "<user_action",
     "<turn_aborted",
     "<skill",
+    "<teammate-message",
+    "<task-notification",
     "# AGENTS.md instructions",
     "Caveat:",
     "[Request interrupted",

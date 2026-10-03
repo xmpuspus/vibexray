@@ -34,7 +34,14 @@ REPO = Path(__file__).resolve().parents[1]
 sys.path[:0] = [str(REPO / "src"), str(REPO / "tests")]
 
 from conftest import CORPUS_DIR  # noqa: E402
-from test_corpus_accuracy import IGNORED, LABELS_DIR, SPLIT, hits, reviewed_files  # noqa: E402
+from test_corpus_accuracy import (  # noqa: E402
+    IGNORED,
+    LABELS_DIR,
+    SPLIT,
+    UNLABELED,
+    hits,
+    reviewed_files,
+)
 
 from vibexray.cli import scan  # noqa: E402
 from vibexray.report import write_reports  # noqa: E402
@@ -113,7 +120,12 @@ def score(name: str, findings: list[dict]) -> dict:
         if lb["category"] not in IGNORED and lb.get("confidence") != "low"
     ]
     reviewed = reviewed_files(data, labels)
-    fs = [SimpleNamespace(**f) for f in findings if f["file"] in reviewed]
+    # The labelers had no ai_no_tests or ai_no_cost_limit category, so those cannot be scored.
+    fs = [
+        SimpleNamespace(**f)
+        for f in findings
+        if f["file"] in reviewed and f["category"] not in UNLABELED
+    ]
     return {
         "labels": len(labels),
         "found": sum(any(hits(f, lb) for f in fs) for lb in labels),
@@ -284,6 +296,20 @@ def pinned_and_clean(path: Path) -> bool:
     return head == pins.get(path.name) and not status.strip()
 
 
+def rescore(summary_path: Path, runs_dir: Path) -> dict:
+    """Score the saved sessions of an earlier round again with the current matching."""
+    s = json.loads(summary_path.read_text())
+    for r in s["per_repo_run"]:
+        run_dir = runs_dir / r["repo"] / f"run-{r['run']}"
+        report = run_dir / "vibexray.json"
+        if not report.is_file():
+            report = run_dir / "report" / "vibexray.json"
+        r.update(score_parts(r["repo"], json.loads(report.read_text())["findings"]))
+    return summarize(
+        SimpleNamespace(runtime=s["runtime"], runs=s["runs"]), s["repos"], s["per_repo_run"]
+    )
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("repos", nargs="*", help="Corpus repo names")
@@ -297,7 +323,19 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--model", help="Model for the session (default: the CLI default)")
     parser.add_argument("--corpus", type=Path, default=CORPUS_DIR)
     parser.add_argument("--keep", action="store_true", help="Keep the temp copies")
+    parser.add_argument("--rescore", type=Path, help="Saved summary JSON to score again")
+    parser.add_argument("--runs-dir", type=Path, help="Session folders of the saved summary")
     args = parser.parse_args(argv)
+
+    if args.rescore:
+        if not args.runs_dir:
+            parser.error("--rescore needs --runs-dir")
+        summary = rescore(args.rescore, args.runs_dir)
+        base = args.rescore.with_name(args.rescore.stem + "-rescored")
+        base.with_suffix(".json").write_text(json.dumps(summary, indent=2) + "\n")
+        base.with_suffix(".md").write_text(markdown(summary))
+        print(markdown(summary).split("\n| Repo |")[0].rstrip())
+        return 0
 
     repos = args.repos or (SPLIT[args.split] if args.split else [])
     if not repos:

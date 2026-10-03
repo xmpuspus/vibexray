@@ -1,0 +1,632 @@
+[
+ {
+  "repo": "afhamahmed1__ai-support-agent",
+  "rule_id": "xss-html-injection",
+  "file": "public/widget.js",
+  "line": 43,
+  "verdict": "rule_wrong",
+  "reason": "The HTML uses TITLE from the data-title attribute that the site owner sets. Chat text goes in with textContent.",
+  "right_category": null
+ },
+ {
+  "repo": "afhamahmed1__ai-support-agent",
+  "rule_id": "todo-handler-body",
+  "file": "src/agent/tools.service.ts",
+  "line": 47,
+  "verdict": "wrong_category",
+  "reason": "The get_order_status tool returns a fixed status. This is a fake AI tool, and the label marks it as ai_fake_tool at 45-49.",
+  "right_category": "ai_fake_tool"
+ },
+ {
+  "repo": "afhamahmed1__ai-support-agent",
+  "rule_id": "todo-handler-body",
+  "file": "src/agent/tools.service.ts",
+  "line": 52,
+  "verdict": "wrong_category",
+  "reason": "The create_support_ticket tool makes a random id and saves nothing. The label marks it as ai_fake_tool at 50-54.",
+  "right_category": "ai_fake_tool"
+ },
+ {
+  "repo": "gpt-realtime-2-customer-support-voice-agent",
+  "rule_id": "ai-no-eval-files",
+  "file": "services/api/app/repo/openai_client.py",
+  "line": 215,
+  "verdict": "rule_wrong",
+  "reason": "The finding is about a missing eval suite. That is not an AI action that skips human review, so the category does not fit.",
+  "right_category": null
+ },
+ {
+  "repo": "gpt-realtime-2-customer-support-voice-agent",
+  "rule_id": "api-route-no-auth",
+  "file": "services/api/app/runtime/files.py",
+  "line": 76,
+  "verdict": "duplicate",
+  "reason": "The DELETE /files route has no auth. The label at upload.py 15-16 names the /files delete route as open.",
+  "right_category": "auth_gap"
+ },
+ {
+  "repo": "mj-deving__ai-support-agent",
+  "rule_id": "xss-html-injection",
+  "file": "public/index.html",
+  "line": 521,
+  "verdict": "rule_wrong",
+  "reason": "The HTML is two constant SVG icons and fixed text picked by a boolean. No user or AI text goes in.",
+  "right_category": null
+ },
+ {
+  "repo": "mj-deving__ai-support-agent",
+  "rule_id": "xss-html-injection",
+  "file": "public/index.html",
+  "line": 530,
+  "verdict": "rule_wrong",
+  "reason": "The HTML is a constant icon plus the audit sequence number from the server. No user or AI text goes in.",
+  "right_category": null
+ },
+ {
+  "repo": "mj-deving__ai-support-agent",
+  "rule_id": "xss-html-injection",
+  "file": "public/index.html",
+  "line": 558,
+  "verdict": "rule_wrong",
+  "reason": "The HTML is constant icons and fixed text picked by a boolean. The AI answer goes in through textContent.",
+  "right_category": null
+ },
+ {
+  "repo": "nexora-ai",
+  "rule_id": "mock-path-segment",
+  "file": "lib/ai.ts",
+  "line": 17,
+  "verdict": "duplicate",
+  "reason": "The line loads the canned mock model when AI_PROVIDER is mock. The label at lib/ai-mock.ts 1-24 marks this mock path as mock_data.",
+  "right_category": "mock_data"
+ },
+ {
+  "repo": "nexora-ai",
+  "rule_id": "mock-path-segment",
+  "file": "lib/ai.ts",
+  "line": 24,
+  "verdict": "duplicate",
+  "reason": "The line loads the hash mock embeddings when AI_PROVIDER is mock. The label at lib/ai-mock.ts 1-24 marks this mock path as mock_data.",
+  "right_category": "mock_data"
+ },
+ {
+  "repo": "resolve-webmcp",
+  "rule_id": "mock-array-literal",
+  "file": "app/workspace/page.tsx",
+  "line": 147,
+  "verdict": "rule_wrong",
+  "reason": "The steps play only after a click on the Demo Mode button, and the status bar says Demo is playing. The UI does not show them as real.",
+  "right_category": null
+ },
+ {
+  "repo": "resolve-webmcp",
+  "rule_id": "fake-delay-loader",
+  "file": "app/workspace/page.tsx",
+  "line": 155,
+  "verdict": "rule_wrong",
+  "reason": "The 650 ms wait paces the Demo Mode replay that the UI labels as a demo. The real fake-wait path is the labeled 250 ms waits at 74-79.",
+  "right_category": null
+ },
+ {
+  "repo": "resolve-webmcp",
+  "rule_id": "settimeout-success",
+  "file": "app/workspace/page.tsx",
+  "line": 155,
+  "verdict": "rule_wrong",
+  "reason": "This is the same 650 ms Demo Mode wait as the fake-delay-loader finding. The replay is labeled as a demo and claims no real effect.",
+  "right_category": null
+ },
+ {
+  "repo": "resolve-webmcp",
+  "rule_id": "hardcoded-price-or-limit",
+  "file": "lib/data.ts",
+  "line": 13,
+  "verdict": "wrong_category",
+  "reason": "The price sits in the sample orderItems array. This is sample data, labeled as mock_data at lib/data.ts 3-26, not a config value.",
+  "right_category": "mock_data"
+ },
+ {
+  "repo": "resolve-webmcp",
+  "rule_id": "hardcoded-price-or-limit",
+  "file": "lib/data.ts",
+  "line": 14,
+  "verdict": "wrong_category",
+  "reason": "The price sits in the sample orderItems array. This is sample data, labeled as mock_data at lib/data.ts 3-26, not a config value.",
+  "right_category": "mock_data"
+ },
+ {
+  "repo": "resolve-webmcp",
+  "rule_id": "hardcoded-price-or-limit",
+  "file": "lib/data.ts",
+  "line": 15,
+  "verdict": "wrong_category",
+  "reason": "The price sits in the sample orderItems array. This is sample data, labeled as mock_data at lib/data.ts 3-26, not a config value.",
+  "right_category": "mock_data"
+ },
+ {
+  "repo": "SliceIQ",
+  "rule_id": "tool-action-no-approval",
+  "file": "backend/src/agent/react-loop.ts",
+  "line": 80,
+  "verdict": "duplicate",
+  "reason": "This is the tool schema for update_order_status. The label at backend/src/agent/tools.ts 89-113 marks the same no-approval action.",
+  "right_category": "ai_no_human_review"
+ },
+ {
+  "repo": "SliceIQ",
+  "rule_id": "tool-action-no-approval",
+  "file": "backend/src/agent/react-loop.ts",
+  "line": 98,
+  "verdict": "duplicate",
+  "reason": "This is the tool schema for issue_refund. The label at backend/src/agent/tools.ts 117-174 marks the same no-approval refund.",
+  "right_category": "ai_no_human_review"
+ },
+ {
+  "repo": "SliceIQ",
+  "rule_id": "tool-number-unbounded",
+  "file": "backend/src/agent/react-loop.ts",
+  "line": 104,
+  "verdict": "duplicate",
+  "reason": "The refund amount has no bound. The label at backend/src/agent/tools.ts 117-174 marks the same unbounded amount.",
+  "right_category": "ai_tool_unbounded"
+ },
+ {
+  "repo": "SliceIQ",
+  "rule_id": "ai-cost-controls",
+  "file": "backend/src/agent/react-loop.ts",
+  "line": 172,
+  "verdict": "labeler_missed",
+  "reason": "The model call sets no max_tokens. Only the 10-turn loop cap exists, and the labels do not mark the missing output cap. Low impact.",
+  "right_category": "ai_tool_unbounded"
+ },
+ {
+  "repo": "SliceIQ",
+  "rule_id": "ai-no-eval-files",
+  "file": "backend/src/agent/react-loop.ts",
+  "line": 172,
+  "verdict": "rule_wrong",
+  "reason": "The finding is about a missing eval suite. That is not an AI action that skips human review, so the category does not fit.",
+  "right_category": null
+ },
+ {
+  "repo": "SliceIQ",
+  "rule_id": "api-route-no-auth",
+  "file": "backend/src/routes/auth.ts",
+  "line": 19,
+  "verdict": "rule_wrong",
+  "reason": "POST /register is a public sign-up route by design. It creates a new account only and needs no login.",
+  "right_category": null
+ },
+ {
+  "repo": "SliceIQ",
+  "rule_id": "placeholder-identity",
+  "file": "frontend/src/components/Login.tsx",
+  "line": 128,
+  "verdict": "duplicate",
+  "reason": "The login page shows the seeded demo account. The label at backend/prisma/seed.ts 85-161 marks these sample customers as mock_data.",
+  "right_category": "mock_data"
+ },
+ {
+  "repo": "Snodrod__ai-support-agent",
+  "rule_id": "token-in-localstorage",
+  "file": "public/app.js",
+  "line": 11,
+  "verdict": "rule_wrong",
+  "reason": "The value is a random chat session id, not a login token. The app has no login, and the labels mark that gap at src/server.ts 61-78.",
+  "right_category": null
+ },
+ {
+  "repo": "Snodrod__ai-support-agent",
+  "rule_id": "token-in-localstorage",
+  "file": "public/app.js",
+  "line": 20,
+  "verdict": "rule_wrong",
+  "reason": "The value is a random chat session id, not a login token. The app has no login, and the labels mark that gap at src/server.ts 61-78.",
+  "right_category": null
+ },
+ {
+  "repo": "Snodrod__ai-support-agent",
+  "rule_id": "hardcoded-price-or-limit",
+  "file": "public/app.js",
+  "line": 32,
+  "verdict": "rule_wrong",
+  "reason": "cost: 0 is the start value of a usage counter in page state. It is not a price or limit.",
+  "right_category": null
+ },
+ {
+  "repo": "Snodrod__ai-support-agent",
+  "rule_id": "xss-html-injection",
+  "file": "public/app.js",
+  "line": 106,
+  "verdict": "rule_wrong",
+  "reason": "Every caller of bubble passes text through escapeHtml first, or passes a fixed typing marker.",
+  "right_category": null
+ },
+ {
+  "repo": "Snodrod__ai-support-agent",
+  "rule_id": "xss-html-injection",
+  "file": "public/app.js",
+  "line": 156,
+  "verdict": "rule_wrong",
+  "reason": "The template puts summary and tool name through escapeHtml. The rest is fixed markup.",
+  "right_category": null
+ },
+ {
+  "repo": "Snodrod__ai-support-agent",
+  "rule_id": "xss-html-injection",
+  "file": "public/app.js",
+  "line": 217,
+  "verdict": "rule_wrong",
+  "reason": "The template puts the tool name through escapeHtml. The rest is fixed markup.",
+  "right_category": null
+ },
+ {
+  "repo": "Snodrod__ai-support-agent",
+  "rule_id": "hardcoded-price-or-limit",
+  "file": "public/app.js",
+  "line": 433,
+  "verdict": "rule_wrong",
+  "reason": "cost: 0 resets a usage counter on session reset. It is not a price or limit.",
+  "right_category": null
+ },
+ {
+  "repo": "Snodrod__ai-support-agent",
+  "rule_id": "ai-no-eval-files",
+  "file": "src/agent.ts",
+  "line": 99,
+  "verdict": "rule_wrong",
+  "reason": "The finding is about a missing eval suite. That is not an AI action that skips human review, so the category does not fit.",
+  "right_category": null
+ },
+ {
+  "repo": "Snodrod__ai-support-agent",
+  "rule_id": "hardcoded-price-or-limit",
+  "file": "src/data.ts",
+  "line": 46,
+  "verdict": "wrong_category",
+  "reason": "The price sits in the sample orders array. This is sample data, labeled as mock_data at src/data.ts 1-161, not a config value.",
+  "right_category": "mock_data"
+ },
+ {
+  "repo": "Snodrod__ai-support-agent",
+  "rule_id": "hardcoded-price-or-limit",
+  "file": "src/data.ts",
+  "line": 57,
+  "verdict": "wrong_category",
+  "reason": "The price sits in the sample orders array. This is sample data, labeled as mock_data at src/data.ts 1-161, not a config value.",
+  "right_category": "mock_data"
+ },
+ {
+  "repo": "Snodrod__ai-support-agent",
+  "rule_id": "hardcoded-price-or-limit",
+  "file": "src/data.ts",
+  "line": 58,
+  "verdict": "wrong_category",
+  "reason": "The price sits in the sample orders array. This is sample data, labeled as mock_data at src/data.ts 1-161, not a config value.",
+  "right_category": "mock_data"
+ },
+ {
+  "repo": "Snodrod__ai-support-agent",
+  "rule_id": "prompt-limit-not-in-code",
+  "file": "src/prompt.ts",
+  "line": 7,
+  "verdict": "rule_wrong",
+  "reason": "Code enforces the rule. create_return_request only queues the return, and it runs after the customer clicks Approve.",
+  "right_category": null
+ },
+ {
+  "repo": "Snodrod__ai-support-agent",
+  "rule_id": "prompt-limit-not-in-code",
+  "file": "src/prompt.ts",
+  "line": 8,
+  "verdict": "rule_wrong",
+  "reason": "Code enforces the rule. create_return_request checks order status, return window and item, and shows the refund on the approval card.",
+  "right_category": null
+ },
+ {
+  "repo": "Snodrod__ai-support-agent",
+  "rule_id": "tool-returns-canned",
+  "file": "src/tools.ts",
+  "line": 127,
+  "verdict": "rule_wrong",
+  "reason": "The line is the no-match path of a keyword search over help articles. An empty result with a note is honest output.",
+  "right_category": null
+ },
+ {
+  "repo": "Snodrod__ai-support-agent",
+  "rule_id": "tool-action-no-approval",
+  "file": "src/tools.ts",
+  "line": 189,
+  "verdict": "duplicate",
+  "reason": "This is the book_callback tool schema. The label at src/tools.ts 197-206 marks the same booking with no approval step.",
+  "right_category": "ai_no_human_review"
+ },
+ {
+  "repo": "milk-me-not",
+  "rule_id": "policy-using-true",
+  "file": "supabase/migrations/00000000000000_baseline.sql",
+  "line": 1710,
+  "verdict": "duplicate",
+  "reason": "The brands table gets a public read policy. The label at baseline.sql 1730-1738 names brands among the USING (true) read policies.",
+  "right_category": "database_rules"
+ },
+ {
+  "repo": "milk-me-not",
+  "rule_id": "rls-enabled-no-policy-or-grants",
+  "file": "supabase/migrations/00000000000000_baseline.sql",
+  "line": 1844,
+  "verdict": "rule_wrong",
+  "reason": "Row security with no policy is on purpose. The table is read and written only through two SECURITY DEFINER functions, so the app does not fail.",
+  "right_category": null
+ },
+ {
+  "repo": "milk-me-not",
+  "rule_id": "rls-enabled-no-policy-or-grants",
+  "file": "supabase/migrations/20260820120000_remember_product_barcodes.sql",
+  "line": 24,
+  "verdict": "rule_wrong",
+  "reason": "Row security with no policy is on purpose. The migration revokes direct access and routes all use through two SECURITY DEFINER functions.",
+  "right_category": null
+ },
+ {
+  "repo": "milk-me-not",
+  "rule_id": "rpc-or-function-open",
+  "file": "supabase/migrations/20260820120000_remember_product_barcodes.sql",
+  "line": 74,
+  "verdict": "rule_wrong",
+  "reason": "The anon grant is on a read-only lookup that maps a barcode to a product id. Product rows are public already, and the write function needs a signed-in user.",
+  "right_category": null
+ },
+ {
+  "repo": "my-wealth-view",
+  "rule_id": "preview-or-tunnel-url",
+  "file": "src/routes/__root.tsx",
+  "line": 95,
+  "verdict": "rule_wrong",
+  "reason": "The og:image URL is the published app domain on lovable.app, not a preview or tunnel address. Social tags need an absolute URL.",
+  "right_category": null
+ },
+ {
+  "repo": "my-wealth-view",
+  "rule_id": "preview-or-tunnel-url",
+  "file": "src/routes/__root.tsx",
+  "line": 99,
+  "verdict": "rule_wrong",
+  "reason": "The twitter:image URL is the published app domain on lovable.app, not a preview or tunnel address. Social tags need an absolute URL.",
+  "right_category": null
+ },
+ {
+  "repo": "my-wealth-view",
+  "rule_id": "hardcoded-price-or-limit",
+  "file": "src/routes/_authenticated/transactions.tsx",
+  "line": 74,
+  "verdict": "labeler_missed",
+  "reason": "The worth-it minimum of 15 is a business limit in code. The comment says the backend has its own copy kept in sync by hand.",
+  "right_category": "hardcoded_config"
+ },
+ {
+  "repo": "yana-contabila",
+  "rule_id": "auth-disabled-flag",
+  "file": "supabase/config.toml",
+  "line": 4,
+  "verdict": "duplicate",
+  "reason": "verify_jwt is off for yana-code-patch-promoter, and the function has no caller check. The label at its index.ts 24-60 marks this as auth_gap.",
+  "right_category": "auth_gap"
+ },
+ {
+  "repo": "yana-contabila",
+  "rule_id": "auth-disabled-flag",
+  "file": "supabase/config.toml",
+  "line": 7,
+  "verdict": "duplicate",
+  "reason": "Anyone can call facebook-daily-post to make a page post, and debug=1 returns token details. The label at config.toml 9-200 marks this cluster as security_other, a category conflict.",
+  "right_category": "auth_gap"
+ },
+ {
+  "repo": "yana-contabila",
+  "rule_id": "auth-disabled-flag",
+  "file": "supabase/config.toml",
+  "line": 10,
+  "verdict": "duplicate",
+  "reason": "samanta-voice-incoming takes Twilio form posts with no signature check and uses the service role. The label at config.toml 9-200 marks this as security_other, a category conflict.",
+  "right_category": "auth_gap"
+ },
+ {
+  "repo": "yana-contabila",
+  "rule_id": "auth-disabled-flag",
+  "file": "supabase/config.toml",
+  "line": 13,
+  "verdict": "duplicate",
+  "reason": "samanta-voice-status updates call rows from any caller with no signature check. The label at config.toml 9-200 marks this as security_other, a category conflict.",
+  "right_category": "auth_gap"
+ },
+ {
+  "repo": "yana-contabila",
+  "rule_id": "auth-disabled-flag",
+  "file": "supabase/config.toml",
+  "line": 16,
+  "verdict": "duplicate",
+  "reason": "samanta-call-completed accepts any payload and does not check the signature header it allows. The label at config.toml 9-200 marks this as security_other, a category conflict.",
+  "right_category": "auth_gap"
+ },
+ {
+  "repo": "yana-contabila",
+  "rule_id": "stripe-id-literal",
+  "file": "supabase/functions/stripe-webhook/index.ts",
+  "line": 379,
+  "verdict": "labeler_missed",
+  "reason": "The accounting-firm price ID and the 19900 cent cutoff are typed into the webhook. The same ID appears in four functions, and the labels mark none of them.",
+  "right_category": "hardcoded_config"
+ },
+ {
+  "repo": "yana-contabila",
+  "rule_id": "hardcoded-price-or-limit",
+  "file": "supabase/functions/stripe-webhook/index.ts",
+  "line": 525,
+  "verdict": "duplicate",
+  "reason": "This line is the same hardcoded price-to-credits map entry that the stripe-id-literal finding flags on this line.",
+  "right_category": "hardcoded_config"
+ },
+ {
+  "repo": "yana-contabila",
+  "rule_id": "stripe-id-literal",
+  "file": "supabase/functions/stripe-webhook/index.ts",
+  "line": 525,
+  "verdict": "labeler_missed",
+  "reason": "The webhook holds a second copy of the price-to-credits map from AICreditsPurchase.tsx. The label marks only the UI copy.",
+  "right_category": "hardcoded_config"
+ },
+ {
+  "repo": "yana-contabila",
+  "rule_id": "hardcoded-price-or-limit",
+  "file": "supabase/functions/stripe-webhook/index.ts",
+  "line": 526,
+  "verdict": "duplicate",
+  "reason": "This line is in the same hardcoded price-to-credits map as the stripe-id-literal finding at line 525.",
+  "right_category": "hardcoded_config"
+ },
+ {
+  "repo": "yana-contabila",
+  "rule_id": "stripe-id-literal",
+  "file": "supabase/functions/stripe-webhook/index.ts",
+  "line": 526,
+  "verdict": "duplicate",
+  "reason": "This line is in the same hardcoded price-to-credits map as the stripe-id-literal finding at line 525.",
+  "right_category": "hardcoded_config"
+ },
+ {
+  "repo": "yana-contabila",
+  "rule_id": "hardcoded-price-or-limit",
+  "file": "supabase/functions/stripe-webhook/index.ts",
+  "line": 527,
+  "verdict": "duplicate",
+  "reason": "This line is in the same hardcoded price-to-credits map as the stripe-id-literal finding at line 525.",
+  "right_category": "hardcoded_config"
+ },
+ {
+  "repo": "MIND-MIRROR",
+  "rule_id": "admin-route-no-guard",
+  "file": "src/pages/dashboard.jsx",
+  "line": 1,
+  "verdict": "duplicate",
+  "reason": "dashboard.jsx has no route guard and shows the mood UI to anyone. The label at lines 82-94 marks this as auth_gap.",
+  "right_category": "auth_gap"
+ },
+ {
+  "repo": "vocal-note-keeper-ai",
+  "rule_id": "ai-no-eval-files",
+  "file": "src/lib/summaryService.ts",
+  "line": 45,
+  "verdict": "rule_wrong",
+  "reason": "The finding is about a missing eval suite. That is not an AI action that skips human review, so the category does not fit.",
+  "right_category": null
+ },
+ {
+  "repo": "vocal-note-keeper-ai",
+  "rule_id": "fake-delay-loader",
+  "file": "src/lib/whisperWeb.ts",
+  "line": 176,
+  "verdict": "labeler_missed",
+  "reason": "Whisper Web is the default provider. The main transcribe path waits 2 s on a timer and returns a fixed mock transcript as the result.",
+  "right_category": "fake_action"
+ },
+ {
+  "repo": "vocal-note-keeper-ai",
+  "rule_id": "admin-route-no-guard",
+  "file": "src/pages/Settings.tsx",
+  "line": 1,
+  "verdict": "rule_wrong",
+  "reason": "Settings is not an admin page. The app is single-user and local with no accounts, and settings live in the browser database.",
+  "right_category": null
+ },
+ {
+  "repo": "cal-ai-clone",
+  "rule_id": "placeholder-media",
+  "file": "src/components/WelcomeScreen.tsx",
+  "line": 15,
+  "verdict": "rule_wrong",
+  "reason": "The image is a decorative food photo on the welcome screen. It is not user data, so nothing fake is shown as real.",
+  "right_category": null
+ },
+ {
+  "repo": "cal-ai-clone",
+  "rule_id": "admin-route-no-guard",
+  "file": "src/pages/Settings.tsx",
+  "line": 1,
+  "verdict": "duplicate",
+  "reason": "/settings has no login check. The label at src/App.tsx 18-22 marks the /analytics and /settings routes as auth_gap.",
+  "right_category": "auth_gap"
+ },
+ {
+  "repo": "workfamilai",
+  "rule_id": "admin-route-no-guard",
+  "file": "src/pages/Admin.tsx",
+  "line": 1,
+  "verdict": "rule_wrong",
+  "reason": "/admin is wrapped in ProtectedRoute with requireAdmin in App.tsx. The client-side limit of that guard is a separate labeled issue.",
+  "right_category": null
+ },
+ {
+  "repo": "workfamilai",
+  "rule_id": "auth-disabled-flag",
+  "file": "supabase/config.toml",
+  "line": 49,
+  "verdict": "duplicate",
+  "reason": "chat-with-agent has verify_jwt off and no login. The label at its index.ts 42-60 marks this as auth_gap.",
+  "right_category": "auth_gap"
+ },
+ {
+  "repo": "workfamilai",
+  "rule_id": "auth-disabled-flag",
+  "file": "supabase/config.toml",
+  "line": 53,
+  "verdict": "duplicate",
+  "reason": "voice-to-text has verify_jwt off and no login. The label at its index.ts 11-25 marks this as auth_gap.",
+  "right_category": "auth_gap"
+ },
+ {
+  "repo": "workfamilai",
+  "rule_id": "auth-disabled-flag",
+  "file": "supabase/config.toml",
+  "line": 57,
+  "verdict": "rule_wrong",
+  "reason": "create-donation serves a public donation form, so it must take calls with no login. It does no privileged work for the caller.",
+  "right_category": null
+ },
+ {
+  "repo": "workfamilai",
+  "rule_id": "auth-disabled-flag",
+  "file": "supabase/config.toml",
+  "line": 60,
+  "verdict": "rule_wrong",
+  "reason": "submit-contact-form serves a public contact form, so it must take calls with no login.",
+  "right_category": null
+ },
+ {
+  "repo": "workfamilai",
+  "rule_id": "auth-disabled-flag",
+  "file": "supabase/config.toml",
+  "line": 63,
+  "verdict": "rule_wrong",
+  "reason": "subscribe-newsletter serves a public sign-up form, so it must take calls with no login.",
+  "right_category": null
+ },
+ {
+  "repo": "workfamilai",
+  "rule_id": "user-input-in-system-prompt",
+  "file": "supabase/functions/chat-with-agent/index.ts",
+  "line": 125,
+  "verdict": "duplicate",
+  "reason": "The client sends agentPersonality and agentBackground, and they go into the system prompt. The label at lines 65-66 marks this as security_other.",
+  "right_category": "security_other"
+ },
+ {
+  "repo": "workfamilai",
+  "rule_id": "api-route-no-auth",
+  "file": "supabase/functions/submit-work-package-quote/index.ts",
+  "line": 1,
+  "verdict": "rule_wrong",
+  "reason": "The quote form is public by design. It has a per-IP limit, input checks, and emails only the company inbox.",
+  "right_category": null
+ }
+]

@@ -11,8 +11,8 @@ def test_policy_with_check_true_for_anon_insert_is_flagged():
     assert found and found[0].severity == "high"
 
 
-def test_policy_using_true_in_migration_is_flagged():
-    assert hit_with("policy-using-true", "USING (true)", EAA_MIGRATION)
+def test_select_policy_for_signed_in_users_is_not_flagged():
+    assert run("policy-using-true", EAA_MIGRATION) == []
 
 
 def test_function_with_search_path_is_not_a_policy_finding():

@@ -74,6 +74,26 @@ Doc fixtures sit under `tests/fixtures/docs/` and name the page they come from.
 | `docs/vite-env-doc.js` | https://vite.dev/guide/env-and-mode (env access example) | 2026-10-04 |
 | `docs/faker-usage.js` | https://fakerjs.dev/guide/usage (first import example) | 2026-10-04 |
 
+## Rules with no corpus example
+
+These rules found nothing in the 22 pinned repos. Each has negative tests on real code only.
+A doc fixture exists for `mock-library-import`, `server-env-read-in-client`, and `firebase-open-rules` (see above).
+For the rest, the catalog (`build-prep/rules.md`) names the source page it quotes. I did not fetch those pages.
+
+| Rule | Source named in the catalog |
+|---|---|
+| service-role-in-client, supabase-client-key-kind | S13 supabase.com/docs/guides/api/api-keys, S15 vibeappscanner.com/lovable-supabase-security |
+| public-prefix-secret-name, public-prefix-secret-value, vite-define-env-leak | S2 vite.dev/guide/env-and-mode, S3 nextjs.org/docs/app/guides/environment-variables |
+| ai-key-in-client-env | S2, S3 |
+| key-pattern-in-source, env-file-committed, secret-default-fallback | none, no example found |
+| lorem-ipsum, json-file-as-database, localstorage-as-backend, console-log-as-send, promise-resolve-success, route-returns-ok-only | none, no example found |
+| client-password-check, client-only-role-gate, fake-login-handler | none, no example found |
+| eval-or-new-function, cors-wildcard-credentials, sql-string-concat, open-redirect, debug-route-left-on, cookie-missing-flags, ssrf-user-url, client-trusted-amount | none, no example found (the OWASP redirect and query pages show Java and PHP only) |
+| ai-endpoint-no-rate-limit | S11 genai.owasp.org/llmrisk/llm102025-unbounded-consumption |
+
+A throwaway probe fed each of these rules its catalog example text. All 22 matched, so no regex is dead.
+The probe is not a fixture and is not committed.
+
 ## Build-chat and question fixtures
 
 

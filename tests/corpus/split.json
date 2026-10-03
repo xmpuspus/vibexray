@@ -1,0 +1,30 @@
+{
+  "note": "Frozen on 2026-10-04 before rule tuning. Tune on dev only. Report held-out numbers as the honest score.",
+  "dev": [
+    "afhamahmed1__ai-support-agent",
+    "ai-customer-support-agent",
+    "gpt-realtime-2-customer-support-voice-agent",
+    "mj-deving__ai-support-agent",
+    "nexora-ai",
+    "resolve-webmcp",
+    "SliceIQ",
+    "Snodrod__ai-support-agent",
+    "EAA-Chapter-84-Connect",
+    "milk-me-not",
+    "my-wealth-view",
+    "yana-contabila",
+    "MIND-MIRROR",
+    "vocal-note-keeper-ai",
+    "cal-ai-clone",
+    "workfamilai"
+  ],
+  "heldout": [
+    "jawwad-ali__ai-customer-support-agent",
+    "gokapso__whatsapp-support-agent",
+    "IObert__twilio-conversations-eve-agent",
+    "Hesper-Labs__owly",
+    "suissa__redis-agents",
+    "laughingkid-sg__sg-remote-food-order",
+    "gg-mo__agent-tea"
+  ]
+}

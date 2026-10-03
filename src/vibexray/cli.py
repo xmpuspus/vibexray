@@ -16,6 +16,7 @@ from vibexray.model import GROUPS, ScanResult
 from vibexray.parts import build_parts
 from vibexray.questions import build_questions
 from vibexray.report import write_reports
+from vibexray.review import ReviewError, apply_review
 from vibexray.rules import all_rules, run_rules
 from vibexray.walker import collect_files, detect_stack
 
@@ -84,6 +85,35 @@ def cmd_scan(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_review(args: argparse.Namespace) -> int:
+    report_dir = Path(args.report_dir).expanduser().resolve()
+    review_path = (
+        Path(args.input).expanduser().resolve() if args.input else report_dir / "review.json"
+    )
+    try:
+        result = apply_review(report_dir, review_path)
+    except ReviewError as exc:
+        print(f"vibexray: {exc}", file=sys.stderr)
+        return 2
+    print(
+        f"Kept {len(result.kept)} of {result.total} review findings. "
+        f"Dropped {len(result.dropped)}. "
+        f"Skipped {len(result.duplicates)} that repeat a finding."
+    )
+    for drop in result.dropped:
+        print(f"  dropped #{drop.index} {drop.file}:{drop.line}  {drop.reason}")
+    for dup in result.duplicates:
+        print(f"  skipped #{dup.index} {dup.file}:{dup.line}  {dup.reason}")
+    if result.dropped:
+        print(
+            "  Drops are normal. vibexray keeps a finding only if its file, line, and quote match."
+        )
+    print()
+    print(f"  Report   {report_dir / 'report.html'}")
+    print(f"  Handoff  {report_dir / 'handoff.md'}")
+    return 0
+
+
 def cmd_rules(_: argparse.Namespace) -> int:
     for rule in all_rules():
         print(f"{rule.id:<34} {rule.category:<22} {rule.severity:<7} {rule.pm_text}")
@@ -106,6 +136,13 @@ def build_parser() -> argparse.ArgumentParser:
     p_scan.add_argument("--open", action="store_true", help="Open the report in a browser")
     p_scan.add_argument("--json", action="store_true", help="Print the JSON result")
     p_scan.set_defaults(func=cmd_scan)
+
+    p_review = sub.add_parser(
+        "review", help="Check the host AI's review.json line by line and merge it"
+    )
+    p_review.add_argument("report_dir", help="Folder that holds vibexray.json from a scan")
+    p_review.add_argument("--input", help="Review file (default: <report_dir>/review.json)")
+    p_review.set_defaults(func=cmd_review)
 
     p_rules = sub.add_parser("rules", help="List every rule")
     p_rules.set_defaults(func=cmd_rules)

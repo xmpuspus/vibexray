@@ -70,6 +70,8 @@ SKIP_FILES = {
     "Cargo.lock",
 }
 MAX_BYTES = 400_000
+# A project-scope install of this skill carries a copy of vibexray. It is not the PM's code.
+SELF_DIRS = (".claude/skills/vibexray/", ".agents/skills/vibexray/")
 
 
 @dataclass
@@ -100,6 +102,8 @@ def collect_files(root: Path) -> list[SourceFile]:
     for path in sorted(root.rglob("*")):
         rel = path.relative_to(root)
         if any(part in SKIP_DIRS for part in rel.parts[:-1]):
+            continue
+        if rel.as_posix().startswith(SELF_DIRS):
             continue
         if not path.is_file() or not _is_text_candidate(path):
             continue

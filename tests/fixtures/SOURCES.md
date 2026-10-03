@@ -161,3 +161,34 @@ Repo: https://github.com/Snodrod/ai-support-agent, SHA `4f239bd3e6baa008f7be935f
 | `src/tools.ts` | 189 | `book_callback` tool that acts with no person check |
 | `src/data.ts` | 135 | return window of 30 days |
 | `src/tools.ts` | 166 | label drop-off window of 14 days (second number for the conflict question) |
+
+## AI review fixture
+
+`review/review.json` is the unchanged output of one real headless run on 2026-10-04.
+
+- Command: `scripts/eval_review.py --runtime claude --runs 1 --keep Snodrod__ai-support-agent`.
+- Repo: https://github.com/Snodrod/ai-support-agent, MIT license.
+- The script copied the repo at SHA `4f239bd3e6baa008f7be935ff5fb4f23e00573ed` to a temp folder and put the skill at `.claude/skills/vibexray/`.
+- The temp folder sat outside this repo, so the session could not read this repo's guide or the hand labels.
+- Session: Claude Code 2.1.288 on the subscription login. It ran `claude -p "Use the vibexray skill to x-ray this prototype. Write review.json and run the review step." --max-turns 60`.
+- Session flags: `--setting-sources project,local --no-session-persistence --permission-mode acceptEdits`.
+- Result: 16 entries, 16 kept, 0 dropped, 0 repeats of a rule finding.
+- A scan for home-folder paths and key patterns (`sk-`, `ghp_`, `AKIA`, `xox`, `eyJ`) found none.
+
+`review/Snodrod__ai-support-agent/` holds full copies of these files at the same SHA, so the review line numbers match:
+`package.json`, `public/app.js`, `public/index.html`, and every file in `src/`.
+
+The tests change a real entry in memory only. The file on disk stays as the session wrote it.
+
+| Test | Entry | Change |
+| --- | --- | --- |
+| quote with one changed character | 0 | the first letter of the quote becomes `X` |
+| missing file | 0 | `file` becomes `src/no_such_file.ts` |
+| path outside the repo | 0 | `file` becomes `../../etc/hosts` |
+| line out of range | 0 | `line` becomes the file length plus 40 |
+| whitespace in the quote | 0 | wider spaces and a trailing newline in the quote |
+| unknown category and label | 0 | `category` becomes `vibes`, then `label` becomes `maybe` |
+| repeat of a rule finding | 7 | the span widens to reach the first line of a rule finding |
+| key in the review text | 0 | both texts get a key-shaped string, built as in `test_history.py` |
+
+The run repeated no rule finding, so the repeat case needs a change. The test takes the first entry that shares a file and category with a rule finding. Today that is entry 7 (`ai_no_human_review`, `src/tools.ts:159`). Its span becomes lines 159 to 188, which reaches `tool-action-no-approval` at `src/tools.ts:188`.

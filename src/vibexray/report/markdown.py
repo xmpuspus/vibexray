@@ -10,5 +10,6 @@ def render_markdown(result: ScanResult) -> str:
     if not result.findings:
         lines.append("No fake parts or risks found.")
     for f in result.findings:
-        lines.append(f"- `{f.file}:{f.line}` {f.engineer_text}")
+        tag = " (AI review, line checked)" if f.source == "review" else ""
+        lines.append(f"- `{f.file}:{f.line}` {f.engineer_text}{tag}")
     return "\n".join(lines) + "\n"

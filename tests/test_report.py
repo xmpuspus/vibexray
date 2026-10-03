@@ -273,9 +273,11 @@ def test_write_reports_writes_the_new_documents(sliceiq, tmp_path):
 def test_corpus_reports_carry_every_location(name, tmp_path):
     result = scan(corpus_repo(name), tmp_path / "out", run=False, history_mode="none")
     html, md = render_html(result), render_markdown(result)
+    # <wbr> hints are invisible break points inside a path. The reader sees the plain path.
+    seen = html.replace("<wbr>", "")
     for f in result.findings:
-        assert escape(f"{f.file}:{f.line}") in html
+        assert escape(f"{f.file}:{f.line}") in seen
         assert f"{f.file}:{f.line}" in md
     for p in result.parts:
-        assert escape(p.file) in html
+        assert escape(p.file) in seen
     assert not KEY.search(html + md)

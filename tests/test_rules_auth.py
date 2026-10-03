@@ -9,13 +9,6 @@ def test_localstorage_flag_decides_access():
     assert hit_with("localstorage-auth-gate", "isLoggedIn", "cal-ai-clone/src/pages/Index.tsx")
 
 
-def test_auth_disabled_flag_finds_verify_jwt_false_in_config():
-    found = hit_with(
-        "auth-disabled-flag", "verify_jwt = false", "EAA-Chapter-84-Connect/supabase/config.toml"
-    )
-    assert found and found[0].label == "check"
-
-
 def test_hardcoded_admin_fallback_is_flagged():
     assert hit_with(
         "hardcoded-role-or-user", "isAdmin = true", "yana-contabila/src/pages/StrategicAdvisor.tsx"

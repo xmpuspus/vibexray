@@ -86,7 +86,6 @@ color:var(--navy);font-weight:700}
 .tag.high{background:var(--coral-wash);color:var(--coral-ink)}
 .tags .cnt{color:var(--muted)}
 .tags .src{color:var(--muted)}
-.tags .src::before{content:"\\00B7";margin-right:12px}
 .tags .src.unchecked{color:var(--coral-ink);font-weight:700}
 .ct{font-size:19px;line-height:1.35;color:var(--ink);margin:8px 0 6px;overflow-wrap:anywhere}
 .fix{margin:0 0 10px;color:var(--muted);font-size:15px}
@@ -149,7 +148,8 @@ pre code{overflow-wrap:anywhere}
 @page{margin:0.5in}
 @media print{
 body{font-size:12pt}
-h2,h3,.sub,.tags,.ct{break-after:avoid}
+h2,h3,.sub,.tags,.ct{break-after:avoid;break-inside:avoid}
+.bar{break-inside:avoid;break-after:avoid}
 .todo,.legend{break-inside:avoid}
 details.more>summary{display:none}
 .toc{display:none}

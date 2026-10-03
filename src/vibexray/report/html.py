@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import base64
 import mimetypes
+import re
 from html import escape
 from pathlib import Path
 
@@ -37,6 +38,14 @@ NB_BREAK = "\u00a0can\u00a0break."
 
 def e(text: object) -> str:
     return escape(hide_secrets(str(text)))
+
+
+# A flag such as --no-history must not split at its hyphen on a phone.
+FLAG = re.compile(r"--[A-Za-z][\w-]*")
+
+
+def _flags(text: str) -> str:
+    return FLAG.sub(lambda m: f'<span class="nw">{m.group(0)}</span>', e(text))
 
 
 def _where(file: str, line: int | None) -> str:
@@ -346,7 +355,7 @@ def _app(r: ScanResult) -> str:
         return _section("app", title, f'<div class="pages">{pages}</div>', sub)
     booted = run.state == "could_not_boot"
     title = "The app did not start" if booted else "vibexray did not start the app"
-    reason = f" {e(run.reason)}" if run.reason else ""
+    reason = f" {_flags(run.reason)}" if run.reason else ""
     body = (
         f'<p class="empty">{EMPTY_RUN}{"." if booted else " in this scan."}{reason} '
         "The rest of this report comes from reading the code.</p>"
@@ -361,7 +370,7 @@ def _app(r: ScanResult) -> str:
 def _chat(r: ScanResult) -> str:
     h = r.history
     if h.source == "none" or not h.prompts:
-        note = f" {e(h.note)}" if h.note else ""
+        note = f" {_flags(h.note)}" if h.note else ""
         skipped = h.note.startswith("Skipped")
         title = "vibexray skipped your build chat" if skipped else EMPTY_HISTORY
         body = (

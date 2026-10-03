@@ -193,7 +193,7 @@ def test_reports_show_the_review_finding_and_its_source(scanned):
     data = json.loads((scanned / "vibexray.json").read_text())
     assert f"`{entry['file']}:{entry['line']}`" in handoff
     assert "AI review" in handoff
-    assert f"{entry['file']}:{entry['line']}" in html
+    assert f"{entry['file']}:{entry['line']}" in html.replace("<wbr>", "")
     assert "AI review" in html
     part = next(p for p in data["parts"] if p["file"] == entry["file"])
     assert part["label"] != "keep" or entry["label"] == "keep"

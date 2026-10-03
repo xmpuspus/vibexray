@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import base64
+import hashlib
 import mimetypes
 import re
 from html import escape
@@ -48,8 +49,13 @@ def _flags(text: str) -> str:
     return FLAG.sub(lambda m: f'<span class="nw">{m.group(0)}</span>', e(text))
 
 
+def _path(text: str) -> str:
+    # A break hint after each slash lets a long path wrap at a folder, not inside a name.
+    return e(text).replace("/", "/<wbr>")
+
+
 def _where(file: str, line: int | None) -> str:
-    return e(f"{file}:{line}" if line else file)
+    return _path(f"{file}:{line}" if line else file)
 
 
 def _more(items: list[str], shown: int, tag: str = "ul", cls: str = "files") -> str:
@@ -198,7 +204,7 @@ def _parts(r: ScanResult) -> str:
         rows = []
         for p in parts:
             why = f'<span class="why">{e(", ".join(p.reasons))}</span>' if p.reasons else ""
-            rows.append(f"<li><code>{e(p.file)}</code>{why}</li>")
+            rows.append(f"<li><code>{_path(p.file)}</code>{why}</li>")
         if not rows:
             name = "throw away" if lbl == "throwaway" else lbl
             body = f'<p class="none">No parts to {name}.</p>'
@@ -331,17 +337,35 @@ def _chips(items: list[str], none: str, cls: str = "chips") -> str:
     return f'<ul class="{cls}">{"".join(f"<li>{e(i)}</li>" for i in items)}</ul>'
 
 
-def _page(p: Page, base: Path | None) -> str:
+def _page(group: list[Page], base: Path | None) -> str:
+    p = group[0]
     status = f" returned {p.status}" if p.status else ""
-    title = e(p.title) if p.title else f"<code>{e(p.path)}</code>"
+    title = e(p.title) if p.title else f"<code>{_path(p.path)}</code>"
+    where = f'<p class="none"><code>{_path(p.path)}</code>{status}</p>'
+    if len(group) > 1:
+        paths = ", ".join(f"<code>{_path(q.path)}</code>" for q in group)
+        where = f'<p class="none">These {len(group)} pages showed the same screen: {paths}</p>'
     return (
-        f'<div class="page">{_image(p.screenshot, base)}<h3>{title}</h3>'
-        f'<p class="none"><code>{e(p.path)}</code>{status}</p>'
+        f'<div class="page">{_image(p.screenshot, base)}<h3>{title}</h3>{where}'
         f'<p class="k">Buttons</p>{_chips(p.buttons, "No buttons found.")}'
         f'<p class="k">Inputs</p>{_chips(p.inputs, "No inputs found.")}'
         f'<p class="k">Errors in the browser</p>'
         f"{_chips(p.console_errors, 'No errors.', 'errs')}</div>"
     )
+
+
+def _same_screens(pages: list[Page], base: Path | None) -> list[list[Page]]:
+    """Group pages whose screenshots are the same bytes, such as many pages that show a login."""
+    groups: dict[str, list[Page]] = {}
+    for p in pages:
+        file = Path(p.screenshot) if p.screenshot else None
+        if file is not None and not file.is_absolute() and base is not None:
+            file = base / file
+        key = p.path
+        if file is not None and file.is_file():
+            key = hashlib.sha1(file.read_bytes()).hexdigest() + (p.title or "")
+        groups.setdefault(key, []).append(p)
+    return list(groups.values())
 
 
 def _app(r: ScanResult, base: Path | None) -> str:
@@ -353,7 +377,7 @@ def _app(r: ScanResult, base: Path | None) -> str:
         if not run.pages:
             body = '<p class="empty">The app ran, but vibexray found no pages to open.</p>'
             return _section("app", "The app ran with no pages to open", body, sub)
-        pages = "".join(_page(p, base) for p in run.pages)
+        pages = "".join(_page(g, base) for g in _same_screens(run.pages, base))
         title = f"The app ran. vibexray opened {plural(len(run.pages), 'page')}."
         return _section("app", title, f'<div class="pages">{pages}</div>', sub)
     booted = run.state == "could_not_boot"

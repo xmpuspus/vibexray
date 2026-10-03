@@ -110,7 +110,8 @@ def test_every_finding_location_appears_in_both_documents(sliceiq):
     assert sliceiq.findings
     for f in sliceiq.findings:
         where = f"{f.file}:{f.line}"
-        assert escape(where) in html, where
+        # <wbr> hints are invisible break points inside a path. The reader sees the plain path.
+        assert escape(where) in html.replace("<wbr>", ""), where
         assert where in md, where
         if f.related_file:
             assert f"{f.related_file}:{f.related_line}" in md
@@ -252,7 +253,7 @@ def test_real_review_findings_show_their_source_and_location(tmp_path):
     reviewed = [f for f in data["findings"] if f["source"] == "review"]
     assert reviewed
     for f in reviewed:
-        assert escape(f"{f['file']}:{f['line']}") in html
+        assert escape(f"{f['file']}:{f['line']}") in html.replace("<wbr>", "")
         assert f"{f['file']}:{f['line']}" in md
     cards = html.count('<article class="card')
     checked = html.count("Found by AI review, line checked")

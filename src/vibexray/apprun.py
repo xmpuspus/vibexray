@@ -69,7 +69,7 @@ def run_app(root: Path, out_dir: Path, enabled: bool) -> AppRun:
             cmd = ["python3", entry, "runserver"]
         return _boot_and_crawl(root, out_dir, home, " ".join(cmd), cmd, None)
     finally:
-        reap_strays(root)
+        reap_strays(home)
         shutil.rmtree(home, ignore_errors=True)
 
 

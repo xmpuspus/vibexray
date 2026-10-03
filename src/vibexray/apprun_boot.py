@@ -9,6 +9,7 @@ import re
 import signal
 import socket
 import subprocess
+import sys
 import time
 from pathlib import Path
 
@@ -226,13 +227,14 @@ def wait_for_port_free(port: int, seconds: float = 10.0) -> bool:
     return not port_open(port)
 
 
-def reap_strays(root: Path, seconds: float = 10.0) -> None:
+def reap_strays(home: Path, seconds: float = 10.0) -> None:
     """Stop leftovers that escaped the process group, such as the detached telemetry flush
-    that Next.js starts at exit. They carry the app folder in their command line."""
-    marker = str(root.resolve())
+    that Next.js starts at exit. Only processes that carry our unique HOME in their
+    environment count, so the user's own processes are never touched."""
+    marker = f"HOME={home.resolve()}"
     start = time.monotonic()
     for _ in range(int(seconds / 0.2)):
-        pids = _pids_with(marker)
+        pids = _pids_with_env(marker)
         if not pids:
             return
         if time.monotonic() - start > 2.0:
@@ -240,12 +242,23 @@ def reap_strays(root: Path, seconds: float = 10.0) -> None:
         time.sleep(0.2)
 
 
-def _pids_with(marker: str) -> list[int]:
-    out = subprocess.run(["ps", "-axo", "pid=,command="], capture_output=True, text=True).stdout
+def _pids_with_env(marker: str) -> list[int]:
     me = os.getpid()
+    if sys.platform == "darwin":
+        # -E appends each process's environment to its command line.
+        out = subprocess.run(["ps", "-axE", "-o", "pid=,command="], capture_output=True, text=True)
+        found = []
+        for line in out.stdout.splitlines():
+            pid, _, rest = line.strip().partition(" ")
+            if pid.isdigit() and int(pid) != me and f" {marker}" in f" {rest} ":
+                found.append(int(pid))
+        return found
     found = []
-    for line in out.splitlines():
-        pid, _, cmd = line.strip().partition(" ")
-        if pid.isdigit() and int(pid) != me and marker in cmd:
-            found.append(int(pid))
+    for entry in Path("/proc").glob("[0-9]*"):
+        try:
+            env = (entry / "environ").read_bytes().split(b"\0")
+        except OSError:
+            continue
+        if marker.encode() in env and int(entry.name) != me:
+            found.append(int(entry.name))
     return found

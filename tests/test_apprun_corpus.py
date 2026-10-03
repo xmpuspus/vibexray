@@ -1,6 +1,8 @@
 """App-run tests on copies of real corpus repos. Copies live in tmp/ and are deleted after."""
 
+import os
 import shutil
+import signal
 import subprocess
 from pathlib import Path
 
@@ -17,10 +19,14 @@ def port_free(port: int) -> bool:
     return out.stdout.strip() == ""
 
 
+DECOY = "sleep 300; :"
+
+
 def leftover_processes(root: Path) -> list[str]:
     """Processes whose command line points into the scanned copy."""
     out = subprocess.run(["ps", "-axo", "command"], capture_output=True, text=True).stdout
-    return [line for line in out.splitlines() if str(root) in line]
+    # The decoy process of the safety test carries the path on purpose; it is not ours.
+    return [ln for ln in out.splitlines() if str(root) in ln and DECOY not in ln]
 
 
 def copy_repo(name: str) -> Path:
@@ -44,7 +50,14 @@ def ports_used(result) -> list[int]:
 @pytest.mark.browser
 def test_next_app_boots_and_crawls(cleanup, tmp_path):
     root = copy_repo("ai-customer-support-agent")
-    result = run_app(root, tmp_path, enabled=True)
+    # An unrelated process of the user that mentions the app folder must survive the scan.
+    decoy = subprocess.Popen(["/bin/sh", "-c", DECOY, str(root)], start_new_session=True)
+    try:
+        result = run_app(root, tmp_path, enabled=True)
+        assert decoy.poll() is None, "the scan stopped a process it did not start"
+    finally:
+        os.killpg(decoy.pid, signal.SIGKILL)
+        decoy.wait()
     assert result.state == "ran", result.reason
     assert result.url and result.command
     assert result.pages

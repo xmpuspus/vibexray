@@ -220,6 +220,9 @@ def summarize(args: argparse.Namespace, repos: list[str], rows: list[dict]) -> d
         "recall_min": min(recalls),
         "precision_mean": round(sum(precisions) / len(precisions), 4),
         "precision_min": min(precisions),
+        # A run with no review scores the rules alone. Show the count first so it never hides.
+        "reviews_written": sum(1 for r in rows if r["review_written"]),
+        "sessions": len(rows),
         "citation_drop_rate": ratio(dropped, entries) if entries else None,
         "review_entries": entries,
         "review_dropped": dropped,
@@ -234,6 +237,8 @@ def markdown(s: dict) -> str:
         f"# Rules plus {s['runtime']} review: recall {s['recall_mean']:.2f} mean, "
         f"precision {s['precision_mean']:.2f} mean",
         "",
+        f"- Review written in {s['reviews_written']} of {s['sessions']} sessions. "
+        "A session with no review counts with the rule findings only.",
         f"- Repos: {', '.join(s['repos'])}",
         f"- Runs per repo: {s['runs']}",
         f"- Recall: mean {s['recall_mean']:.2f}, minimum {s['recall_min']:.2f}",
@@ -303,8 +308,8 @@ def main(argv: list[str] | None = None) -> int:
     if changed:
         parser.error(
             "these corpus repos are not at their pinned commit or have local changes: "
-            f"{', '.join(changed)}. Restore each with "
-            "`git -C <repo> checkout -q <sha> -- . && git -C <repo> clean -qfd`, or run `make corpus`."
+            f"{', '.join(changed)}. Use `make corpus` for clean clones in .cache/corpus, "
+            "or restore each repo with `git -C <repo> reset -q --hard <sha> && git -C <repo> clean -qfd`."
         )
 
     jobs = [(n, run) for run in range(1, args.runs + 1) for n in repos]

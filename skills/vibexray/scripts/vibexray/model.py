@@ -75,6 +75,8 @@ class AppRun:
     command: str | None = None
     missing_env: list[str] = field(default_factory=list)
     pages: list[Page] = field(default_factory=list)
+    # Last log lines when the app did not boot. Secrets are already hidden.
+    log_tail: list[str] = field(default_factory=list)
 
 
 @dataclass

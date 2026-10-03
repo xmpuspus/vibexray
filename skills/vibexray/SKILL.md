@@ -43,46 +43,52 @@ vibexray checks each review finding line by line. It keeps a finding only if the
 
 ## Review checklist
 
-Each item names the category to write in `review.json`.
+Each item names the category to write in `review.json`. The definitions match the guide that labeled vibexray's test set.
 
 - Fake data and fake actions:
-  - `mock_data`: sample or seed data that the app shows or loads as real.
+  - `mock_data`: hardcoded sample records, fixtures, sample customers or orders, or lorem ipsum, used as if real.
   - Seed scripts count, for example `seed.ts` or `seed.sql`. Cite each block of sample records.
   - Sample help articles or knowledge-base files with invented prices or policies count.
   - A mock AI provider that gives canned replies counts.
-  - `fake_action`: a button, form, or message that says it did something but did nothing real.
-  - `hardcoded_config`: a fixed value that must come from settings or data, for example a price, a limit, or a URL.
+  - `fake_action`: UI that shows success with no real effect.
+  - Examples: a setTimeout success, a toast with no call, a `console.log` in place of a send, a TODO handler.
+  - `hardcoded_config`: localhost URLs, and hardcoded prices, limits, or feature flags that belong in config.
+  - The same kind of value set to two different numbers also counts. Give the second place as `related_file`.
 - Login and access, for every route, page, and API handler:
-  - `auth_gap`: anyone can call it, or it does not check that the caller owns the record.
-  - For example, any customer can open any order by its number alone.
+  - `auth_gap`: a protected page or action that works with no login check.
+  - A hardcoded user or role counts. A check done only in client code counts.
+  - A missing check that the caller owns the record counts, for example any customer can open any order.
 - Database rules:
-  - `database_rules`: open Firebase or Supabase rules, or a policy that lets any user read or change all rows.
-  - A table with no row-level policy counts. A policy with `USING (true)` on user data counts.
+  - `database_rules`: a table with no row level security, or a permissive policy, such as `USING (true)` on user data.
+  - Client writes to sensitive tables count. A service key in client code counts here.
 - Secrets:
-  - `secret_exposure`: a key or token in client code, in a committed `.env` file, or in a public variable.
-  - A demo password or default admin login in a seed file or `.env.example` counts.
-  - `ai_browser_call`: the browser calls an AI provider with a key.
+  - `secret_exposure`: a secret-looking key in client code or in a browser-exposed env var.
+  - A committed `.env` file with secret values counts. A demo password in a seed file or `.env.example` counts.
+  - A Supabase anon key alone is public by design. Do not report it.
+  - `ai_browser_call`: browser code calls a model API, or a browser-exposed env var holds a model key.
 - Every AI tool. Find every tool that the model can call, also in server functions such as `supabase/functions/`. Check each tool on its own:
-  - `ai_tool_unbounded`: the tool changes data, sends messages, or spends money with no limit in code.
+  - `ai_tool_unbounded`: a tool changes money or data, or sends something, with no limit or validation in its code.
   - Examples: no check that the record belongs to the caller, no allowed-status rule, no length limit on its input.
-  - `ai_no_human_review`: the tool refunds, cancels, sends, or changes a record as soon as the model calls it.
+  - `ai_no_human_review`: a tool sends, refunds, books, or changes records with no human approval step.
   - Report each such tool. One finding for the whole tool list is not enough.
-  - `ai_prompt_only_rule`: the prompt states a limit or a rule, but the code does not enforce it.
-  - `ai_fake_tool`: the tool returns sample data or a fixed answer, or says it did an action that it did not do.
+  - `ai_prompt_only_rule`: the system prompt states a limit or rule, and the tool code has no matching check.
+  - Cite the prompt line in `file` and `line`. Give the tool code as `related_file` and `related_line`.
+  - `ai_fake_tool`: a tool returns hardcoded or sample results, or says it did an action that it did not do.
 - The AI as a whole:
   - `ai_no_cost_limit`: nothing caps how much the AI writes or spends per request, for example no `max_tokens`.
   - `ai_no_tests`: no tests check the AI's answers, so a prompt change can break the product.
-- Other security risks, all as `security_other`. Use this category only for these five cases:
-  - HTML from users or from the AI shown with no escape (XSS).
-  - SQL built from strings.
-  - Open CORS.
-  - No rate limit on a paid AI endpoint.
-  - User text that can change the AI's instructions (prompt injection).
+- `security_other`: any other security problem. Examples:
+  - HTML from users or from the AI shown with no escape, `eval`, or SQL built from strings.
+  - Open CORS, or user input joined into a prompt with no guard.
+  - Tokens in localStorage, or prices that the server takes from the client.
+  - No rate limit on a paid AI endpoint, or a webhook endpoint with no signature check.
+  - An error handler that sends internal error text to the client.
 
 Pick one category for each problem:
 
 - A problem inside an AI tool gets an `ai_` category, not `auth_gap` or `fake_action`.
 - A missing login or ownership check on a route or page is `auth_gap`, not `security_other`.
+- A service key in client code is `database_rules`, not `secret_exposure`.
 
 Report each problem once. If a rule finding already covers the same file, category, and lines, skip it. vibexray skips repeats.
 
@@ -116,7 +122,7 @@ The file holds a JSON list. Each entry is one finding:
 - Quote at least 6 characters, not counting spaces. For a span of more than 30 lines, quote at least 16.
 - Never cite more than 300 lines in one finding.
 - If the line holds a secret value, quote the part without the value, for example the variable name.
-- Use `related_file` and `related_line` for a second place. An example is the prompt line that states a limit the code does not enforce.
+- Use `related_file` and `related_line` for a second place. For `ai_prompt_only_rule`, the second place is the tool code.
 - Write `pm_text` with no jargon. Write `engineer_text` with the file, the problem, and the fix.
 
 ## Rules

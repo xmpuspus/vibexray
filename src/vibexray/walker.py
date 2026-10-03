@@ -55,7 +55,10 @@ TEXT_SUFFIXES = {
     ".example",
     ".local",
     ".sample",
+    ".rules",
 }
+# Files with no useful suffix that still carry risk signals.
+TEXT_NAMES = {".gitignore", "Dockerfile", "vercel.json", "netlify.toml"}
 SKIP_FILES = {
     "package-lock.json",
     "pnpm-lock.yaml",
@@ -87,7 +90,7 @@ def _is_text_candidate(path: Path) -> bool:
     name = path.name
     if name in SKIP_FILES:
         return False
-    if name.startswith(".env"):
+    if name.startswith(".env") or name in TEXT_NAMES:
         return True
     return path.suffix.lower() in TEXT_SUFFIXES
 

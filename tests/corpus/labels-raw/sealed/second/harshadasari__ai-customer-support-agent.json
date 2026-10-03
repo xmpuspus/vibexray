@@ -1,0 +1,253 @@
+{
+"repo": "harshadasari__ai-customer-support-agent",
+"sha": "3fd1ef8d5b938d77871ca01bddf9c982857dde6e",
+"labeler": "s2-label-04",
+"files_reviewed": [
+"backend/.env.example",
+"backend/app/config.py",
+"backend/app/main.py",
+"backend/app/agent/graph.py",
+"backend/app/agent/llm.py",
+"backend/app/agent/prompts.py",
+"backend/app/tools/tools.py",
+"backend/app/engine/eligibility.py",
+"backend/app/db.py",
+"backend/app/models.py",
+"backend/app/trace/tracer.py",
+"backend/app/policy/__init__.py",
+"backend/app/policy/refund_policy.md",
+"backend/data/seed/customers.json",
+"backend/scripts/seed_db.py",
+"backend/pyproject.toml",
+"requirements.txt",
+".gitignore",
+".claude/settings.local.json",
+"frontend/src/api.ts",
+"frontend/src/App.tsx",
+"frontend/src/components/AdminDashboard.tsx",
+"frontend/src/components/ChatWindow.tsx",
+"frontend/src/components/DecisionBadge.tsx",
+"frontend/src/components/TraceStepCard.tsx (grep)",
+"frontend/vite.config.ts",
+"frontend/index.html",
+"guide/app/src (grep: static learning guide, no API calls or HTML injection)",
+"guide/index.html (grep)",
+"logs/session_logger.py (lines 1-30, dev logging tool)",
+"SETUP.md, docs/ (grep for keys, placeholders only)"
+],
+"note": "No database, no login and no real payment system. The eligibility engine enforces policy rules R1 to R5 in code, and issue_refund re-runs it, so refund limits are backed by code. Customer identity is not. The LLM is called only from the backend, so no ai_browser_call. .env.example holds placeholders only. Small gap: if a delivered order has no delivered_date, the 30-day window check is skipped (eligibility.py line 44).",
+"labels": [
+{
+"category": "mock_data",
+"file": "backend/data/seed/customers.json",
+"line_start": 1,
+"line_end": 320,
+"what": "15 fake customers and 17 orders with sample emails are the only data source for every tool",
+"keep_rewrite_throwaway": "throwaway",
+"confidence": "high"
+},
+{
+"category": "mock_data",
+"file": "backend/app/db.py",
+"line_start": 8,
+"line_end": 60,
+"what": "In-memory lists loaded from the seed JSON act as the system of record. Refund changes live only in process memory and are lost on restart",
+"keep_rewrite_throwaway": "rewrite",
+"confidence": "medium"
+},
+{
+"category": "ai_fake_tool",
+"file": "backend/app/tools/tools.py",
+"line_start": 7,
+"line_end": 13,
+"what": "lookup_customer searches the seed JSON list, not a customer system",
+"keep_rewrite_throwaway": "rewrite",
+"confidence": "high"
+},
+{
+"category": "ai_fake_tool",
+"file": "backend/app/tools/tools.py",
+"line_start": 16,
+"line_end": 20,
+"what": "list_orders reads orders from the seed JSON list",
+"keep_rewrite_throwaway": "rewrite",
+"confidence": "high"
+},
+{
+"category": "ai_fake_tool",
+"file": "backend/app/tools/tools.py",
+"line_start": 23,
+"line_end": 29,
+"what": "get_order reads an order from the seed JSON list",
+"keep_rewrite_throwaway": "rewrite",
+"confidence": "high"
+},
+{
+"category": "ai_fake_tool",
+"file": "backend/app/tools/tools.py",
+"line_start": 50,
+"line_end": 62,
+"what": "issue_refund only sets refunded=True and status on the in-memory order and returns REFUNDED. No payment or order system is called",
+"keep_rewrite_throwaway": "rewrite",
+"confidence": "high"
+},
+{
+"category": "ai_fake_tool",
+"file": "backend/app/tools/tools.py",
+"line_start": 65,
+"line_end": 68,
+"what": "escalate_to_human returns a hardcoded ticket ESC-1001. No ticket is created and nobody is notified",
+"keep_rewrite_throwaway": "rewrite",
+"confidence": "high"
+},
+{
+"category": "ai_no_human_review",
+"file": "backend/app/tools/tools.py",
+"line_start": 50,
+"line_end": 62,
+"what": "issue_refund refunds any eligible order up to $500 straight from the model's tool call, with no customer confirmation or staff approval step",
+"keep_rewrite_throwaway": "rewrite",
+"confidence": "medium"
+},
+{
+"category": "ai_tool_unbounded",
+"file": "backend/app/tools/tools.py",
+"line_start": 65,
+"line_end": 68,
+"what": "escalate_to_human accepts any order_id and free-text reason with no existence check and no per-session limit. Once wired to a real ticket system, a loop can flood it",
+"keep_rewrite_throwaway": "rewrite",
+"confidence": "low"
+},
+{
+"category": "ai_prompt_only_rule",
+"file": "backend/app/agent/prompts.py",
+"line_start": 6,
+"line_end": 8,
+"related_file": "backend/app/tools/tools.py",
+"related_line": 39,
+"what": "Prompt rule 2 says never trust customer assertions. No tool verifies that the person chatting is the customer. check_eligibility and issue_refund take whatever customer_id the model passes, which comes from the customer's own words. Rule 5 on line 13 (identify the customer) has the same gap",
+"keep_rewrite_throwaway": "rewrite",
+"confidence": "high"
+},
+{
+"category": "ai_prompt_only_rule",
+"file": "backend/app/agent/prompts.py",
+"line_start": 16,
+"line_end": 18,
+"related_file": "backend/app/tools/tools.py",
+"related_line": 65,
+"what": "Prompt says to escalate only when check_eligibility returns ESCALATED. escalate_to_human never checks eligibility, order existence, or amount, so the model can escalate any order",
+"keep_rewrite_throwaway": "rewrite",
+"confidence": "low"
+},
+{
+"category": "auth_gap",
+"file": "backend/app/tools/tools.py",
+"line_start": 7,
+"line_end": 13,
+"related_file": "backend/app/engine/eligibility.py",
+"related_line": 15,
+"what": "No login. Anyone who types another customer's email or full name gets their record, their orders, and a refund in their name. The R4 ownership check only compares the order to the claimed customer",
+"keep_rewrite_throwaway": "rewrite",
+"confidence": "high"
+},
+{
+"category": "auth_gap",
+"file": "backend/app/main.py",
+"line_start": 86,
+"line_end": 106,
+"related_file": "frontend/src/App.tsx",
+"related_line": 36,
+"what": "/api/runs and /api/runs/{run_id}/trace have no auth, and the Admin tab shows them to every visitor. Traces hold tool outputs with customer names, emails and orders from every conversation",
+"keep_rewrite_throwaway": "rewrite",
+"confidence": "high"
+},
+{
+"category": "auth_gap",
+"file": "backend/app/main.py",
+"line_start": 39,
+"line_end": 47,
+"what": "/api/chat resumes whatever run_id the client sends. Run ids are listed by the open /api/runs endpoint, so anyone can continue another customer's chat with their identified context",
+"keep_rewrite_throwaway": "rewrite",
+"confidence": "medium"
+},
+{
+"category": "security_other",
+"file": "backend/app/main.py",
+"line_start": 37,
+"line_end": 38,
+"what": "/api/chat calls the paid LLM with no auth and no rate limit",
+"keep_rewrite_throwaway": "rewrite",
+"confidence": "high"
+},
+{
+"category": "security_other",
+"file": "backend/app/main.py",
+"line_start": 24,
+"line_end": 24,
+"related_file": "backend/app/trace/tracer.py",
+"related_line": 7,
+"what": "SESSIONS and TRACE_STORE are process dicts with no expiry or size cap. Memory grows with every new run_id",
+"keep_rewrite_throwaway": "rewrite",
+"confidence": "medium"
+},
+{
+"category": "security_other",
+"file": "backend/app/main.py",
+"line_start": 67,
+"line_end": 67,
+"what": "Raw exception text is returned to the client in the 500 error detail",
+"keep_rewrite_throwaway": "rewrite",
+"confidence": "low"
+},
+{
+"category": "security_other",
+"file": "backend/app/main.py",
+"line_start": 78,
+"line_end": 83,
+"what": "The customer-facing chat response includes the full internal trace with tool inputs, tool outputs and token counts",
+"keep_rewrite_throwaway": "rewrite",
+"confidence": "low"
+},
+{
+"category": "fake_action",
+"file": "backend/app/agent/graph.py",
+"line_start": 66,
+"line_end": 73,
+"related_file": "backend/app/agent/prompts.py",
+"related_line": 17,
+"what": "The decision badge comes from a keyword scan over all messages. When recent tool output has no keyword, it matches the user's own text or the system prompt, which contains APPROVED. The UI can show an APPROVED badge after a plain customer lookup or policy question",
+"keep_rewrite_throwaway": "rewrite",
+"confidence": "medium"
+},
+{
+"category": "hardcoded_config",
+"file": "backend/app/engine/eligibility.py",
+"line_start": 4,
+"line_end": 5,
+"related_file": "backend/app/config.py",
+"related_line": 7,
+"what": "REFUND_WINDOW_DAYS = 30 and ESCALATION_THRESHOLD = 500.0 are hardcoded. config.py reads the same values from env but is never imported, so .env changes do nothing. $500 is also hardcoded in prompts.py line 12 and refund_policy.md",
+"keep_rewrite_throwaway": "rewrite",
+"confidence": "high"
+},
+{
+"category": "hardcoded_config",
+"file": "backend/app/main.py",
+"line_start": 19,
+"line_end": 19,
+"what": "CORS allowed origin hardcoded to http://localhost:5173",
+"keep_rewrite_throwaway": "rewrite",
+"confidence": "low"
+},
+{
+"category": "hardcoded_config",
+"file": "frontend/vite.config.ts",
+"line_start": 8,
+"line_end": 8,
+"what": "Dev proxy hardcoded to http://localhost:8000",
+"keep_rewrite_throwaway": "keep",
+"confidence": "low"
+}
+]
+}

@@ -1,0 +1,342 @@
+{
+ "repo": "perfectcse__refund-ai-customer-support-agent",
+ "sha": "c9b397b57db123fd5b6db3042085c1108be2ff14",
+ "labeler": "s-label-01",
+ "files_reviewed": [
+  "src/lib/agent/agent.js",
+  "src/lib/agent/tools.js",
+  "src/lib/agent/prompts.js (empty file)",
+  "src/lib/agent/local-agent.js",
+  "src/app/api/agent/route.js",
+  "src/lib/crm/crm.js",
+  "src/lib/policy/refund-policy.js",
+  "src/lib/policy/policy-validator.js",
+  "src/data/orders.js",
+  "src/data/customers.js",
+  "src/app/chat/page.js",
+  "src/app/admin/page.js",
+  "src/app/page.js",
+  "src/app/layout.js",
+  "src/components/ChatWindow.jsx",
+  "src/components/ChatInput.jsx",
+  "src/components/MessageBubble.jsx",
+  "src/components/Navigation.jsx",
+  "next.config.mjs",
+  "package.json",
+  "jsconfig.json",
+  ".gitignore",
+  ".github/workflows/build.yml",
+  "AGENTS.md",
+  "CLAUDE.md",
+  "README.md (grep for env, mock and security claims)",
+  "CONTRIBUTING.md (grep)"
+ ],
+ "note": "No .env or .env.example is committed (.env* is gitignored). The OpenAI call runs only on the server, so there is no ai_browser_call. prompts.js is empty. The system prompt lives in agent.js. All customers, orders and refunds are in-memory mock data. The README says refunds are simulated, but the UI and API return 'Refund processed successfully' with no caveat.",
+ "labels": [
+  {
+   "category": "mock_data",
+   "file": "src/data/orders.js",
+   "line_start": 1,
+   "line_end": 182,
+   "what": "15 hardcoded orders serve as the CRM. All delivery dates are in Jul-Aug 2026, so the 7-day window check against the real clock now denies the demo 'successful refund' order ORD-2001",
+   "keep_rewrite_throwaway": "throwaway",
+   "confidence": "high"
+  },
+  {
+   "category": "mock_data",
+   "file": "src/data/customers.js",
+   "line_start": 1,
+   "line_end": 107,
+   "what": "15 fake customers with example.com emails and placeholder +91-90000000xx phones, used as the customer database",
+   "keep_rewrite_throwaway": "throwaway",
+   "confidence": "high"
+  },
+  {
+   "category": "mock_data",
+   "file": "src/app/admin/page.js",
+   "line_start": 7,
+   "line_end": 29,
+   "what": "Hardcoded demo scenarios with an expectedDecision field. The page later shows expectedDecision as the real result (see fake_action labels)",
+   "keep_rewrite_throwaway": "throwaway",
+   "confidence": "low"
+  },
+  {
+   "category": "ai_fake_tool",
+   "file": "src/lib/crm/crm.js",
+   "line_start": 4,
+   "line_end": 6,
+   "related_file": "src/lib/agent/tools.js",
+   "related_line": 239,
+   "what": "getCustomer tool reads the hardcoded customers array, not a CRM",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "high"
+  },
+  {
+   "category": "ai_fake_tool",
+   "file": "src/lib/crm/crm.js",
+   "line_start": 8,
+   "line_end": 10,
+   "related_file": "src/lib/agent/tools.js",
+   "related_line": 245,
+   "what": "getOrder tool reads the hardcoded orders array",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "high"
+  },
+  {
+   "category": "ai_fake_tool",
+   "file": "src/lib/crm/crm.js",
+   "line_start": 12,
+   "line_end": 14,
+   "related_file": "src/lib/agent/tools.js",
+   "related_line": 242,
+   "what": "getCustomerOrders tool filters the hardcoded orders array",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "high"
+  },
+  {
+   "category": "ai_fake_tool",
+   "file": "src/lib/agent/tools.js",
+   "line_start": 42,
+   "line_end": 88,
+   "what": "processRefund sets refundStatus on the in-memory order and returns a made-up REF-<timestamp> id with 'Refund processed successfully'. No payment provider is called and the change is lost on restart",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "high"
+  },
+  {
+   "category": "ai_fake_tool",
+   "file": "src/lib/agent/local-agent.js",
+   "line_start": 10,
+   "line_end": 234,
+   "related_file": "src/lib/agent/agent.js",
+   "related_line": 99,
+   "what": "On an OpenAI 429 or quota error the agent silently switches to a regex script that pulls CUS-/ORD- ids from the last message and runs the refund chain. The home page (src/app/page.js 63-68) sells this as a reliable agent",
+   "keep_rewrite_throwaway": "throwaway",
+   "confidence": "medium"
+  },
+  {
+   "category": "ai_prompt_only_rule",
+   "file": "src/lib/agent/agent.js",
+   "line_start": 78,
+   "line_end": 78,
+   "related_file": "src/lib/agent/tools.js",
+   "related_line": 42,
+   "what": "Prompt says always run checkRefundEligibility before approving. processRefund never checks that eligibility ran or passed, so the model can call it directly",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "high"
+  },
+  {
+   "category": "ai_prompt_only_rule",
+   "file": "src/lib/agent/agent.js",
+   "line_start": 79,
+   "line_end": 79,
+   "related_file": "src/lib/agent/tools.js",
+   "related_line": 42,
+   "what": "Prompt says never override the refund policy. processRefund does not check the 7-day window, non-refundable categories, damaged-item verification or order ownership",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "high"
+  },
+  {
+   "category": "ai_prompt_only_rule",
+   "file": "src/lib/agent/tools.js",
+   "line_start": 210,
+   "line_end": 210,
+   "related_file": "src/lib/agent/tools.js",
+   "related_line": 42,
+   "what": "Tool description says process a refund only after eligibility is confirmed and the amount calculated. The execute code enforces neither",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "ai_prompt_only_rule",
+   "file": "src/lib/agent/agent.js",
+   "line_start": 82,
+   "line_end": 83,
+   "related_file": "src/lib/agent/agent.js",
+   "related_line": 162,
+   "what": "Prompt says do not claim a refund was processed unless the tool confirms it. The final model text goes to the customer with no check against tool results",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "ai_no_human_review",
+   "file": "src/lib/agent/tools.js",
+   "line_start": 42,
+   "line_end": 88,
+   "related_file": "src/lib/agent/agent.js",
+   "related_line": 199,
+   "what": "processRefund runs as soon as the model calls it. There is no staff approval and no customer confirm step before money would move",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "high"
+  },
+  {
+   "category": "ai_no_human_review",
+   "file": "src/lib/agent/local-agent.js",
+   "line_start": 137,
+   "line_end": 192,
+   "related_file": "src/lib/policy/policy-validator.js",
+   "related_line": 75,
+   "what": "Damaged items return eligible true with requiresVerification true. Nothing reads requiresVerification, so the fallback agent refunds any damaged item inside the 7-day window with no verification step",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "high"
+  },
+  {
+   "category": "ai_tool_unbounded",
+   "file": "src/lib/agent/tools.js",
+   "line_start": 42,
+   "line_end": 88,
+   "what": "processRefund checks only amount > 0, amount <= order amount and not already refunded. It takes no customerId, so there is no ownership check, no eligibility check and no per-session refund cap",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "hardcoded_config",
+   "file": "src/lib/policy/refund-policy.js",
+   "line_start": 99,
+   "line_end": 105,
+   "related_file": "src/lib/policy/policy-validator.js",
+   "related_line": 75,
+   "what": "Two checkRefundEligibility functions disagree. refund-policy.js denies damaged items and checks not-yet-delivered, while policy-validator.js (the one the tools import) approves damaged items and floors the day count",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "hardcoded_config",
+   "file": "src/lib/policy/refund-policy.js",
+   "line_start": 4,
+   "line_end": 4,
+   "what": "refundWindowDays = 7 in code, repeated as literal text in lines 9 and 88, so a policy change needs three edits",
+   "keep_rewrite_throwaway": "keep",
+   "confidence": "low"
+  },
+  {
+   "category": "hardcoded_config",
+   "file": "src/lib/agent/tools.js",
+   "line_start": 34,
+   "line_end": 34,
+   "what": "Currency INR hardcoded in calculateRefund and again in processRefund (line 83)",
+   "keep_rewrite_throwaway": "keep",
+   "confidence": "low"
+  },
+  {
+   "category": "hardcoded_config",
+   "file": "src/lib/agent/agent.js",
+   "line_start": 130,
+   "line_end": 141,
+   "what": "maxIterations 6 and model gpt-4o-mini hardcoded",
+   "keep_rewrite_throwaway": "keep",
+   "confidence": "low"
+  },
+  {
+   "category": "fake_action",
+   "file": "src/app/admin/page.js",
+   "line_start": 73,
+   "line_end": 73,
+   "what": "When the API returns no decision, the admin card shows the scenario's expectedDecision. The OpenAI path never returns a decision, so the dashboard shows APPROVED or DENIED from the script, not from the agent",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "high"
+  },
+  {
+   "category": "fake_action",
+   "file": "src/app/admin/page.js",
+   "line_start": 78,
+   "line_end": 82,
+   "what": "On an API error the catch block sets the decision to expectedDecision, so a failed run still shows the expected outcome",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "high"
+  },
+  {
+   "category": "fake_action",
+   "file": "src/app/admin/page.js",
+   "line_start": 246,
+   "line_end": 246,
+   "what": "Refund Mode shows 'Live' because refund.mode is never set, even though every refund is mock",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "fake_action",
+   "file": "src/app/admin/page.js",
+   "line_start": 111,
+   "line_end": 111,
+   "what": "'System online' badge is static text with no health check",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "low"
+  },
+  {
+   "category": "fake_action",
+   "file": "src/app/chat/page.js",
+   "line_start": 96,
+   "line_end": 96,
+   "what": "'Online' status is static text with no health check",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "low"
+  },
+  {
+   "category": "auth_gap",
+   "file": "src/app/admin/page.js",
+   "line_start": 31,
+   "line_end": 258,
+   "what": "Admin dashboard has no login or role check, and its Run button triggers real refund processing through /api/agent",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "high"
+  },
+  {
+   "category": "auth_gap",
+   "file": "src/app/api/agent/route.js",
+   "line_start": 4,
+   "line_end": 44,
+   "what": "/api/agent has no authentication. Anyone can request refunds",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "high"
+  },
+  {
+   "category": "auth_gap",
+   "file": "src/lib/agent/tools.js",
+   "line_start": 238,
+   "line_end": 245,
+   "related_file": "src/lib/agent/local-agent.js",
+   "related_line": 14,
+   "what": "The only identity is a customer id typed in chat (sequential CUS-1001 style). getCustomer returns that customer's email and phone, and refunds run for whoever names the id",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "high"
+  },
+  {
+   "category": "security_other",
+   "file": "src/app/api/agent/route.js",
+   "line_start": 8,
+   "line_end": 21,
+   "related_file": "src/lib/agent/agent.js",
+   "related_line": 122,
+   "what": "The client sends the whole messages array and the server passes it into the model conversation as-is. A caller can inject system, assistant or tool messages to override the rules",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "high"
+  },
+  {
+   "category": "security_other",
+   "file": "src/app/api/agent/route.js",
+   "line_start": 4,
+   "line_end": 44,
+   "what": "No rate limit and no size limit on the messages array for a paid OpenAI endpoint (up to 6 model calls per request)",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "high"
+  },
+  {
+   "category": "security_other",
+   "file": "src/app/api/agent/route.js",
+   "line_start": 33,
+   "line_end": 42,
+   "what": "Raw error.message is returned to the client",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "low"
+  },
+  {
+   "category": "security_other",
+   "file": "src/lib/agent/agent.js",
+   "line_start": 47,
+   "line_end": 49,
+   "what": "Falls back to OPENAI_ADMIN_KEY for ordinary chat calls, so an admin-scoped key could serve public traffic",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "low"
+  }
+ ]
+}

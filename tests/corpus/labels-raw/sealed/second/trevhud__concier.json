@@ -1,0 +1,449 @@
+{
+ "repo": "trevhud__concier",
+ "sha": "50a421a2cf1b12520eedda6933ea98871cf8bcf5",
+ "labeler": "s2-label-08",
+ "files_reviewed": [
+  "src/services/ai/claude-client.ts",
+  "src/mcp/tools/payments.ts",
+  "src/mcp/tools/flights.ts",
+  "src/mcp/tools/hotels.ts",
+  "src/mcp/tools/user-profile.ts",
+  "src/mcp/schemas/tools.ts",
+  "src/utils/config.ts",
+  "src/utils/logger.ts",
+  "src/websocket-server.ts",
+  "src/http-server.ts",
+  "src/index.ts",
+  "src/services/duffel/flight-client.ts",
+  "src/services/duffel/stays-client.ts",
+  "src/services/routing/router.ts",
+  "src/mcp/resources/index.ts",
+  "src/mcp/prompts/index.ts (grep)",
+  "src/services/amadeus/client.ts (grep)",
+  ".env.example",
+  "frontend/.env.example",
+  "mcp-config.json.example",
+  "supabase/migrations/20250716200443_create_user_profiles_table.sql",
+  "supabase/migrations/20250719020000_migrate_to_authenticated_users.sql",
+  "frontend/src/lib/supabase.js",
+  "frontend/src/contexts/AuthContext.js",
+  "frontend/src/hooks/useUserProfile.js",
+  "frontend/src/hooks/useWebSocket.js",
+  "frontend/src/App.js",
+  "frontend/src/index.js",
+  "frontend/src/components/PaymentModal.js",
+  "frontend/src/components/PaymentPage.js",
+  "frontend/src/components/PaymentForm.js",
+  "frontend/src/components/ChatInterface.js",
+  "frontend/src/components/UserProfile.js (lines 1-70)",
+  "frontend/src/components/Auth.js (lines 100-160)",
+  "frontend/src/components/FlightCard.js (grep)",
+  "frontend/src/components/MessageList.js (grep)",
+  "frontend/src/components/FloatingSidebar.js (grep)",
+  "frontend/package.json (grep)",
+  "package.json (grep)",
+  ".github/workflows/integration-tests.yml (grep)",
+  ".github/workflows/unit-tests.yml (grep)",
+  "Makefile (grep)",
+  "tests/test-booking-demo.js (head)"
+ ],
+ "note": "Claude is called only from the Node server. No model key reaches the browser. No committed .env and no real secrets were found. The only browser key is the Supabase anon key. The user_profiles table has no RLS in the first migration, but the second migration enables RLS with auth.uid() policies, so no database_rules label is given. The server-side profile tools use the anon key with no user session, so under RLS they cannot read or write and fail quietly. cancelFlightOrder and payForHeldOrder in flights.ts, getHotelAvailability and getHotelDetails in hotels.ts, router.ts, the Amadeus client and MCP resources and prompts are not wired to the model or routes, so they get no labels. Not reviewed: docs/, README.md, CLAUDE.md, frontend design docs, src/tests and tests/ scripts (test fixtures), lockfiles.",
+ "labels": [
+  {
+   "category": "note_public_key",
+   "file": "frontend/src/lib/supabase.js",
+   "line_start": 3,
+   "line_end": 6,
+   "what": "Supabase anon key read from REACT_APP_SUPABASE_ANON_KEY into the browser bundle (placeholder in frontend/.env.example line 2). Public by design.",
+   "keep_rewrite_throwaway": "keep",
+   "confidence": "high"
+  },
+  {
+   "category": "ai_no_human_review",
+   "file": "src/mcp/tools/flights.ts",
+   "line_start": 95,
+   "line_end": 163,
+   "related_file": "src/services/ai/claude-client.ts",
+   "related_line": 93,
+   "what": "book_flight creates a real Duffel order as soon as the model calls it. The system prompt says to book immediately from saved profile data without asking, and clicking a flight card sends the booking request (ChatInterface.js lines 66-78). There is no step where the user confirms passenger details or price.",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "high"
+  },
+  {
+   "category": "ai_no_human_review",
+   "file": "src/mcp/tools/hotels.ts",
+   "line_start": 100,
+   "line_end": 122,
+   "what": "book_hotel creates a real Duffel Stays quote and booking straight from the model call, with no user confirmation of rate, dates or guest.",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "high"
+  },
+  {
+   "category": "ai_no_human_review",
+   "file": "src/mcp/tools/user-profile.ts",
+   "line_start": 32,
+   "line_end": 69,
+   "related_file": "src/services/ai/claude-client.ts",
+   "related_line": 119,
+   "what": "update_user_profile writes name, email, phone and date of birth that the model pulled from chat, without asking the user. The prompt says to save as a background step.",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "low"
+  },
+  {
+   "category": "ai_tool_unbounded",
+   "file": "src/mcp/tools/hotels.ts",
+   "line_start": 100,
+   "line_end": 122,
+   "related_file": "src/services/duffel/stays-client.ts",
+   "related_line": 78,
+   "what": "book_hotel books a real stay from model-supplied property and rate ids. It never collects payment from the guest (the 'mock payment' object is ignored by stays-client.ts lines 73-95), checks no price and sets no limit on bookings.",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "high"
+  },
+  {
+   "category": "ai_tool_unbounded",
+   "file": "src/mcp/tools/flights.ts",
+   "line_start": 137,
+   "line_end": 163,
+   "what": "book_flight creates a hold order for any offer id the model sends. No check that the price matches what the user saw and no limit on repeat bookings. Args are not validated, so the model can send payment and booking_type instant to reach lines 141-151, which pay from the Duffel balance with a model-supplied amount.",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "high"
+  },
+  {
+   "category": "ai_tool_unbounded",
+   "file": "src/mcp/tools/user-profile.ts",
+   "line_start": 50,
+   "line_end": 69,
+   "what": "update_user_profile upserts PII for any device_id the model chooses and overwrites an existing profile. Field values are not validated.",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "ai_prompt_only_rule",
+   "file": "src/services/ai/claude-client.ts",
+   "line_start": 110,
+   "line_end": 110,
+   "related_file": "src/mcp/tools/flights.ts",
+   "related_line": 95,
+   "what": "'DO NOT call book_flight multiple times' is only in the prompt (also line 225). book_flight has no duplicate check. processWithToolResults (lines 239-244) calls Claude without the system prompt, so the rule is missing after the first tool call.",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "high"
+  },
+  {
+   "category": "ai_prompt_only_rule",
+   "file": "src/services/ai/claude-client.ts",
+   "line_start": 83,
+   "line_end": 84,
+   "related_file": "src/mcp/tools/flights.ts",
+   "related_line": 17,
+   "what": "Dates must be valid YYYY-MM-DD dates in the future. search_flights passes dates through with no check.",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "ai_prompt_only_rule",
+   "file": "src/services/ai/claude-client.ts",
+   "line_start": 120,
+   "line_end": 120,
+   "related_file": "src/mcp/tools/user-profile.ts",
+   "related_line": 118,
+   "what": "Which profile a web user may touch is set only by a prompt line (device_id 'web_session_' + timestamp). get_user_profile and update_user_profile accept any device_id.",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "ai_fake_tool",
+   "file": "src/mcp/tools/payments.ts",
+   "line_start": 99,
+   "line_end": 126,
+   "what": "get_payment_status always returns status pending. The code comment says it returns a mock status and never checks Duffel.",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "high"
+  },
+  {
+   "category": "ai_fake_tool",
+   "file": "src/mcp/tools/flights.ts",
+   "line_start": 113,
+   "line_end": 135,
+   "what": "For offers that need instant payment, book_flight returns success true with booking_reference PENDING_PAYMENT and the offer id as order id. No order is created.",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "fake_action",
+   "file": "src/http-server.ts",
+   "line_start": 79,
+   "line_end": 159,
+   "related_file": "frontend/src/components/PaymentForm.js",
+   "related_line": 97,
+   "what": "process-payment takes the tokenized card_id but never uses it. Every booking or payment is paid with payment_type balance from the operator's Duffel account, and the UI shows 'Payment Successful! Your booking is confirmed' (PaymentForm.js lines 243-254). The customer's card is never charged.",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "high"
+  },
+  {
+   "category": "fake_action",
+   "file": "src/http-server.ts",
+   "line_start": 295,
+   "line_end": 301,
+   "what": "confirmPaymentIntent is a mock that always returns status succeeded. It is exposed at POST /api/payment-intents/:id/confirm (lines 166-175).",
+   "keep_rewrite_throwaway": "throwaway",
+   "confidence": "high"
+  },
+  {
+   "category": "fake_action",
+   "file": "src/http-server.ts",
+   "line_start": 189,
+   "line_end": 215,
+   "what": "createPaymentIntent returns a made-up id pi_<timestamp> and no payment intent is created with Duffel. The same happens for orders at lines 229-243.",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "fake_action",
+   "file": "frontend/src/components/PaymentForm.js",
+   "line_start": 323,
+   "line_end": 350,
+   "what": "On the standalone payment page, offers that need instant payment show 'Secure Payment Ready' and 'For demo purposes' text, with no card form or pay button. Payment cannot be finished.",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "fake_action",
+   "file": "src/websocket-server.ts",
+   "line_start": 217,
+   "line_end": 222,
+   "related_file": "src/mcp/tools/user-profile.ts",
+   "related_line": 64,
+   "what": "Sends 'Profile information saved' after update_user_profile no matter what the tool returned. The tool uses the anon key with no user session against an RLS table keyed on auth.uid(), so writes are expected to fail.",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "auth_gap",
+   "file": "src/websocket-server.ts",
+   "line_start": 69,
+   "line_end": 104,
+   "what": "The /ws chat endpoint has no authentication. Anyone who connects can run search, book_flight, book_hotel and profile tools.",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "high"
+  },
+  {
+   "category": "auth_gap",
+   "file": "src/websocket-server.ts",
+   "line_start": 347,
+   "line_end": 379,
+   "related_file": "frontend/src/components/ChatInterface.js",
+   "related_line": 74,
+   "what": "isAuthenticated and the profile come from the client message and are trusted as is. The server never checks a Supabase session, so any client can claim to be signed in with any identity.",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "high"
+  },
+  {
+   "category": "auth_gap",
+   "file": "src/http-server.ts",
+   "line_start": 77,
+   "line_end": 164,
+   "what": "POST /api/process-payment has no auth. Anyone can send an offer or order id plus passenger_info and book or pay for flights from the operator's Duffel balance.",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "high"
+  },
+  {
+   "category": "auth_gap",
+   "file": "src/http-server.ts",
+   "line_start": 34,
+   "line_end": 38,
+   "what": "POST /clear_chat has no auth and clears every connected user's chat history.",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "auth_gap",
+   "file": "src/http-server.ts",
+   "line_start": 47,
+   "line_end": 57,
+   "what": "POST /api/component-client-key has no auth. It mints a Duffel component client key for any order id.",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "auth_gap",
+   "file": "src/http-server.ts",
+   "line_start": 60,
+   "line_end": 74,
+   "what": "POST /api/payment-intents has no auth. It returns the amount and currency of any Duffel order or offer id.",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "low"
+  },
+  {
+   "category": "auth_gap",
+   "file": "src/mcp/tools/user-profile.ts",
+   "line_start": 105,
+   "line_end": 124,
+   "what": "get_user_profile returns name, email, phone and date of birth for any device_id the model passes. It is not bound to the caller.",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "security_other",
+   "file": "src/websocket-server.ts",
+   "line_start": 355,
+   "line_end": 365,
+   "what": "Client-sent profile fields are joined into a [SYSTEM CONTEXT] message with no guard. That message tells the model to book automatically, so a crafted profile can steer bookings.",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "high"
+  },
+  {
+   "category": "security_other",
+   "file": "src/websocket-server.ts",
+   "line_start": 82,
+   "line_end": 93,
+   "what": "No rate limit or message size cap on the WebSocket chat. Each message runs paid Claude calls (up to 5 tool rounds) and Duffel API calls.",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "high"
+  },
+  {
+   "category": "security_other",
+   "file": "src/websocket-server.ts",
+   "line_start": 55,
+   "line_end": 58,
+   "what": "WebSocket server does not check the Origin header, so any website can open a socket from a visitor's browser.",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "security_other",
+   "file": "src/http-server.ts",
+   "line_start": 25,
+   "line_end": 25,
+   "what": "cors() with defaults allows every origin on the payment endpoints.",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "security_other",
+   "file": "src/websocket-server.ts",
+   "line_start": 186,
+   "line_end": 188,
+   "what": "Full tool arguments and results, including passenger name, email, phone and date of birth, are logged here and at lines 238, 456 and 513. Also flights.ts line 97 and flight-client.ts lines 115 and 232.",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "security_other",
+   "file": "src/websocket-server.ts",
+   "line_start": 386,
+   "line_end": 402,
+   "what": "If the model text contains 'Opening the secure payment form', a regex pulls Order ID and Amount from the text and opens the payment modal with those values.",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "low"
+  },
+  {
+   "category": "security_other",
+   "file": "src/mcp/tools/payments.ts",
+   "line_start": 11,
+   "line_end": 50,
+   "what": "generate_payment_link takes amount and currency from model args and does not look them up from the order. The payment modal shows that amount. The server re-reads the real price when it charges.",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "low"
+  },
+  {
+   "category": "security_other",
+   "file": "frontend/src/hooks/useWebSocket.js",
+   "line_start": 8,
+   "line_end": 28,
+   "what": "Full chat history, including passenger PII typed into chat, is saved to localStorage and never expires.",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "low"
+  },
+  {
+   "category": "hardcoded_config",
+   "file": "src/services/ai/claude-client.ts",
+   "line_start": 35,
+   "line_end": 36,
+   "what": "Model id claude-3-5-sonnet-20241022 and max_tokens 3000 hardcoded, repeated at lines 240-241 and 315-316.",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "hardcoded_config",
+   "file": "src/services/duffel/flight-client.ts",
+   "line_start": 46,
+   "line_end": 46,
+   "what": "Flight search always sends one adult passenger and ignores the adults argument, so prices are for one person whatever the user asked.",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "hardcoded_config",
+   "file": "src/mcp/tools/hotels.ts",
+   "line_start": 112,
+   "line_end": 115,
+   "what": "Payment type balance and currency USD hardcoded for hotel bookings (passed, then ignored by the stays client).",
+   "keep_rewrite_throwaway": "throwaway",
+   "confidence": "medium"
+  },
+  {
+   "category": "hardcoded_config",
+   "file": "src/http-server.ts",
+   "line_start": 139,
+   "line_end": 151,
+   "what": "payment_type balance hardcoded for all customer payments. Currency defaults to USD at line 62.",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "hardcoded_config",
+   "file": "src/services/duffel/stays-client.ts",
+   "line_start": 30,
+   "line_end": 30,
+   "what": "Every hotel guest is sent with age 25.",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "low"
+  },
+  {
+   "category": "hardcoded_config",
+   "file": "src/mcp/tools/payments.ts",
+   "line_start": 18,
+   "line_end": 18,
+   "what": "Payment link base URL falls back to http://localhost:8080.",
+   "keep_rewrite_throwaway": "keep",
+   "confidence": "low"
+  },
+  {
+   "category": "hardcoded_config",
+   "file": "src/mcp/tools/flights.ts",
+   "line_start": 305,
+   "line_end": 305,
+   "what": "Same localhost:8080 fallback in an unused private generatePaymentLink.",
+   "keep_rewrite_throwaway": "throwaway",
+   "confidence": "low"
+  },
+  {
+   "category": "hardcoded_config",
+   "file": "src/http-server.ts",
+   "line_start": 268,
+   "line_end": 274,
+   "what": "Duffel URL and API version v2 hardcoded, and the token read straight from process.env instead of CONFIG (config.ts lines 9-10).",
+   "keep_rewrite_throwaway": "keep",
+   "confidence": "low"
+  },
+  {
+   "category": "hardcoded_config",
+   "file": "src/services/duffel/flight-client.ts",
+   "line_start": 53,
+   "line_end": 53,
+   "what": "Search results capped at 10 offers in code.",
+   "keep_rewrite_throwaway": "keep",
+   "confidence": "low"
+  },
+  {
+   "category": "hardcoded_config",
+   "file": "src/websocket-server.ts",
+   "line_start": 438,
+   "line_end": 438,
+   "what": "ReAct loop max 5 iterations hardcoded. Chat history window of 20 messages is hardcoded in claude-client.ts line 144.",
+   "keep_rewrite_throwaway": "keep",
+   "confidence": "low"
+  }
+ ]
+}

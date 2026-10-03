@@ -23,3 +23,10 @@ These rules picked the repos of the `sealed` split. I wrote them on 2026-10-04, 
 - The second labelers started after the first labels landed and before any vibexray run on the set. They never read the first labels.
 - After both labels land, nobody reads them, changes them, or checks which of them vibexray missed.
 - vibexray runs on the set once, at one commit, and the README publishes the result as it comes out.
+
+## The two labelers gave 846 labels after the merge
+
+- The first labelers gave 638 labels. The second labelers gave 702 labels.
+- `scripts/merge_labels.py` joined them into 846 labels in `tests/corpus/labels/`.
+- `labels-raw/sealed/first/` and `labels-raw/sealed/second/` keep both raw sets for audit.
+- One second labeler used two helper agents on `mentee-global__mentee`. The helpers followed the same labeling prompt.

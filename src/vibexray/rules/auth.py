@@ -152,7 +152,8 @@ _INTERNAL_FN = re.compile(
 _FN_SECTION = re.compile(r"^\s*\[functions\.([\w-]+)\]\s*\n\s*(verify_jwt\s*=\s*false)", re.M)
 _OWN_CHECK = re.compile(
     r"getUser|getSession|headers\.get\(\s*['\"][Aa]uthorization|verifyToken|has_role|webhook[-_ ]?secret|CRON_SECRET"
-    r"|x-webhook|timingSafeEqual|constructEvent|verify_?[Ss]ignature"
+    r"|x-webhook|timingSafeEqual|constructEvent|verify_?[Ss]ignature|pairing_code"
+    r"|headers\.get\(\s*['\"][\w-]*(?:[Tt]oken|[Kk]ey|[Ss]ecret|[Ss]ignature)[\w-]*['\"]"
 )
 
 

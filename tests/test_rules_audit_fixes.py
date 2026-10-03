@@ -99,3 +99,29 @@ def test_labeled_demo_mode_is_not_mock_data_or_a_fake_delay():
     demo_wait = line_with(key, "650")
     assert [f for f in run("fake-delay-loader", key) if f.line == demo_wait] == []
     assert [f for f in run("settimeout-success", key) if f.line == demo_wait] == []
+
+
+YANA_CFG = "yana-contabila/supabase/config.toml"
+YANA_FN = "yana-contabila/supabase/functions/"
+
+
+def _flagged_sections(*names: str) -> set[str]:
+    lines = fx(YANA_CFG).text.splitlines()
+    keys = [YANA_FN + n + "/index.ts" for n in names]
+    found = run("auth-disabled-flag", YANA_CFG, *keys)
+    return {lines[f.line - 2].strip() for f in found if f.file.endswith("config.toml")}
+
+
+def test_open_jwt_is_flagged_when_the_function_trusts_a_user_id_from_the_body():
+    # capture-soul-state and awaken-yana read userId from the request body and never check the caller.
+    flagged = _flagged_sections("capture-soul-state", "awaken-yana")
+    assert "[functions.capture-soul-state]" in flagged
+    assert "[functions.awaken-yana]" in flagged
+
+
+def test_open_jwt_is_clean_when_the_function_checks_a_device_token_header():
+    assert "[functions.yana-local-bridge]" not in _flagged_sections("yana-local-bridge")
+
+
+def test_open_jwt_is_clean_for_a_one_time_pairing_code_exchange():
+    assert "[functions.yana-local-claim]" not in _flagged_sections("yana-local-claim")

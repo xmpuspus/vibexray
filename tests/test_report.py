@@ -1,7 +1,7 @@
 """Report tests. Every scan here runs the real rules on real prototype code."""
 
-import copy
 import dataclasses
+import json
 import re
 from html import escape, unescape
 from pathlib import Path
@@ -17,9 +17,11 @@ from vibexray.report import write_reports
 from vibexray.report.common import KEY
 from vibexray.report.html import render_html
 from vibexray.report.markdown import render_markdown
+from vibexray.review import apply_review
 
 FIXTURES = Path(__file__).parent / "fixtures"
 SESSIONS = FIXTURES / "sessions"
+REVIEW = FIXTURES / "review"
 SECTIONS = ("decisions", "parts", "fake", "risks", "app", "chat", "engineer")
 
 
@@ -239,18 +241,24 @@ def test_every_card_and_finding_names_its_source(sliceiq):
     assert md.count("- Found by a rule.") == len(sliceiq.findings)
 
 
-def test_review_findings_show_whether_the_line_was_checked(sliceiq):
-    # No AI review output exists yet, so two real rule findings take the review source.
-    # Their file, line, and snippet stay real. Only the source fields change.
-    first, second = (copy.copy(f) for f in sliceiq.findings[:2])
-    first.source, first.verified = "review", True
-    second.source, second.verified = "review", False
-    result = dataclasses.replace(sliceiq, findings=[first, second, *sliceiq.findings[2:]])
-    html, md = render_html(result), render_markdown(result)
-    for doc in (html, md):
-        assert "Found by AI review, line checked" in doc
-        assert "Found by AI review, line not checked" in doc
-    assert "Found by a rule" in html
+def test_real_review_findings_show_their_source_and_location(tmp_path):
+    # review.json came from a real Claude Code review of this repo copy.
+    out = tmp_path / "out"
+    result = scan(REVIEW / "Snodrod__ai-support-agent", out, run=False, history_mode="none")
+    write_reports(result, out)
+    apply_review(out, REVIEW / "review.json")
+    html, md = (out / "report.html").read_text(), (out / "handoff.md").read_text()
+    data = json.loads((out / "vibexray.json").read_text())
+    reviewed = [f for f in data["findings"] if f["source"] == "review"]
+    assert reviewed
+    for f in reviewed:
+        assert escape(f"{f['file']}:{f['line']}") in html
+        assert f"{f['file']}:{f['line']}" in md
+    cards = html.count('<article class="card')
+    checked = html.count("Found by AI review, line checked")
+    assert checked == len({f["pm_text"] for f in reviewed})
+    assert html.count("Found by a rule") == cards - checked
+    assert md.count("- Found by AI review, line checked.") == len(reviewed)
 
 
 def test_write_reports_writes_the_new_documents(sliceiq, tmp_path):

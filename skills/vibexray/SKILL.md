@@ -25,7 +25,7 @@ vibexray checks each review finding line by line. It keeps a finding only if the
    python3 scripts/run_vibexray.py scan <folder> --out <folder>/vibexray-report
    ```
 
-   Run the scan in the foreground and wait until it ends. Never run it in the background. When it starts the app, it can take up to 10 minutes.
+   Run the scan in the foreground and wait until it ends. Never run it in the background. When it starts the app, it can take up to 10 minutes, so set the command timeout to 10 minutes.
 
    Add `--no-run` only if the user says not to start the app. If the command exits with an error, show the error and stop. If the app did not start, for example because a sandbox blocked it, the scan is still valid. Go on to step 3.
 3. Read `<folder>/vibexray-report/vibexray.json`. Use the rule findings as anchors. Open each cited file and line, and look for related problems near it.

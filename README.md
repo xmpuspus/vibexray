@@ -97,7 +97,7 @@ The command line runs the pattern rules, the app run, and the build-chat reader.
 ## How a scan works
 
 1. **Pattern rules.** 71 rules look for known shapes, such as a mock data import. Run `vibexray rules` to list them.
-2. **App run.** vibexray copies the prototype to a temporary folder and installs packages with `--ignore-scripts`. It starts the app with no keys from your shell, visits its pages, and stops every process it started.
+2. **App run.** vibexray copies the prototype to a temporary folder, without your `.env` files. It reuses your installed packages through a copy-on-write clone, or installs them with `--ignore-scripts`. It starts the app, visits its pages, and stops every process it started.
 3. **Build chat.** vibexray reads the Claude Code and Codex chats for this folder on this computer. It keeps only the prompts you typed. If you said "refunds over 100 dollars need a manager's approval" and the code has no such check, the report asks about it.
 4. **AI review.** The host agent, Claude Code or Codex, reads the code with a fixed checklist and writes `review.json`. Each finding must quote the exact code on the cited line.
 5. **Line check.** `vibexray review` opens each cited file and line. It keeps a finding only if the quote is on that line. It drops the others, so an invented finding never reaches the report.
@@ -127,7 +127,7 @@ The test set holds 23 public prototypes built with AI tools. Reviewers who never
 - It sends no code anywhere itself. The AI review runs in your own Claude Code or Codex session, under that tool's terms.
 - It goes online only for the app run, to download packages as `npm install` does. Use `--no-run` to stay offline.
 - It never shows a secret. Key-shaped values show as `sk-pro...[hidden]` in every output.
-- It never passes your keys to the app. The app starts with `PATH`, a temporary `HOME`, and `PORT` only.
+- It never passes your keys to the app. The copy leaves out your `.env` files, and the app starts with `PATH`, a temporary `HOME`, and `PORT` only.
 - It never reads another folder's chats. Use `--no-history` to skip the build chat.
 
 ## Command reference

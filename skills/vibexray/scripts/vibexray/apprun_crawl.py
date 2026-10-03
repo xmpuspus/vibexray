@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import contextlib
 import re
+import time
 from pathlib import Path
 from urllib.parse import urldefrag, urljoin, urlparse
 
@@ -12,6 +13,8 @@ from vibexray.model import Page
 from vibexray.rules.base import redact
 
 MAX_PAGES = 8
+# The whole crawl stops opening pages after this, so a scan fits a 10-minute shell timeout.
+CRAWL_SECONDS = 150
 RUN_EXTRA_HINT = "Install the run extra: pip install 'vibexray[run]'"
 ROUTE_JSX = re.compile(r"""<Route\b[^>]*?\bpath=\{?["'`]([^"'`]+)["'`]""", re.S)
 ROUTE_ARRAY = re.compile(r"""\bpath\s*:\s*["'`](/[^"'`]*)["'`]""")
@@ -132,7 +135,8 @@ def crawl(url: str, root: Path, out_dir: Path) -> list[Page]:
         browser = pw.chromium.launch(headless=True, timeout=30000)
         try:
             ctx = browser.new_context(viewport={"width": 1280, "height": 800})
-            while queue and len(pages) < MAX_PAGES:
+            deadline = time.monotonic() + CRAWL_SECONDS
+            while queue and len(pages) < MAX_PAGES and time.monotonic() < deadline:
                 path = queue.pop(0)
                 if path in seen:
                     continue

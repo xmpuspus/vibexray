@@ -4,6 +4,11 @@ from __future__ import annotations
 
 import re
 import shutil
+import signal
+import subprocess
+import sys
+import tempfile
+import threading
 import time
 from pathlib import Path
 
@@ -25,11 +30,12 @@ from vibexray.apprun_boot import (
 )
 from vibexray.apprun_crawl import RUN_EXTRA_HINT, crawl
 from vibexray.model import AppRun
+from vibexray.rules.base import is_env_file
 
 BOOT_SECONDS = 90
 COPY_SKIP = (".git", "node_modules", ".next", "dist", "build", "vibexray-report")
 BUILD_MISSING = re.compile(r"(not found|ENOENT|Cannot find).*\b(dist|build|\.next)\b", re.I)
-INSTALL_SECONDS = 600
+INSTALL_SECONDS = 300
 INSTALL_ARGS = {
     "npm": ["install", "--ignore-scripts", "--no-audit", "--no-fund"],
     "pnpm": ["install", "--ignore-scripts"],
@@ -53,12 +59,26 @@ def run_app(root: Path, out_dir: Path, enabled: bool) -> AppRun:
             "does not know how to start this app."
         )
     out_dir.mkdir(parents=True, exist_ok=True)
-    home = out_dir / ".vibexray-home"
-    run_dir = out_dir / ".vibexray-run"
-    home.mkdir(parents=True, exist_ok=True)
+    # The copy lives outside the user's folder, so a killed scan never leaves it there.
+    try:
+        run_dir = Path(tempfile.mkdtemp(prefix="vibexray-run-"))
+    except OSError as exc:
+        return AppRun(
+            state="could_not_boot",
+            reason=f"vibexray could not make a temporary folder for the app ({exc.strerror}).",
+        )
+    home = run_dir / "home"
+    home.mkdir()
+    previous = _trap_stop_signals()
     try:
         # Install and start in a copy, so the user's folder never changes.
-        work = _make_copy(root, run_dir / "app", out_dir)
+        try:
+            work = _make_copy(root, run_dir / "app", out_dir)
+        except (shutil.Error, OSError) as exc:
+            return AppRun(
+                state="could_not_boot",
+                reason="vibexray could not copy the app to start it. " + _copy_problem(exc),
+            )
         if pkg is not None:
             script = detect_script(pkg)
             if script is None:
@@ -83,8 +103,32 @@ def run_app(root: Path, out_dir: Path, enabled: bool) -> AppRun:
         )
     finally:
         reap_strays(home)
-        shutil.rmtree(home, ignore_errors=True)
         shutil.rmtree(run_dir, ignore_errors=True)
+        _restore_signals(previous)
+
+
+def _trap_stop_signals() -> dict | None:
+    """Turn SIGTERM and SIGHUP into SystemExit, so the cleanup in run_app always runs."""
+    if threading.current_thread() is not threading.main_thread():
+        return None
+
+    def stop(signum, _frame):
+        raise SystemExit(128 + signum)
+
+    return {s: signal.signal(s, stop) for s in (signal.SIGTERM, signal.SIGHUP)}
+
+
+def _restore_signals(previous: dict | None) -> None:
+    for sig, handler in (previous or {}).items():
+        signal.signal(sig, handler)
+
+
+def _copy_problem(exc: Exception) -> str:
+    # shutil.Error carries a list of (source, destination, reason) for each failed file.
+    if isinstance(exc, shutil.Error) and exc.args and isinstance(exc.args[0], list):
+        src, _, why = exc.args[0][0]
+        return f"It could not read {Path(src).name}: {str(why).split(': ')[0]}."
+    return f"{getattr(exc, 'strerror', None) or exc}."
 
 
 def _make_copy(root: Path, dest: Path, out_dir: Path) -> Path:
@@ -92,13 +136,37 @@ def _make_copy(root: Path, dest: Path, out_dir: Path) -> Path:
     out_resolved = out_dir.resolve()
 
     def ignore(folder: str, names: list[str]) -> set[str]:
-        return {n for n in names if n in skip or (Path(folder) / n).resolve() == out_resolved}
+        left_out = set()
+        for n in names:
+            path = Path(folder) / n
+            # .env files hold the user's keys. The app starts without them.
+            if (
+                n in skip
+                or is_env_file(n)
+                or path.resolve() == out_resolved
+                or not (path.is_symlink() or path.is_dir() or path.is_file())
+            ):
+                left_out.add(n)
+        return left_out
 
     shutil.copytree(root, dest, ignore=ignore, symlinks=True)
-    # Reuse the user's installed packages instead of installing again.
     if (root / "node_modules").is_dir():
-        (dest / "node_modules").symlink_to((root / "node_modules").resolve())
+        _clone(root / "node_modules", dest / "node_modules")
     return dest
+
+
+def _clone(src: Path, dest: Path) -> None:
+    """Copy node_modules copy-on-write, so caches the dev server writes stay in the copy.
+
+    APFS and Btrfs share the file blocks, so the clone costs almost no disk. If the clone
+    fails, the copy has no node_modules and the app run installs the packages instead.
+    """
+    if sys.platform == "darwin":
+        cmd = ["cp", "-cR", str(src), str(dest)]
+    else:
+        cmd = ["cp", "-R", "--reflink=auto", str(src), str(dest)]
+    if subprocess.run(cmd, capture_output=True).returncode != 0:
+        shutil.rmtree(dest, ignore_errors=True)
 
 
 def _boot_and_crawl(root, out_dir, home, command, cmd, manager) -> AppRun:

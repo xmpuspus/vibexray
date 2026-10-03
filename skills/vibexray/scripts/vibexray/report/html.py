@@ -61,6 +61,14 @@ def _section(sid: str, title: str, body: str, sub: str = "") -> str:
     return f'<section id="{sid}" class="sec"><h2>{title}</h2>{sub_html}{body}</section>'
 
 
+def _h1(r: ScanResult) -> str:
+    h1 = e(headline(r)).replace(" can break.", NB_BREAK)
+    # A short name like "yana-contabila" must not split at its hyphen. A long name may wrap.
+    if len(r.app_name) <= 20:
+        h1 = h1.replace(e(r.app_name), f'<span class="nw">{e(r.app_name)}</span>', 1)
+    return h1
+
+
 def _hero(r: ScanResult) -> str:
     fake, risky = parts_with(r, True), parts_with(r, False)
     counts = r.counts()
@@ -121,7 +129,7 @@ def _hero(r: ScanResult) -> str:
         )
     )
     return (
-        f'<div class="hero"><h1>{e(headline(r)).replace(" can break.", NB_BREAK)}</h1><p class="lede">{lede}</p>'
+        f'<div class="hero"><h1>{_h1(r)}</h1><p class="lede">{lede}</p>'
         f'<div class="stats">{stats}</div>'
         f'<p class="next"><b>Next step.</b> {step}</p><ul class="toc">{toc}</ul></div>'
     )
@@ -207,7 +215,8 @@ def _location(f: Finding, show_fix: bool) -> str:
     own = f'<p class="own"><b>Fix:</b> {e(f.engineer_text)}</p>' if show_fix else ""
     return (
         f"<li><details><summary><code>{_where(f.file, f.line)}</code>"
-        f'<span class="show">Show code</span></summary>'
+        f'<span class="show"><span class="op">Show code</span><span class="cl">Hide code</span>'
+        "</span></summary>"
         f"<pre><code>{e(f.snippet)}</code></pre>{rel}{own}</details></li>"
     )
 
@@ -234,14 +243,18 @@ def _card(fs: list[Finding], words: dict[str, str], heading: str) -> str:
     )
 
 
+def _checked(r: ScanResult, claim: str) -> str:
+    # An empty folder had nothing to check, so a sentence about checks would be false.
+    return claim if r.files_scanned else "vibexray found no source files to check in this folder."
+
+
 def _fake(r: ScanResult) -> str:
     found = by_group(r, "fake")
     if not found:
         return _section(
             "fake",
             EMPTY_FINDINGS,
-            '<p class="empty">vibexray checked every source file it could read. '
-            "It found no sample data, fake buttons, or fixed values posing as real ones.</p>",
+            f'<p class="empty">{_checked(r, "It found no sample data, fake buttons, or fixed values posing as real ones.")}</p>',
         )
     files = len({f.file for f in found})
     verb = "is" if len(found) == 1 else "are"
@@ -260,12 +273,14 @@ def _risks(r: ScanResult) -> str:
         (
             "Security",
             sec,
-            "No security risks found. vibexray checked logins, database rules, and keys.",
+            "No security risks found. "
+            + _checked(r, "vibexray checked logins, database rules, and keys."),
         ),
         (
             "The AI",
             ai,
-            "No AI risks found. vibexray checked how the app calls the AI and what its tools do.",
+            "No AI risks found. "
+            + _checked(r, "vibexray checked how the app calls the AI and what its tools do."),
         ),
     ):
         if found:
@@ -282,7 +297,7 @@ def _risks(r: ScanResult) -> str:
         )
     else:
         title = "Nothing found that can break"
-        sub = "vibexray found no security or AI risk in the code it read."
+        sub = _checked(r, "vibexray found no security or AI risk in the code it read.")
     return _section("risks", title, "".join(blocks), sub)
 
 
@@ -329,9 +344,13 @@ def _app(r: ScanResult) -> str:
         pages = "".join(_page(p) for p in run.pages)
         title = f"The app ran. vibexray opened {plural(len(run.pages), 'page')}."
         return _section("app", title, f'<div class="pages">{pages}</div>', sub)
-    title = "The app did not start" if run.state == "could_not_boot" else EMPTY_RUN
-    reason = f"{e(run.reason)} " if run.reason else ""
-    body = f'<p class="empty">{reason}The rest of this report comes from reading the code.</p>'
+    booted = run.state == "could_not_boot"
+    title = "The app did not start" if booted else "vibexray did not start the app"
+    reason = f" {e(run.reason)}" if run.reason else ""
+    body = (
+        f'<p class="empty">{EMPTY_RUN}{"." if booted else " in this scan."}{reason} '
+        "The rest of this report comes from reading the code.</p>"
+    )
     if run.missing_env:
         body += f'<p class="k">It needs these settings first</p>{_chips(run.missing_env, "")}'
     if run.command:
@@ -342,19 +361,34 @@ def _app(r: ScanResult) -> str:
 def _chat(r: ScanResult) -> str:
     h = r.history
     if h.source == "none" or not h.prompts:
-        note = e(h.note) if h.note else ""
+        note = f" {e(h.note)}" if h.note else ""
+        skipped = h.note.startswith("Skipped")
+        title = "vibexray skipped your build chat" if skipped else EMPTY_HISTORY
         body = (
-            f'<p class="empty">{note} vibexray looks for Claude Code '
-            "and Codex chats that ran in this folder.</p>"
+            f'<p class="empty">{EMPTY_HISTORY}{" in this scan" if skipped else ""}.{note} '
+            "vibexray looks for Claude Code and Codex chats that ran in this folder.</p>"
         )
-        return _section("chat", EMPTY_HISTORY, body)
-    rows = [f"<li><time>{e(p.when or 'No date')}</time><p>{e(p.text)}</p></li>" for p in h.prompts]
+        return _section("chat", title, body)
+    # The same prompt can reach both Claude Code and Codex. Show it once, with a count.
+    seen: dict[tuple[str, str], int] = {}
+    for p in h.prompts:
+        seen[(p.when, p.text)] = seen.get((p.when, p.text), 0) + 1
+    rows = []
+    for (when, text), times in seen.items():
+        rep = f'<p class="rep">You sent this {times} times.</p>' if times > 1 else ""
+        rows.append(f"<li><time>{e(when or 'No date')}</time><div><p>{e(text)}</p>{rep}</div></li>")
     title = f"You sent {plural(len(h.prompts), 'prompt')} in {plural(h.sessions, 'build chat')}"
     sub = f"From {e(chat_source(h.source))}. These are your own words, oldest first."
     return _section("chat", title, _more(rows, SHOWN_PROMPTS, "ol", "chat"), sub)
 
 
 def _engineer(r: ScanResult) -> str:
+    if r.files_scanned == 0:
+        body = (
+            '<p class="callout">Run vibexray again on the folder that holds the app code. '
+            "Then send <code>handoff.md</code> to your engineer. Today it lists no work.</p>"
+        )
+        return _section("engineer", "The handoff has no work for your engineer yet", body)
     labels = r.label_counts()
     todo = "".join(
         f"<li><b>{labels[lbl]:,}</b> {'part' if labels[lbl] == 1 else 'parts'} {text}</li>"

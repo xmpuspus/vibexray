@@ -45,7 +45,7 @@ def visible_text(html: str) -> str:
 
 def headline_text(html: str) -> str:
     h1 = re.search(r"<h1[^>]*>(.*?)</h1>", html, re.S).group(1)
-    return unescape(h1).replace("\u00a0", " ")
+    return unescape(re.sub(r"<[^>]+>", "", h1)).replace("\u00a0", " ")
 
 
 def own_copy(html: str, result) -> str:
@@ -137,6 +137,9 @@ def test_empty_scan_shows_explicit_text_in_every_section(empty):
         "handoff.md",
     ):
         assert phrase in text, phrase
+    # An empty folder had nothing to check, so no sentence may claim a check.
+    for claim in ("vibexray checked", "Send handoff.md to your engineer."):
+        assert claim not in text, claim
     for sid in SECTIONS:
         block = re.search(rf'<section id="{sid}".*?</section>', html, re.S).group(0)
         assert len(visible_text(block).split()) > 8, sid
@@ -146,6 +149,21 @@ def test_no_decisions_state_when_findings_raise_no_question(tmp_path):
     result = scan_fixture("gpt-realtime-2-customer-support-voice-agent", tmp_path)
     assert result.findings and not result.questions
     assert "No open questions found" in visible_text(render_html(result))
+
+
+def test_skipped_parts_say_vibexray_skipped_them(empty):
+    text = visible_text(render_html(empty))
+    assert "vibexray did not start the app" in text
+    assert "vibexray skipped your build chat" in text
+
+
+def test_a_prompt_sent_to_both_tools_shows_once_with_a_count(sliceiq):
+    text = visible_text(render_html(sliceiq))
+    prompt = sliceiq.history.prompts[0].text
+    repeats = sum(p.text == prompt for p in sliceiq.history.prompts)
+    assert repeats == 2, "the session fixtures hold the same prompt in Claude Code and Codex"
+    assert text.count(prompt) == 1
+    assert "You sent this 2 times." in text
 
 
 def test_history_prompts_show_with_their_dates(sliceiq):

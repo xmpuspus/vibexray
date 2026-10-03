@@ -97,6 +97,18 @@ def test_first_screen_shows_the_answer(browser, tmp_path, monkeypatch):
             page.close()
 
 
+def test_phone_toggles_are_big_enough_to_tap(browser, tmp_path, monkeypatch):
+    html = full_report(tmp_path, monkeypatch)
+    page, _ = open_report(browser, html, VIEWPORTS["phone"])
+    try:
+        heights = page.evaluate(
+            "[...document.querySelectorAll('summary')].map(s => s.getBoundingClientRect().height)"
+        )
+        assert heights and min(heights) >= 44
+    finally:
+        page.close()
+
+
 def test_print_opens_every_code_box(browser, tmp_path, monkeypatch):
     html = full_report(tmp_path, monkeypatch)
     page, seen = open_report(browser, html, VIEWPORTS["laptop"])

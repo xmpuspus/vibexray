@@ -98,6 +98,9 @@ color:var(--navy);font-weight:700}
 .locs summary .show{font-size:14px;white-space:nowrap}
 .locs summary .show::before{content:"+ "}
 .locs details[open] summary .show::before{content:"- "}
+.locs .cl,.locs details[open] .op{display:none}
+.locs details[open] .cl{display:inline}
+.nw{white-space:nowrap}
 .locs .rel{margin:8px 0 0;font-size:14px;color:var(--muted)}
 .locs .own{margin:8px 0 0;font-size:14px;color:var(--muted)}
 .pages{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px}
@@ -114,6 +117,8 @@ overflow-wrap:anywhere;min-width:0}
 border-top:1px solid var(--line)}
 .chat time{color:var(--muted);font-size:15px;font-variant-numeric:tabular-nums}
 .chat p{margin:0;overflow-wrap:anywhere;white-space:pre-wrap}
+.chat li>div{min-width:0}
+.chat .rep{margin-top:4px;color:var(--muted);font-size:14px}
 .todo li{padding:4px 0}
 .todo b{font-variant-numeric:tabular-nums;color:var(--navy)}
 .foot{border-top:1px solid var(--line);margin-top:24px;padding:20px 0 40px;color:var(--muted);
@@ -137,9 +142,16 @@ h2{font-size:24px}
 .qn{font-size:21px}
 .qt{font-size:17px}
 .chat li{grid-template-columns:minmax(0,1fr)}
+.locs summary,details.more>summary{min-height:44px;align-items:center;display:flex}
+pre{white-space:pre-wrap}
+pre code{overflow-wrap:anywhere}
 }
+@page{margin:0.5in}
 @media print{
 body{font-size:12pt}
+h2,h3,.sub,.tags,.ct{break-after:avoid}
+.todo,.legend{break-inside:avoid}
+details.more>summary{display:none}
 .toc{display:none}
 .sec{break-inside:auto;padding:20px 0}
 .card,.q,.page,.lab{break-inside:avoid}

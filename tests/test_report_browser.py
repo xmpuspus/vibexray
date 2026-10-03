@@ -4,10 +4,11 @@ import os
 from pathlib import Path
 
 import pytest
-from test_report import SECTIONS, scan_fixture, with_history
+from test_report import REVIEW, SECTIONS, scan_fixture, with_history
 
 from vibexray.cli import scan
 from vibexray.report import write_reports
+from vibexray.review import apply_review
 
 pytestmark = pytest.mark.browser
 sync_api = pytest.importorskip("playwright.sync_api")
@@ -44,6 +45,15 @@ def big_report(tmp_path, _monkeypatch) -> Path:
     return write_reports(result, tmp_path / "big")["html"]
 
 
+def review_report(tmp_path, _monkeypatch) -> Path:
+    # The review text runs longer than rule text, so it tests wrapping hardest.
+    out = tmp_path / "review"
+    result = scan(REVIEW / "Snodrod__ai-support-agent", out, run=False, history_mode="none")
+    write_reports(result, out)
+    apply_review(out, REVIEW / "review.json")
+    return out / "report.html"
+
+
 def open_report(browser, html: Path, size: tuple[int, int]):
     page = browser.new_page(viewport={"width": size[0], "height": size[1]})
     seen = {"errors": [], "requests": []}
@@ -59,7 +69,7 @@ def overflow(page) -> int:
     return page.evaluate("document.documentElement.scrollWidth - window.innerWidth")
 
 
-@pytest.mark.parametrize("build", [full_report, empty_report, big_report])
+@pytest.mark.parametrize("build", [full_report, empty_report, big_report, review_report])
 @pytest.mark.parametrize("viewport", list(VIEWPORTS))
 def test_report_fits_and_shows_every_section(browser, tmp_path, monkeypatch, build, viewport):
     html = build(tmp_path, monkeypatch)

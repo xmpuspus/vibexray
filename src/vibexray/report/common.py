@@ -66,10 +66,9 @@ def by_group(result: ScanResult, group: str) -> list[Finding]:
 
 
 def found_by(f: Finding) -> str:
-    # getattr: the source and verified fields land in model.py later. Old findings come from rules.
-    if getattr(f, "source", "rule") != "review":
+    if f.source != "review":
         return "Found by a rule"
-    if getattr(f, "verified", True):
+    if f.verified:
         return "Found by AI review, line checked"
     return "Found by AI review, line not checked"
 

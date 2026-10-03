@@ -7,4 +7,11 @@ from vibexray.rules.base import Rule
 
 MODULES = [mock_data, fake_action, auth, database, hardcoded, ai, security]
 
+try:
+    from vibexray.rules import secrets
+
+    MODULES.insert(4, secrets)
+except ImportError:  # the secret_exposure module is not in this tree yet
+    pass
+
 RULES: list[Rule] = [rule for module in MODULES for rule in module.RULES]

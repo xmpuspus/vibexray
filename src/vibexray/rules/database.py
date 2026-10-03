@@ -160,7 +160,10 @@ def _policy_true(rule: Rule, files: list[SourceFile]) -> Iterable[Finding]:
     user_tables = _user_tables(sqls)
     reported: set[str] = set()
     for f in sqls:
+        in_file = 0
         for m in _POLICY_TRUE.finditer(f.text):
+            if in_file:
+                break  # one finding per migration file
             stmt = m.group(0).lower()
             if "service_role" in stmt:
                 continue
@@ -168,11 +171,14 @@ def _policy_true(rule: Rule, files: list[SourceFile]) -> Iterable[Finding]:
             write = bool(_WRITE_POLICY.search(stmt)) or "with check" in stmt
             if not write and not (table and table.group(1) in user_tables):
                 continue
+            if not write and re.search(r"\bto\s+\"?authenticated\"?", stmt):
+                continue
             if table:
                 # One finding per table keeps a repo with many policies readable.
                 if table.group(1) in reported:
                     continue
                 reported.add(table.group(1))
+            in_file += 1
             ln = line_of(f.text, m.start("hit"))
             fnd = rule.finding(f, ln, f.lines[ln - 1])
             fnd.severity = "high" if write else "medium"

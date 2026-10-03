@@ -1,0 +1,316 @@
+project_id = "ygfsuoloxzjpiulogrjz"
+
+[functions.yana-code-patch-promoter]
+verify_jwt = false
+
+[functions.facebook-daily-post]
+verify_jwt = false
+
+[functions.samanta-voice-incoming]
+verify_jwt = false
+
+[functions.samanta-voice-status]
+verify_jwt = false
+
+[functions.samanta-call-completed]
+verify_jwt = false
+
+[functions.samanta-settings]
+verify_jwt = true
+
+[functions.wa-webhook]
+verify_jwt = false
+
+[functions.wa-link-init]
+verify_jwt = false
+
+[functions.wa-link-verify]
+verify_jwt = false
+
+[functions.validate-knowledge]
+verify_jwt = false
+
+[functions.yana-local-claim]
+verify_jwt = false
+
+[functions.yana-local-bridge]
+verify_jwt = false
+
+[functions.yana-local-pair]
+verify_jwt = true
+
+[functions.self-reflect]
+verify_jwt = false
+
+[functions.analyze-balance]
+verify_jwt = true
+
+[functions.validate-analysis-with-council]
+verify_jwt = true
+
+[functions.client-due-diligence]
+verify_jwt = true
+
+[functions.humanize-academic-text]
+verify_jwt = true
+
+[functions.strategic-advisor]
+verify_jwt = true
+
+[functions.generate-smartbill-invoice]
+verify_jwt = true
+
+[functions.chat-ai]
+verify_jwt = true
+
+[functions.fetch-fiscal-news]
+verify_jwt = true
+
+[functions.fetch-research-data]
+verify_jwt = true
+
+[functions.realtime-chat]
+verify_jwt = true
+
+[functions.get-realtime-token]
+verify_jwt = true
+
+[functions.generate-predictions]
+verify_jwt = true
+
+[functions.send-weekly-alerts]
+verify_jwt = false
+
+[functions.send-analysis-email]
+verify_jwt = true
+
+[functions.send-broadcast-email]
+verify_jwt = true
+
+[functions.send-partner-welcome]
+verify_jwt = true
+
+[functions.track-ai-usage]
+verify_jwt = true
+
+[functions.create-checkout]
+verify_jwt = true
+
+[functions.check-subscription]
+verify_jwt = true
+
+[functions.customer-portal]
+verify_jwt = true
+
+[functions.send-client-invitation]
+verify_jwt = true
+
+[functions.send-monthly-report]
+verify_jwt = true
+
+[functions.delete-user]
+verify_jwt = true
+
+[functions.send-trial-notifications]
+verify_jwt = false
+
+[functions.track-terms-acceptance]
+verify_jwt = true
+
+[functions.send-strategic-advisor-announcement]
+verify_jwt = true
+
+[functions.send-council-invitation]
+verify_jwt = true
+
+[functions.send-account-deletion-email]
+verify_jwt = false
+
+[functions."stripe-webhook"]
+verify_jwt = false
+
+[functions."create-credits-checkout"]
+verify_jwt = true
+
+[functions.text-to-speech]
+verify_jwt = true
+
+[functions.generate-doctorate-draft]
+verify_jwt = true
+
+[functions.sync-stripe-subscription]
+verify_jwt = true
+
+[functions.admin-generate-invoice]
+verify_jwt = true
+
+[functions.notify-payment-admin]
+verify_jwt = false
+
+[functions.initiate-onboarding]
+verify_jwt = true
+
+[functions.fetch-company-data]
+verify_jwt = true
+
+[functions.send-crm-message-email]
+verify_jwt = true
+
+[functions.send-workflow-alert]
+verify_jwt = false
+
+[functions.fiscal-chat]
+verify_jwt = true
+
+[functions.analyze-ai-patterns]
+verify_jwt = true
+
+[functions.cfo-advisor]
+verify_jwt = true
+
+[functions.create-manual-client]
+verify_jwt = true
+
+[functions.import-crm-clients]
+verify_jwt = true
+
+[functions.validate-strategic-facts]
+verify_jwt = true
+
+[functions.validate-balance-with-grok]
+verify_jwt = true
+
+[functions.analyze-plagiarism]
+verify_jwt = true
+
+[functions.process-strategic-document]
+verify_jwt = true
+
+[functions.consult-yana]
+verify_jwt = true
+
+[functions.analyze-balance-saga]
+verify_jwt = true
+
+[functions.send-migration-email]
+verify_jwt = true
+
+[functions.humanize-text]
+verify_jwt = true
+
+[functions.list-stripe-subscriptions]
+verify_jwt = true
+
+[functions.preview-subscription-invoice]
+verify_jwt = true
+
+[functions.consciousness-engine]
+verify_jwt = true
+
+[functions.surprise-detector]
+verify_jwt = false
+
+[functions.experiment-tracker]
+verify_jwt = false
+
+[functions.cross-learner]
+verify_jwt = false
+
+[functions.ai-router]
+verify_jwt = true
+
+[functions.send-inactivity-reminder]
+verify_jwt = false
+
+[functions.detect-hook-signals]
+verify_jwt = false
+
+[functions.capture-soul-state]
+verify_jwt = false
+
+[functions.awaken-yana]
+verify_jwt = false
+
+[functions.update-relationship-decay]
+verify_jwt = false
+
+[functions.silence-thoughts]
+verify_jwt = false
+
+[functions.dream-generator]
+verify_jwt = false
+
+[functions.cleanup-yana-data]
+verify_jwt = false
+
+[functions.backfill-engagement-data]
+verify_jwt = false
+
+[functions.update-self-model]
+verify_jwt = false
+
+[functions.yana-initiative-scheduler]
+verify_jwt = false
+
+[functions.generate-apology-initiative]
+verify_jwt = false
+
+[functions.send-initiative-email]
+verify_jwt = false
+
+[functions.unsubscribe-yana-emails]
+verify_jwt = false
+
+[functions.claude-empathy-agent]
+verify_jwt = false
+
+[functions.demo-chat]
+verify_jwt = false
+
+[functions.extract-learnings]
+verify_jwt = false
+
+[functions.auto-optimizer]
+verify_jwt = false
+
+[functions.pattern-analyzer]
+verify_jwt = false
+
+[functions.moltbook-integration]
+verify_jwt = true
+
+[functions.recursive-optimizer]
+verify_jwt = false
+
+[functions.ai-strategy-advisor]
+verify_jwt = false
+
+[functions.update-client-profile]
+verify_jwt = false
+
+[functions.auto-generate-invoice]
+verify_jwt = false
+
+[functions.yana-status]
+verify_jwt = false
+
+[functions.deep-research]
+verify_jwt = true
+
+[functions.semantic-search]
+verify_jwt = true
+
+[functions.yana-dynamic-agent]
+verify_jwt = false
+
+[functions.yana-agent-spawner]
+verify_jwt = false
+
+[functions.yana-agents-orchestrator]
+verify_jwt = false
+
+[functions.prospect-onrc-scraper]
+verify_jwt = true
+
+[functions.gmail-auto-responder]
+verify_jwt = false

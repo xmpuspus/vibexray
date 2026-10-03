@@ -61,6 +61,9 @@ Each item names the category to write in `review.json`.
   - `ai_prompt_only_rule`: the prompt states a limit or a rule, but the code does not enforce it.
   - `ai_no_human_review`: the tool acts with no person's approval where a person must approve, for example a refund.
   - `ai_fake_tool`: the tool returns sample data or a fixed answer, not real data.
+- The AI as a whole:
+  - `ai_no_cost_limit`: nothing caps how much the AI writes or spends per request, for example no `max_tokens`.
+  - `ai_no_tests`: no tests check the AI's answers, so a prompt change can break the product.
 - Other security risks, all as `security_other`:
   - HTML from users or from the AI shown with no escape (XSS).
   - SQL built from strings.

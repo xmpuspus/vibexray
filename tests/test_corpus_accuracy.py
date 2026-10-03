@@ -29,6 +29,23 @@ REPORT = Path(__file__).resolve().parents[1] / "tmp" / "accuracy.txt"
 SLACK = 3
 MIN_DEV_PRECISION = 0.60
 IGNORED = {"note_public_key"}
+# The reviewers labeled only these categories, so findings outside them cannot be scored.
+UNLABELED = {"ai_no_tests", "ai_no_cost_limit"}
+
+# A separate auditor read the code at every unmatched dev finding. Findings judged
+# "labeler_missed" or "duplicate" count as correct. The labels themselves stay unchanged.
+AUDIT = json.loads((CORPUS / "audit" / "unmatched-audit.json").read_text())
+
+
+def audit_key(repo: str, finding) -> tuple[str, str, str, int]:
+    return (repo, finding.rule_id, finding.file, finding.line)
+
+
+ACCEPTED = {
+    (a["repo"], a["rule_id"], a["file"], a["line"])
+    for a in AUDIT
+    if a["verdict"] in ("labeler_missed", "duplicate")
+}
 
 pytestmark = pytest.mark.corpus
 
@@ -65,13 +82,19 @@ def score_repo(name: str) -> dict:
         if lb["category"] not in IGNORED and lb.get("confidence") != "low"
     ]
     reviewed = reviewed_files(data, labels)
-    findings = [f for f in run_rules(collect_files(repo)) if f.file in reviewed]
+    findings = [
+        f
+        for f in run_rules(collect_files(repo))
+        if f.file in reviewed and f.category not in UNLABELED
+    ]
+    raw = [f for f in findings if any(hits(f, lb) for lb in data["labels"])]
     return {
         "repo": name,
         "labels": labels,
         "found": [lb for lb in labels if any(hits(f, lb) for f in findings)],
         "findings": findings,
-        "correct": [f for f in findings if any(hits(f, lb) for lb in data["labels"])],
+        "correct_raw": raw,
+        "correct": [f for f in findings if f in raw or audit_key(name, f) in ACCEPTED],
     }
 
 
@@ -97,7 +120,9 @@ def scores() -> dict[str, list[dict]]:
 def test_rules_precision_on_dev_repos(scores):
     lines = []
     for split, rows in scores.items():
-        lines.append(f"{split}: {totals(rows)[2]}")
+        raw = sum(len(r["correct_raw"]) for r in rows)
+        n = sum(len(r["findings"]) for r in rows)
+        lines.append(f"{split}: {totals(rows)[2]}  (labels only: {raw}/{n})")
     dev = scores["dev"]
     lines.append("")
     for r in dev:

@@ -27,9 +27,13 @@ _MOCK_ARRAY = re.compile(rf"(?:const|let|var)\s+{MOCK_NAME}\s*(?::[^=\n]+)?=\s*\
 _MOCK_ARRAY_PY = re.compile(r"^(MOCK|SAMPLE|DUMMY|FAKE)_\w+\s*=\s*[\[{]", re.M)
 
 
+_DEMO_UI = re.compile(r"demo mode|demoMode|isDemo|demo-mode|demo is playing", re.I)
+
+
 def _mock_array_check(rule: Rule, files: list[SourceFile]) -> Iterable[Finding]:
     for f in live(files, SRC):
-        if is_script_or_seed(f.path):
+        # A screen that labels itself as a demo does not show sample data as real.
+        if is_script_or_seed(f.path) or _DEMO_UI.search(f.text):
             continue
         rx = _MOCK_ARRAY_PY if f.suffix == ".py" else _MOCK_ARRAY
         for m in rx.finditer(f.text):
@@ -223,8 +227,7 @@ placeholder_identity = line_rule(
 )
 
 _MEDIA = re.compile(
-    r"https?://(?:via\.placeholder\.com|placehold\.co|placekitten\.com|picsum\.photos|dummyimage\.com"
-    r"|source\.unsplash\.com|images\.unsplash\.com)"
+    r"https?://(?:via\.placeholder\.com|placehold\.co|placekitten\.com|picsum\.photos|dummyimage\.com)"
 )
 
 placeholder_media = line_rule(
@@ -236,8 +239,37 @@ placeholder_media = line_rule(
     "Host the real images yourself. A stock photo host is fine only if the choice is deliberate.",
     pattern=_MEDIA,
     suffixes=SRC + (".sql", ".html"),
-    refine=lambda f, m, t: {"severity": "low"} if "unsplash" in m.group(0) else {},
     per_file=2,
+)
+
+_SAMPLE_PATH = re.compile(
+    r"(^|/)(data|sample-?data|demo-?data)\.(ts|js)$|(^|/)data/[\w-]+\.(ts|js)$", re.I
+)
+_RECORD_KEY = re.compile(
+    r"\b(?:price|email|quantity|qty|sku|order_id|orderId|customer\w*|amount|invoice\w*)\s*:"
+)
+_LIVE_DATA = re.compile(r"\bfetch\(|\bawait\b|axios|supabase|prisma")
+
+
+def _sample_records(rule: Rule, files: list[SourceFile]) -> Iterable[Finding]:
+    for f in live(files, (".ts", ".js")):
+        if not _SAMPLE_PATH.search(f.path) or _LIVE_DATA.search(code_only(f.text)):
+            continue
+        hits = list(_RECORD_KEY.finditer(code_only(f.text)))
+        if len(hits) >= 3:
+            ln = line_of(f.text, hits[0].start())
+            yield rule.finding(f, ln, f.lines[ln - 1])
+
+
+sample_records = custom_rule(
+    "sample-records-module",
+    "mock_data",
+    "medium",
+    "throwaway",
+    "A data file holds sample orders or customers that the app may show as real.",
+    "Replace the sample records with database reads, or label the screen as a demo.",
+    _sample_records,
+    (".ts", ".js"),
 )
 
 RULES: list[Rule] = [
@@ -249,4 +281,5 @@ RULES: list[Rule] = [
     lorem,
     placeholder_identity,
     placeholder_media,
+    sample_records,
 ]

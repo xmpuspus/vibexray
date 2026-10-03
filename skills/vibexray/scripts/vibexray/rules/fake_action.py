@@ -6,6 +6,7 @@ import re
 from collections.abc import Iterable
 
 from vibexray.model import Finding
+from vibexray.rules.ai import tools_in
 from vibexray.rules.base import Rule
 from vibexray.rules.util import (
     NETWORK,
@@ -42,6 +43,12 @@ def _handler_for(f: SourceFile, pos: int) -> str | None:
     return "\n".join(lines[max(0, ln - 12) : ln + 10])
 
 
+def _in_demo(f: SourceFile, pos: int) -> bool:
+    """A wait inside a function named for demo mode paces a labeled demo, not a fake save."""
+    fn = enclosing_function(f.text, pos)
+    return bool(fn and re.search("demo", fn[0], re.I))
+
+
 def _settimeout_success(rule: Rule, files: list[SourceFile]) -> Iterable[Finding]:
     for f in live(files, UI):
         code = code_only(f.text)
@@ -51,7 +58,7 @@ def _settimeout_success(rule: Rule, files: list[SourceFile]) -> Iterable[Finding
             if not _SUCCESS.search(region):
                 continue
             body = _handler_for(f, m.start())
-            if body is None or NETWORK.search(body):
+            if body is None or NETWORK.search(body) or _in_demo(f, m.start()):
                 continue
             yield rule.finding(f, ln, f.lines[ln - 1])
 
@@ -131,22 +138,42 @@ console_send = line_rule(
     absent=re.compile(r"\bfetch\(|axios|supabase|\.post\(|sendMail|nodemailer"),
 )
 
-todo_handler = line_rule(
+_TODO = re.compile(
+    r"//\s*(?:TODO|FIXME)\b[^\n]*|/\*\s*(?:TODO|FIXME)\b|onClick=\{\s*\(\)\s*=>\s*\{\s*\}\s*\}"
+    r"|onSubmit=\{\s*\(\)\s*=>\s*\{\s*\}\s*\}|#\s*(?:TODO|FIXME)\b[^\n]*|raise NotImplementedError"
+    r"|alert\(['\"][^'\"]*(?:coming soon|demo|not implemented)",
+    re.I,
+)
+
+
+def _todo(rule: Rule, files: list[SourceFile]) -> Iterable[Finding]:
+    tool_spans: dict[str, list[tuple[int, int]]] = {}
+    for t in tools_in(files):
+        for hf, a, b in t.handlers:
+            tool_spans.setdefault(hf.path, []).append((a, b))
+    for f in live(files, SRC):
+        spans = tool_spans.get(f.path, [])
+        seen = 0
+        for m in _TODO.finditer(f.text):
+            # A TODO inside an AI tool body belongs to the fake-tool rule.
+            if any(a <= m.start() <= b for a, b in spans):
+                continue
+            ln = line_of(f.text, m.start())
+            yield rule.finding(f, ln, f.lines[ln - 1])
+            seen += 1
+            if seen >= 3:
+                break
+
+
+todo_handler = custom_rule(
     "todo-handler-body",
     "fake_action",
     "medium",
     "rewrite",
     "A button handler or tool is empty or says to do later.",
     "Implement the TODO body. Until then, the feature only looks finished.",
-    pattern=re.compile(
-        r"//\s*(?:TODO|FIXME)\b[^\n]*|/\*\s*(?:TODO|FIXME)\b|onClick=\{\s*\(\)\s*=>\s*\{\s*\}\s*\}"
-        r"|onSubmit=\{\s*\(\)\s*=>\s*\{\s*\}\s*\}|#\s*(?:TODO|FIXME)\b[^\n]*|raise NotImplementedError"
-        r"|alert\(['\"][^'\"]*(?:coming soon|demo|not implemented)",
-        re.I,
-    ),
-    suffixes=SRC,
-    per_file=3,
-    skip_comments=False,
+    _todo,
+    SRC,
 )
 
 fake_delay = custom_rule(
@@ -165,7 +192,11 @@ def _fake_delay(rule: Rule, files: list[SourceFile]) -> Iterable[Finding]:
     for f in live(files, UI):
         for m in _AWAIT_TIMER.finditer(code_only(f.text)):
             fn = enclosing_function(f.text, m.start())
-            if fn is None or NETWORK.search(code_only(f.text)[fn[1] : fn[2]]):
+            if (
+                fn is None
+                or NETWORK.search(code_only(f.text)[fn[1] : fn[2]])
+                or _in_demo(f, m.start())
+            ):
                 continue
             ln = line_of(f.text, m.start())
             yield rule.finding(f, ln, f.lines[ln - 1])

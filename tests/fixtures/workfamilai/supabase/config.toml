@@ -1,0 +1,71 @@
+
+project_id = "lzfgigiyqpuuxslsygjt"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+
+[db.pooler]
+enabled = false
+port = 54329
+pool_mode = "transaction"
+default_pool_size = 20
+max_client_conn = 100
+
+[realtime]
+enabled = true
+ip_version = "ipv6"
+
+[studio]
+enabled = true
+port = 54323
+api_url = "http://127.0.0.1:54321"
+
+[inbucket]
+enabled = true
+port = 54324
+smtp_port = 54325
+pop3_port = 54326
+
+[storage]
+enabled = true
+file_size_limit = "50MiB"
+
+[auth]
+enabled = true
+site_url = "http://127.0.0.1:3000"
+additional_redirect_urls = ["https://127.0.0.1:3000"]
+jwt_expiry = 3600
+refresh_token_rotation_enabled = true
+security_update_password_require_reauthentication = true
+
+[functions.chat-with-agent]
+verify_jwt = false
+# Rate limited: 10 requests/minute per IP
+
+[functions.voice-to-text]
+verify_jwt = false
+# Rate limited: 5 requests/minute per IP to prevent OpenAI API abuse
+
+[functions.create-donation]
+verify_jwt = false
+
+[functions.submit-contact-form]
+verify_jwt = false
+
+[functions.subscribe-newsletter]
+verify_jwt = false
+
+[functions.submit-work-package-quote]
+verify_jwt = false
+# Rate limited: 3 requests/hour per IP, server-side validation enabled
+
+[edge-runtime]
+policy = "per_worker"
+inspector_port = 8083

@@ -3,10 +3,6 @@ from rule_helpers import hit_with, run
 MILK = "milk-me-not/src/components/MapboxWorldMap.tsx"
 
 
-def test_mock_array_flags_demo_steps_list():
-    assert hit_with("mock-array-literal", "demoSteps", "resolve-webmcp/app/workspace/page.tsx")
-
-
 def test_mock_array_ignores_real_database_tools():
     assert run("mock-array-literal", "ai-customer-support-agent/src/lib/agent/tools.ts") == []
 
@@ -35,13 +31,6 @@ def test_placeholder_identity_flags_example_email_in_store_data():
 
 def test_placeholder_identity_ignores_map_component():
     assert run("placeholder-identity", MILK) == []
-
-
-def test_placeholder_media_flags_stock_photo_as_low():
-    found = hit_with(
-        "placeholder-media", "images.unsplash.com", "cal-ai-clone/src/components/WelcomeScreen.tsx"
-    )
-    assert found and found[0].severity == "low"
 
 
 def test_rules_without_a_corpus_hit_stay_quiet_on_real_code():

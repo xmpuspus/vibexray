@@ -20,7 +20,6 @@ ENTRIES: list[dict] = json.loads((FIX / "review.json").read_text())
 
 # Indexes into the real review.json. See tests/fixtures/SOURCES.md.
 PLAIN = 0  # auth_gap at src/tools.ts:56-71, which no rule finding covers
-PROMPT_RULE = 15  # ai_prompt_only_rule at src/prompt.ts:11
 
 
 def norm(text: str) -> str:
@@ -148,14 +147,19 @@ def test_unknown_category_and_label_are_dropped(scanned):
 
 def test_entry_that_repeats_a_rule_finding_is_skipped(scanned):
     rules = rule_findings(scanned)
-    entry = ENTRIES[PROMPT_RULE]
-    rule = next(
-        f for f in rules if f["file"] == entry["file"] and f["category"] == entry["category"]
-    )
-    assert rule["line"] < entry["line"]
-    # The real run repeated no rule finding. Widen the real entry up to the rule's line.
-    # Its quote stays on the last line of the new span.
-    widened = dict(entry, line=rule["line"], end_line=entry["line"])
+    pairs = [
+        (entry, rule)
+        for entry in ENTRIES
+        for rule in rules
+        if rule["file"] == entry["file"] and rule["category"] == entry["category"]
+    ]
+    assert pairs, "no real entry shares a file and category with a rule finding"
+    entry, rule = pairs[0]
+    # The real run repeated no rule finding. Widen the real entry until it reaches the
+    # rule's first line. The quote stays inside the new span.
+    lo = min(entry["line"], rule["line"])
+    hi = max(entry.get("end_line") or entry["line"], rule["line"])
+    widened = dict(entry, line=lo, end_line=hi)
     result = apply_review(scanned, write_review(scanned, [widened]))
     assert not result.kept, [d.reason for d in result.dropped]
     assert len(result.duplicates) == 1

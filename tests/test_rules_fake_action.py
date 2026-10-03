@@ -45,14 +45,6 @@ def test_todo_handler_flags_capture_handler():
     )
 
 
-def test_todo_handler_flags_tool_bodies_with_todo():
-    assert hit_with(
-        "todo-handler-body",
-        "TODO: replace with a real lookup",
-        "afhamahmed1__ai-support-agent/src/agent/tools.service.ts",
-    )
-
-
 def test_promise_resolve_success_ignores_function_that_awaits_a_call():
     assert run("promise-resolve-success", "milk-me-not/src/hooks/auth/useAuthOperations.ts") == []
 

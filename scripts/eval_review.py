@@ -262,6 +262,20 @@ def markdown(s: dict) -> str:
     return "\n".join(lines) + "\n"
 
 
+def pinned_and_clean(path: Path) -> bool:
+    # An earlier app run wrote package-lock.json into the clones. A changed tree changes the input.
+    pins = {
+        e["folder"]: e["sha"]
+        for e in json.loads((REPO / "tests/corpus/corpus.lock.json").read_text())
+    }
+    git = ["git", "-C", str(path)]
+    head = subprocess.run(
+        [*git, "rev-parse", "HEAD"], capture_output=True, text=True
+    ).stdout.strip()
+    status = subprocess.run([*git, "status", "--porcelain"], capture_output=True, text=True).stdout
+    return head == pins.get(path.name) and not status.strip()
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("repos", nargs="*", help="Corpus repo names")
@@ -285,6 +299,13 @@ def main(argv: list[str] | None = None) -> int:
         parser.error(f"not in {args.corpus}: {', '.join(missing)}")
     if not bundle_is_fresh():
         parser.error("the skill bundle is stale; run `make bundle` first")
+    changed = [n for n in repos if not pinned_and_clean(args.corpus / n)]
+    if changed:
+        parser.error(
+            "these corpus repos are not at their pinned commit or have local changes: "
+            f"{', '.join(changed)}. Restore each with "
+            "`git -C <repo> checkout -q <sha> -- . && git -C <repo> clean -qfd`, or run `make corpus`."
+        )
 
     jobs = [(n, run) for run in range(1, args.runs + 1) for n in repos]
     with ThreadPoolExecutor(max_workers=max(1, args.jobs)) as pool:

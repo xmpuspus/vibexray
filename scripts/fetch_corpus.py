@@ -23,7 +23,15 @@ def fetch(entry: dict) -> str:
             ["git", "-C", str(target), "rev-parse", "HEAD"], capture_output=True, text=True
         ).stdout.strip()
         if head == entry["sha"]:
-            return "ok"
+            changed = subprocess.run(
+                ["git", "-C", str(target), "status", "--porcelain"], capture_output=True, text=True
+            ).stdout.strip()
+            if not changed:
+                return "ok"
+            # The cache belongs to this script. Local changes, such as a rewritten lockfile, go.
+            subprocess.run(["git", "-C", str(target), "reset", "-q", "--hard"], check=True)
+            subprocess.run(["git", "-C", str(target), "clean", "-qfd"], check=True)
+            return "restored"
         subprocess.run(["rm", "-rf", str(target)], check=True)
     target.mkdir(parents=True, exist_ok=True)
     git = ["git", "-C", str(target)]

@@ -1,0 +1,12 @@
+{
+  "name": "vibexray",
+  "description": "Marketplace for the vibexray plugin",
+  "owner": { "name": "Xavier Puspus" },
+  "plugins": [
+    {
+      "name": "vibexray",
+      "source": "./",
+      "description": "X-ray a prototype built with AI and write a PM report and an engineer handoff"
+    }
+  ]
+}

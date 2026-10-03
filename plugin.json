@@ -1,0 +1,10 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "vibexray",
+  "version": "0.1.0",
+  "description": "X-ray a prototype built with AI: what is real, what is fake, what can break, and what the PM must decide",
+  "author": { "name": "Xavier Puspus" },
+  "repository": "https://github.com/xmpuspus/vibexray",
+  "license": "MIT",
+  "keywords": ["prototype", "handoff", "vibe-coding", "product-management", "agent-skills"]
+}

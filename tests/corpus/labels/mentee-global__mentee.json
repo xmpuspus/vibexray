@@ -1,0 +1,1068 @@
+{
+ "repo": "mentee-global__mentee",
+ "sha": "93d6fd852f36d683c6afe1b1f64d62b0d33a469a",
+ "labeler": "s-label-01",
+ "files_reviewed": [
+  "backend/api/__init__.py",
+  "backend/api/core.py (lines 55-106)",
+  "backend/api/utils/require_auth.py",
+  "backend/api/utils/web_security.py",
+  "backend/api/utils/web_session.py",
+  "backend/api/utils/firebase.py",
+  "backend/api/utils/constants.py",
+  "backend/api/utils/request_utils.py (lines 1-80, grep)",
+  "backend/api/utils/google_storage.py",
+  "backend/api/utils/translate.py (lines 1-60)",
+  "backend/api/utils/jaas_jwt_builder.py (grep)",
+  "backend/api/utils/message_flagging.py (lines 1-620, 680-940)",
+  "backend/api/utils/profile_parse.py (lines 100-115, 159-250, 400-470, grep)",
+  "backend/api/utils/oauth_server.py (grep)",
+  "backend/api/utils/oidc_keys.py (grep)",
+  "backend/api/utils/error_reporting.py (grep)",
+  "backend/api/utils/event_workflow.py (grep of permission checks)",
+  "backend/api/views/main.py (lines 470-640 grep only)",
+  "backend/api/views/auth.py",
+  "backend/api/views/admin.py (lines 40-225, 395-520; other routes listed only)",
+  "backend/api/views/apply.py (lines 1-53, 370-966)",
+  "backend/api/views/announcement.py",
+  "backend/api/views/training.py (lines 1-130, 228-660; rest routes listed only)",
+  "backend/api/views/translation.py",
+  "backend/api/views/meeting.py",
+  "backend/api/views/notifications.py",
+  "backend/api/views/messages.py (lines 1-380 scan, 660-1033)",
+  "backend/api/views/availability.py",
+  "backend/api/views/mentee.py",
+  "backend/api/views/appointment.py (lines 60-460 scan, 228-340)",
+  "backend/api/views/events.py (header, route scan, lines 286-325)",
+  "backend/api/views/connected_apps.py (grep)",
+  "backend/api/views/oauth.py (lines 200-500 scan)",
+  "backend/api/views/verify.py",
+  "backend/api/views/masters.py (routes listed only)",
+  "backend/api/views/download.py (routes listed only, all admin_only)",
+  "backend/api/views/admin_dashboard.py (routes listed only, all admin_only)",
+  "backend/api/views/admin_onboarding.py (routes listed only, all admin_only)",
+  "backend/api/views/admin_notifications.py (routes listed only)",
+  "backend/api/views/admin_oauth.py (routes listed only)",
+  "backend/api/views/message_flags.py (routes listed only)",
+  "backend/api/models/*.py (grep for password, token and PII fields)",
+  "backend/api/models/VerifiedEmail.py",
+  "backend/api/models/PartnerProfile.py (header)",
+  "backend/tests/.env.example (blocked by permission rule, not read)",
+  "backend/tests/utils/consts.json (keys only)",
+  "backend/user_options.json (keys only)",
+  "backend/scripts/*.py (grep only)",
+  "backend/Dockerfile (grep)",
+  "backend/Makefile (grep)",
+  ".github/workflows/dev-deploy.yml",
+  ".github/workflows/prod-deploy.yml (grep)",
+  "AGENTS.md",
+  "frontend/src/utils/fireauth.js",
+  "frontend/src/utils/consts.js (lines 1-22, grep)",
+  "frontend/src/utils/auth.service.js (lines 1-150)",
+  "frontend/src/utils/api.js (lines 1-80, 845-940, 1286-1298, 1830-1885, grep)",
+  "frontend/src/utils/socket.js",
+  "frontend/src/utils/hooks/useAuth.js (lines 55-110)",
+  "frontend/src/utils/verifyMentee.js",
+  "frontend/src/components/AdminRoute.js",
+  "frontend/src/components/PrivateRoute.js",
+  "frontend/src/components/MenteeVerificationModal.js (lines 1-80)",
+  "frontend/src/components/TrainingList.js (lines 10-40, 290-345)",
+  "frontend/src/components/CreateMeetingLink.js (lines 40-135)",
+  "frontend/src/components/UploadEmails.js (lines 28-50)",
+  "frontend/src/components/AddGuestModal.js (lines 30-55)",
+  "frontend/src/components/Hubs.js (lines 85-106)",
+  "frontend/src/components/pages/AdminBugReports.js (lines 120-146)",
+  "frontend/src/components/MessagesChatArea.js (lines 515-566, grep)",
+  "frontend/src/components/GroupMessageChatArea.js (lines 448-470, 630-660)",
+  "frontend/src/app/App.js (lines 105-140)",
+  "frontend/public/launch-bot.html",
+  "frontend/public/index.html (grep)",
+  "frontend/.gitignore",
+  "frontend/src (grep for localStorage, dangerouslySetInnerHTML, success toasts, setTimeout, TODO, lorem, Math.random, socket.on)",
+  "repo-wide grep for committed secret patterns (none found)"
+ ],
+ "note": "Flask + MongoDB + React app with Firebase auth. No row level security exists, so all access control lives in Flask decorators, and many routes have none or have the decorator commented out. The only AI is server-side OpenAI message moderation in message_flagging.py, so there is no ai_browser_call. Flagged messages are held for admin review before delivery, so no ai_no_human_review label. No committed secrets were found. backend/tests/.env.example was blocked by a permission rule. Most frontend components and the bodies of admin_only views were reviewed by grep only.",
+ "labels": [
+  {
+   "category": "auth_gap",
+   "file": "backend/api/views/auth.py",
+   "line_start": 105,
+   "line_end": 140,
+   "related_file": "backend/api/utils/require_auth.py",
+   "related_line": 42,
+   "what": "/auth/register is public and mints a Firebase custom token with the role sent by the client. Role 5 (SUPPORT) passes every role check including admin_only. A string role \"0\" skips the admin whitelist check at line 116 (0 == \"0\" is false) and then becomes admin",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "high"
+  },
+  {
+   "category": "auth_gap",
+   "file": "backend/api/views/auth.py",
+   "line_start": 143,
+   "line_end": 184,
+   "what": "/auth/newRegister is public, has no admin whitelist and is written to return a custom token with any client-chosen role. Today it creates the Firebase user, then crashes because PartnerProfile has no password, name or role fields, so no token is returned. Adding those fields would make it an admin escalation",
+   "keep_rewrite_throwaway": "throwaway",
+   "confidence": "low"
+  },
+  {
+   "category": "auth_gap",
+   "file": "backend/api/views/auth.py",
+   "line_start": 187,
+   "line_end": 323,
+   "related_file": "backend/api/views/auth.py",
+   "related_line": 265,
+   "what": "/auth/login trusts the client role. With role 6 a partner email falls back to PartnerProfile (line 197-199), and the hub URL check runs only when path is sent (line 265). Any partner who omits path gets a HUB token, and HUB is exempt from the role check in main.py 1422 and 1513",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "auth_gap",
+   "file": "backend/api/views/main.py",
+   "line_start": 1118,
+   "line_end": 1131,
+   "related_file": "backend/api/views/main.py",
+   "related_line": 1215,
+   "what": "POST /api/account: when Firebase user creation fails because the email exists, the code falls back to the existing Firebase user with no password check, then returns a custom token for that uid (lines 1215-1217). Knowing an email is enough to take over the account",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "high"
+  },
+  {
+   "category": "auth_gap",
+   "file": "backend/api/views/main.py",
+   "line_start": 986,
+   "line_end": 1063,
+   "what": "POST /api/account has its @all_users decorator commented out and never checks for an approved application, so anyone can create a mentor, mentee or partner profile and get a role token, skipping admin review",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "high"
+  },
+  {
+   "category": "auth_gap",
+   "file": "backend/api/views/main.py",
+   "line_start": 1222,
+   "line_end": 1396,
+   "what": "POST /api/accountProfile is public. It looks up any Firebase user by the submitted email (line 1228), binds a new profile to that uid and returns a custom token for it (lines 1392-1394)",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "high"
+  },
+  {
+   "category": "auth_gap",
+   "file": "backend/api/views/main.py",
+   "line_start": 1400,
+   "line_end": 1475,
+   "related_file": "backend/api/utils/profile_parse.py",
+   "related_line": 467,
+   "what": "PUT /api/account/<id> checks the role against a client-chosen account_type and never checks that the caller owns the id. Any mentee can edit any mentee, any mentor any mentor, and any HUB user any profile. The email field is editable and is pushed to the Firebase login (lines 1457-1463), so this is an account takeover",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "high"
+  },
+  {
+   "category": "auth_gap",
+   "file": "backend/api/views/main.py",
+   "line_start": 1494,
+   "line_end": 1503,
+   "what": "PUT /api/account/<id>/image with no Authorization header replaces the photo of any partner, mentee or mentor",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "high"
+  },
+  {
+   "category": "auth_gap",
+   "file": "backend/api/views/main.py",
+   "line_start": 138,
+   "line_end": 375,
+   "what": "GET /api/accounts/<type> has @all_users commented out. It returns full Admin, Support, Moderator and Guest documents (lines 340-344, 370) and, with ?all=true, private mentee profiles (lines 212-213)",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "high"
+  },
+  {
+   "category": "auth_gap",
+   "file": "backend/api/views/main.py",
+   "line_start": 413,
+   "line_end": 650,
+   "what": "GET /api/accounts/<type>/search is public. show_private=true lists private mentees (lines 527-529) and search matches on email",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "high"
+  },
+  {
+   "category": "auth_gap",
+   "file": "backend/api/views/main.py",
+   "line_start": 654,
+   "line_end": 982,
+   "what": "GET /api/account/<id> has @all_users commented out. It returns full mentee profiles, Hub documents with invite_key (lines 681, 932), and for a partner id the full direct-message bodies of its mentees and mentors (lines 692-738, 766-812)",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "high"
+  },
+  {
+   "category": "auth_gap",
+   "file": "backend/api/views/admin.py",
+   "line_start": 399,
+   "line_end": 418,
+   "what": "GET /api/admin/<id> has no auth and returns the admin record. Line 401 keeps a commented response with a real-looking admin email and Firebase uid",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "auth_gap",
+   "file": "backend/api/views/apply.py",
+   "line_start": 425,
+   "line_end": 461,
+   "what": "GET /api/application/status/<email>/<role> is public and returns the full application document (name, age, immigrant status, identity answers) for any email",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "high"
+  },
+  {
+   "category": "auth_gap",
+   "file": "backend/api/views/apply.py",
+   "line_start": 376,
+   "line_end": 419,
+   "what": "GET /api/application/email/status/<email>/<role> is public and tells anyone whether an email exists in Firebase, is verified and has a profile",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "auth_gap",
+   "file": "backend/api/views/apply.py",
+   "line_start": 464,
+   "line_end": 533,
+   "what": "GET /api/application/profile/exists/<email>/<role> is public and reveals which role (mentor, mentee, partner, hub) an email belongs to",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "low"
+  },
+  {
+   "category": "auth_gap",
+   "file": "backend/api/views/apply.py",
+   "line_start": 536,
+   "line_end": 558,
+   "what": "POST /api/application/changeStateTraining is public and sets the training status of any application by id",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "high"
+  },
+  {
+   "category": "auth_gap",
+   "file": "backend/api/views/apply.py",
+   "line_start": 561,
+   "line_end": 639,
+   "what": "GET /api/application/changeStateBuildProfile/<email>/<role> is a public GET that changes state, moves an APPROVED application to BuildProfile and emails the applicant and every admin",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "auth_gap",
+   "file": "backend/api/views/announcement.py",
+   "line_start": 99,
+   "line_end": 249,
+   "what": "Any logged-in user can create a general announcement because the hub check only runs when hub_id is sent (lines 109-115). With send_notification=true it emails every mentor, mentee or partner (lines 174-176, 186-188, 212-214)",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "high"
+  },
+  {
+   "category": "auth_gap",
+   "file": "backend/api/views/announcement.py",
+   "line_start": 308,
+   "line_end": 333,
+   "what": "PUT /api/announcement/upload/<id>/image has no auth and replaces any announcement image",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "auth_gap",
+   "file": "backend/api/views/announcement.py",
+   "line_start": 336,
+   "line_end": 355,
+   "what": "GET /api/announcement/getDoc/<id> is public, so hub-scoped announcement files download without the hub check the list route uses",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "auth_gap",
+   "file": "backend/api/views/announcement.py",
+   "line_start": 358,
+   "line_end": 367,
+   "what": "GET /api/announcement/get/<id> is public by design (comment), but it also returns hub-scoped announcements to anyone with the id",
+   "keep_rewrite_throwaway": "keep",
+   "confidence": "low"
+  },
+  {
+   "category": "auth_gap",
+   "file": "backend/api/views/training.py",
+   "line_start": 52,
+   "line_end": 62,
+   "what": "GET /api/training/getSignedDocfile/<id>/<role> is public and downloads any user's signed document by id",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "high"
+  },
+  {
+   "category": "auth_gap",
+   "file": "backend/api/views/training.py",
+   "line_start": 77,
+   "line_end": 83,
+   "what": "GET /api/training/getSignedDoc/<role> is public and lists every signed document record for a role, including user emails",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "high"
+  },
+  {
+   "category": "auth_gap",
+   "file": "backend/api/views/training.py",
+   "line_start": 65,
+   "line_end": 74,
+   "what": "GET /api/training/getOriginDoc is public and returns the first policy template document",
+   "keep_rewrite_throwaway": "keep",
+   "confidence": "low"
+  },
+  {
+   "category": "auth_gap",
+   "file": "backend/api/views/training.py",
+   "line_start": 234,
+   "line_end": 308,
+   "what": "PATCH /api/training/update_multiple has no auth and changes training sort order",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "auth_gap",
+   "file": "backend/api/views/training.py",
+   "line_start": 311,
+   "line_end": 319,
+   "what": "DELETE /api/training/library/<id> has no auth and deletes any community library item",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "high"
+  },
+  {
+   "category": "auth_gap",
+   "file": "backend/api/views/training.py",
+   "line_start": 438,
+   "line_end": 465,
+   "what": "PUT /api/training/library/<id> has no auth and edits or replaces the file of any community library item",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "high"
+  },
+  {
+   "category": "auth_gap",
+   "file": "backend/api/views/training.py",
+   "line_start": 527,
+   "line_end": 556,
+   "what": "POST /api/training/saveSignedDoc has no auth. Anyone can upload or replace the signed PDF for any user_email and training, which forges signatures",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "high"
+  },
+  {
+   "category": "auth_gap",
+   "file": "backend/api/views/training.py",
+   "line_start": 601,
+   "line_end": 638,
+   "what": "POST /api/training/new_library has no auth. Anyone can upload files to any hub's library with a client-chosen user_id and user_name",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "high"
+  },
+  {
+   "category": "auth_gap",
+   "file": "backend/api/views/translation.py",
+   "line_start": 13,
+   "line_end": 23,
+   "what": "GET /api/translation/ is public and writes preferred_language on every mentor, mentee and partner profile (a migration left as a route)",
+   "keep_rewrite_throwaway": "throwaway",
+   "confidence": "medium"
+  },
+  {
+   "category": "auth_gap",
+   "file": "backend/api/views/meeting.py",
+   "line_start": 19,
+   "line_end": 41,
+   "related_file": "backend/api/utils/jaas_jwt_builder.py",
+   "related_line": 32,
+   "what": "GET /api/meeting/generateToken is public and signs 8x8 JaaS tokens with the org private key. The token is valid for any room (room '*') for 2 hours",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "high"
+  },
+  {
+   "category": "auth_gap",
+   "file": "backend/api/views/notifications.py",
+   "line_start": 39,
+   "line_end": 105,
+   "what": "GET /api/notifications/unread_alert_group/<id> is public and sends group-chat emails to any partner or hub with a link and title taken from the query string",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "high"
+  },
+  {
+   "category": "auth_gap",
+   "file": "backend/api/views/notifications.py",
+   "line_start": 108,
+   "line_end": 154,
+   "what": "GET /api/notifications/unread_alert/<id> has @all_users commented out and sends an email and a Twilio SMS to any user id",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "high"
+  },
+  {
+   "category": "auth_gap",
+   "file": "backend/api/views/notifications.py",
+   "line_start": 181,
+   "line_end": 232,
+   "what": "GET /api/notifications/weeklyemails is public (decorator commented out at line 182) and emails every mentee and mentor with unread messages",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "high"
+  },
+  {
+   "category": "auth_gap",
+   "file": "backend/api/views/notifications.py",
+   "line_start": 157,
+   "line_end": 178,
+   "what": "PUT /api/notifications/update lets any logged-in user mark any sender and recipient pair's messages as read",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "auth_gap",
+   "file": "backend/api/views/notifications.py",
+   "line_start": 25,
+   "line_end": 36,
+   "what": "GET /api/notifications/<id> returns any user's unread count with no ownership check",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "low"
+  },
+  {
+   "category": "auth_gap",
+   "file": "backend/api/views/messages.py",
+   "line_start": 95,
+   "line_end": 107,
+   "what": "GET /api/messages/ lets any logged-in user read Message documents with any filter and no ownership check",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "high"
+  },
+  {
+   "category": "auth_gap",
+   "file": "backend/api/views/messages.py",
+   "line_start": 110,
+   "line_end": 127,
+   "what": "DELETE /api/messages/<id> lets any logged-in user delete any Message",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "auth_gap",
+   "file": "backend/api/views/messages.py",
+   "line_start": 130,
+   "line_end": 153,
+   "what": "PUT /api/messages/<id> lets any logged-in user change any field of any Message",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "auth_gap",
+   "file": "backend/api/views/messages.py",
+   "line_start": 227,
+   "line_end": 306,
+   "what": "POST /api/messages/mentor/<id> takes mentee_id from the body with no caller check, so any user can contact a mentor and trigger the email as any mentee",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "auth_gap",
+   "file": "backend/api/views/messages.py",
+   "line_start": 669,
+   "line_end": 687,
+   "related_file": "frontend/src/components/GroupMessageChatArea.js",
+   "related_line": 656,
+   "what": "DELETE /api/messages/group_delete/<id> lets any logged-in user hide any group message. Only the UI limits the button to admins and moderators",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "auth_gap",
+   "file": "backend/api/views/messages.py",
+   "line_start": 836,
+   "line_end": 865,
+   "what": "Socket editGroupMessage has no caller check. Any connected client can rewrite any group or partner-group message",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "high"
+  },
+  {
+   "category": "auth_gap",
+   "file": "backend/api/views/messages.py",
+   "line_start": 868,
+   "line_end": 930,
+   "what": "Socket sendGroup trusts sender_id and hub_user_id from the client and never checks the caller is that sender or in that hub (the direct 'send' handler does check)",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "high"
+  },
+  {
+   "category": "auth_gap",
+   "file": "backend/api/views/messages.py",
+   "line_start": 1010,
+   "line_end": 1033,
+   "what": "Socket invite has no caller check. Any client can push an invite to any user and add any mentor to any mentee's favorites",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "auth_gap",
+   "file": "backend/api/views/availability.py",
+   "line_start": 24,
+   "line_end": 48,
+   "what": "PUT /api/availability/<id> lets any logged-in user overwrite any mentor's availability",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "high"
+  },
+  {
+   "category": "auth_gap",
+   "file": "backend/api/views/appointment.py",
+   "line_start": 70,
+   "line_end": 134,
+   "what": "GET /api/appointment/<type>/<id> returns any mentor's or mentee's appointments to any logged-in user",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "auth_gap",
+   "file": "backend/api/views/appointment.py",
+   "line_start": 138,
+   "line_end": 199,
+   "what": "POST /api/appointment/send_invite_email lets any logged-in user send an invite email between any mentor and mentee",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "auth_gap",
+   "file": "backend/api/views/appointment.py",
+   "line_start": 203,
+   "line_end": 341,
+   "what": "POST /api/appointment/ lets any logged-in user book for any mentee with any mentor. status comes from the client (line 235), so it can be created as accepted. It sends email and SMS",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "high"
+  },
+  {
+   "category": "auth_gap",
+   "file": "backend/api/views/appointment.py",
+   "line_start": 344,
+   "line_end": 400,
+   "what": "PUT /api/appointment/accept/<id> lets any mentor accept any appointment, not only their own",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "auth_gap",
+   "file": "backend/api/views/appointment.py",
+   "line_start": 404,
+   "line_end": 455,
+   "what": "DELETE /api/appointment/<id> lets any mentor deny any appointment",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "auth_gap",
+   "file": "backend/api/views/mentee.py",
+   "line_start": 10,
+   "line_end": 40,
+   "what": "PUT /api/mentee/editFavMentor takes mentee_id from the body, so any mentee can change another mentee's favorites",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "low"
+  },
+  {
+   "category": "auth_gap",
+   "file": "backend/api/views/mentee.py",
+   "line_start": 43,
+   "line_end": 66,
+   "what": "GET /api/mentee/favorites/<id> returns any mentee's favorites",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "low"
+  },
+  {
+   "category": "auth_gap",
+   "file": "backend/api/utils/require_auth.py",
+   "line_start": 42,
+   "line_end": 47,
+   "related_file": "backend/api/views/auth.py",
+   "related_line": 136,
+   "what": "verify_user lets role SUPPORT pass every role-specific check, including admin_only. Combined with the client-chosen role at /auth/register, anyone gets admin API access",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "auth_gap",
+   "file": "frontend/src/components/AdminRoute.js",
+   "line_start": 6,
+   "line_end": 19,
+   "what": "Admin pages are guarded only by the role string in localStorage. Admin APIs use admin_only, so the main risk is the open routes listed above",
+   "keep_rewrite_throwaway": "keep",
+   "confidence": "low"
+  },
+  {
+   "category": "auth_gap",
+   "file": "frontend/src/components/PrivateRoute.js",
+   "line_start": 18,
+   "line_end": 34,
+   "what": "Private pages are guarded only by a role value in localStorage",
+   "keep_rewrite_throwaway": "keep",
+   "confidence": "low"
+  },
+  {
+   "category": "auth_gap",
+   "file": "frontend/src/components/MenteeVerificationModal.js",
+   "line_start": 28,
+   "line_end": 36,
+   "related_file": "frontend/src/utils/verifyMentee.js",
+   "related_line": 3,
+   "what": "Permission to view mentor booking is decided in the browser (isLoggedIn or a local verified flag). The data it protects is served by public account routes anyway",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "low"
+  },
+  {
+   "category": "security_other",
+   "file": "backend/api/views/messages.py",
+   "line_start": 99,
+   "line_end": 99,
+   "what": "Message.objects.filter(**request.args) passes query-string keys straight into MongoEngine, so callers can use operators such as __ne or __regex (NoSQL injection)",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "high"
+  },
+  {
+   "category": "security_other",
+   "file": "backend/api/views/messages.py",
+   "line_start": 1001,
+   "line_end": 1001,
+   "related_file": "frontend/src/components/pages/Messages.js",
+   "related_line": 82,
+   "what": "New direct messages are sent with socketio.emit(recipient_id, ...) and no room, which broadcasts to every connected socket. Clients filter by listening on their own id, so any logged-in user can listen on another id and read their messages. Same pattern at lines 201, 298, 922, 1018",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "high"
+  },
+  {
+   "category": "security_other",
+   "file": "backend/api/__init__.py",
+   "line_start": 15,
+   "line_end": 15,
+   "what": "Socket.IO allows all origins (cors_allowed_origins='*')",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "security_other",
+   "file": "backend/api/__init__.py",
+   "line_start": 51,
+   "line_end": 51,
+   "what": "Flask SECRET_KEY falls back to a fixed string when OAuth is off",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "low"
+  },
+  {
+   "category": "security_other",
+   "file": "backend/api/views/main.py",
+   "line_start": 1711,
+   "line_end": 1742,
+   "what": "Public bug-report form puts description, user name, email, role and page_url into the staff email HTML without escaping (HTML injection and phishing links in staff mail)",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "security_other",
+   "file": "backend/api/views/main.py",
+   "line_start": 1590,
+   "line_end": 1672,
+   "related_file": "backend/api/utils/google_storage.py",
+   "related_line": 46,
+   "what": "POST /api/bug-report has no auth and no rate limit. Each call stores up to 3 attachments in a public bucket with a client-chosen content type and emails staff",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "security_other",
+   "file": "backend/api/views/main.py",
+   "line_start": 1885,
+   "line_end": 1887,
+   "what": "The frontend error endpoint rate-limits by the first X-Forwarded-For value, which the caller controls, in a per-process dict",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "security_other",
+   "file": "backend/api/views/apply.py",
+   "line_start": 592,
+   "line_end": 601,
+   "what": "Public route builds the official training-complete email link from front_url in the query string, so an attacker can send a phishing link from the platform",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "security_other",
+   "file": "backend/api/views/announcement.py",
+   "line_start": 158,
+   "line_end": 158,
+   "what": "Announcement email link is built from front_url sent by the client (used at line 229)",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "security_other",
+   "file": "backend/api/views/notifications.py",
+   "line_start": 43,
+   "line_end": 43,
+   "what": "Public alert route takes front_url and title from the query string and puts them in emails (lines 74, 89)",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "high"
+  },
+  {
+   "category": "security_other",
+   "file": "backend/api/utils/message_flagging.py",
+   "line_start": 280,
+   "line_end": 286,
+   "what": "Message text and recent conversation are pasted into the moderation prompt with no delimiting or guard. A sender can add instructions to the message to avoid being flagged",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "security_other",
+   "file": "backend/api/utils/message_flagging.py",
+   "line_start": 807,
+   "line_end": 816,
+   "what": "Moderation fails open. If OpenAI errors or credits run out, messages to youth users are delivered unflagged",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "security_other",
+   "file": "backend/api/utils/message_flagging.py",
+   "line_start": 503,
+   "line_end": 514,
+   "what": "Hardcoded moderation bypass for letitia@ and any letitia+alias@menteeglobal.org profile email. Profile emails are not verified before messaging and users can edit their email, and group socket messages trust a client sender_id",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "security_other",
+   "file": "backend/api/views/messages.py",
+   "line_start": 836,
+   "line_end": 865,
+   "what": "Editing a group message skips moderation, so a message can be rewritten after it passes moderation",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "security_other",
+   "file": "backend/api/utils/message_flagging.py",
+   "line_start": 790,
+   "line_end": 836,
+   "what": "Every message triggers two OpenAI calls (moderation plus gpt-5-nano) with no per-user rate limit, so a user can run up model cost",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "security_other",
+   "file": "backend/api/views/training.py",
+   "line_start": 601,
+   "line_end": 607,
+   "what": "Public new_library calls the paid Google Translate API for the description on every upload, with no auth or rate limit",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "security_other",
+   "file": "backend/api/views/training.py",
+   "line_start": 448,
+   "line_end": 453,
+   "what": "Public edit_library_by_id calls the paid Google Translate API on every name or description change",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "security_other",
+   "file": "backend/api/views/training.py",
+   "line_start": 396,
+   "line_end": 402,
+   "related_file": "backend/api/views/training.py",
+   "related_line": 627,
+   "what": "Library files are served back with the content type chosen at upload. An HTML upload through the public new_library route is served from the API origin (stored XSS risk)",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "security_other",
+   "file": "frontend/src/components/MessagesChatArea.js",
+   "line_start": 534,
+   "line_end": 565,
+   "what": "Direct-message bodies are rendered with dangerouslySetInnerHTML after linkify (line 717) and no sanitizer, so a sender can run script in the recipient's session",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "high"
+  },
+  {
+   "category": "security_other",
+   "file": "frontend/src/components/GroupMessageChatArea.js",
+   "line_start": 646,
+   "line_end": 655,
+   "what": "Group message bodies are rendered with dangerouslySetInnerHTML through formatMessageText with no sanitizer (stored XSS)",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "high"
+  },
+  {
+   "category": "security_other",
+   "file": "backend/api/views/auth.py",
+   "line_start": 160,
+   "line_end": 169,
+   "what": "newRegister passes the raw password into the PartnerProfile document. The strict model rejects the unknown field today, so this is dead code that intends plaintext password storage",
+   "keep_rewrite_throwaway": "throwaway",
+   "confidence": "low"
+  },
+  {
+   "category": "security_other",
+   "file": "backend/api/views/admin.py",
+   "line_start": 82,
+   "line_end": 99,
+   "what": "CSV account upload is written to store a shared password in plain text on VerifiedEmail rows, and VerifiedEmail.__repr__ prints the password (models/VerifiedEmail.py line 28). The query uses a missing is_mentor field, so the route likely fails before saving (dead code)",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "low"
+  },
+  {
+   "category": "security_other",
+   "file": "backend/api/core.py",
+   "line_start": 82,
+   "line_end": 82,
+   "what": "Unhandled exceptions return str(error) to the client",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "low"
+  },
+  {
+   "category": "security_other",
+   "file": "frontend/src/utils/api.js",
+   "line_start": 845,
+   "line_end": 846,
+   "what": "getIsEmailVerified sends the password in the URL query string",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "low"
+  },
+  {
+   "category": "security_other",
+   "file": "frontend/src/components/CreateMeetingLink.js",
+   "line_start": 95,
+   "line_end": 109,
+   "what": "Meeting room names are 10 letters from Math.random, and every issued JaaS token allows any room, so room names are the only access control",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "low"
+  },
+  {
+   "category": "security_other",
+   "file": "backend/api/views/auth.py",
+   "line_start": 35,
+   "line_end": 77,
+   "what": "POST /auth/verifyEmail is public with no rate limit and sends verification emails to any address",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "low"
+  },
+  {
+   "category": "security_other",
+   "file": "backend/api/views/auth.py",
+   "line_start": 380,
+   "line_end": 393,
+   "what": "POST /auth/forgotPassword has no rate limit and bumps token_version, revoking OAuth tokens for any email an attacker names",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "low"
+  },
+  {
+   "category": "security_other",
+   "file": "backend/api/views/apply.py",
+   "line_start": 837,
+   "line_end": 966,
+   "what": "Public application form has no rate limit or captcha, and each submission emails every admin",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "low"
+  },
+  {
+   "category": "database_rules",
+   "file": "backend/api/views/messages.py",
+   "line_start": 143,
+   "line_end": 145,
+   "what": "Client JSON keys are written straight onto the Message document (mass assignment), including sender_id and recipient_id",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "fake_action",
+   "file": "frontend/src/components/UploadEmails.js",
+   "line_start": 31,
+   "line_end": 39,
+   "related_file": "frontend/src/utils/api.js",
+   "related_line": 1286,
+   "what": "The upload call is not awaited and success() runs right after, so 'Successfully added users!' shows even if the request fails",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "fake_action",
+   "file": "frontend/src/components/pages/AdminBugReports.js",
+   "line_start": 124,
+   "line_end": 133,
+   "related_file": "frontend/src/utils/api.js",
+   "related_line": 1865,
+   "what": "updateBugReport swallows errors and returns undefined, so the catch never runs and 'Bug report updated successfully' shows on failure",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "fake_action",
+   "file": "frontend/src/components/pages/AdminBugReports.js",
+   "line_start": 141,
+   "line_end": 145,
+   "related_file": "frontend/src/utils/api.js",
+   "related_line": 1875,
+   "what": "deleteBugReportById returns false on error instead of throwing, so 'Bug report deleted successfully' shows on failure",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "fake_action",
+   "file": "frontend/src/components/CreateMeetingLink.js",
+   "line_start": 52,
+   "line_end": 71,
+   "what": "The clipboard write runs later in a setTimeout and is not awaited, but the 'copied' success toast shows at once",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "low"
+  },
+  {
+   "category": "mock_data",
+   "file": "backend/api/views/meeting.py",
+   "line_start": 27,
+   "line_end": 31,
+   "what": "Every meeting token carries a placeholder identity: 'User Name', 'email_address@email.com' and avatar https://asda.com/avatar",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "mock_data",
+   "file": "backend/api/utils/profile_parse.py",
+   "line_start": 110,
+   "line_end": 110,
+   "what": "New mentee profiles default to email 'email@gmail.com' when none is sent (TODO comment admits it)",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "low"
+  },
+  {
+   "category": "mock_data",
+   "file": "frontend/src/components/TrainingList.js",
+   "line_start": 19,
+   "line_end": 29,
+   "what": "Five lorem-ipsum training rows used as list data until the fetch returns (line 340). They sit behind a loading skeleton",
+   "keep_rewrite_throwaway": "keep",
+   "confidence": "low"
+  },
+  {
+   "category": "hardcoded_config",
+   "file": "backend/api/utils/constants.py",
+   "line_start": 208,
+   "line_end": 209,
+   "related_file": "frontend/src/utils/consts.js",
+   "related_line": 14,
+   "what": "N50 partner ids hardcoded for dev and prod, and repeated in the frontend (frontend/src/utils/consts.js 14-18)",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "low"
+  },
+  {
+   "category": "hardcoded_config",
+   "file": "backend/api/utils/constants.py",
+   "line_start": 206,
+   "line_end": 206,
+   "what": "TRANSLATION_COST_PER_PAGE = 0.08 hardcoded price",
+   "keep_rewrite_throwaway": "keep",
+   "confidence": "low"
+  },
+  {
+   "category": "hardcoded_config",
+   "file": "backend/api/views/main.py",
+   "line_start": 1696,
+   "line_end": 1696,
+   "what": "Bug-report recipients are two hardcoded staff email addresses",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "hardcoded_config",
+   "file": "backend/api/utils/google_storage.py",
+   "line_start": 10,
+   "line_end": 10,
+   "what": "Storage bucket name hardcoded",
+   "keep_rewrite_throwaway": "keep",
+   "confidence": "low"
+  },
+  {
+   "category": "hardcoded_config",
+   "file": "backend/api/utils/oauth_server.py",
+   "line_start": 30,
+   "line_end": 30,
+   "what": "OAuth issuer defaults to http://localhost:8000 when OAUTH_ISSUER is unset",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "hardcoded_config",
+   "file": "backend/api/utils/message_flagging.py",
+   "line_start": 605,
+   "line_end": 608,
+   "related_file": "backend/api/views/auth.py",
+   "related_line": 31,
+   "what": "FRONTEND_URL fallback is the production URL here but http://localhost:3000 in auth.py 31, oauth.py 64, event_workflow.py 705, event_review_notifications.py 191 and admin_onboarding.py 139",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "low"
+  },
+  {
+   "category": "hardcoded_config",
+   "file": "backend/api/views/appointment.py",
+   "line_start": 329,
+   "line_end": 329,
+   "what": "Production URL hardcoded in the appointment SMS text",
+   "keep_rewrite_throwaway": "keep",
+   "confidence": "low"
+  },
+  {
+   "category": "hardcoded_config",
+   "file": "frontend/src/utils/consts.js",
+   "line_start": 4,
+   "line_end": 12,
+   "what": "Backend and frontend URLs, including localhost and the Heroku dev host, hardcoded in the bundle",
+   "keep_rewrite_throwaway": "keep",
+   "confidence": "low"
+  },
+  {
+   "category": "hardcoded_config",
+   "file": "backend/api/__init__.py",
+   "line_start": 23,
+   "line_end": 23,
+   "what": "CORS origins default to http://localhost:3000",
+   "keep_rewrite_throwaway": "keep",
+   "confidence": "low"
+  },
+  {
+   "category": "hardcoded_config",
+   "file": "frontend/public/launch-bot.html",
+   "line_start": 87,
+   "line_end": 92,
+   "what": "Bot URL hardcoded: localhost:8001 locally, production bot everywhere else, including the dev tier",
+   "keep_rewrite_throwaway": "keep",
+   "confidence": "low"
+  },
+  {
+   "category": "note_public_key",
+   "file": "frontend/src/utils/fireauth.js",
+   "line_start": 5,
+   "line_end": 13,
+   "what": "Firebase web config (project id, app id, sender id). The apiKey comes from REACT_APP_FIREBASE_API_KEY. Public by design",
+   "keep_rewrite_throwaway": "keep",
+   "confidence": "high"
+  },
+  {
+   "category": "ai_prompt_only_rule",
+   "file": "backend/api/utils/message_flagging.py",
+   "line_start": 111,
+   "line_end": 113,
+   "related_file": "backend/api/utils/message_flagging.py",
+   "related_line": 411,
+   "what": "Prompt says flag only when the exact violating words can be quoted. Code checks only that evidence is non-empty, not that it appears in the message, so a made-up quote still holds the message",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "ai_prompt_only_rule",
+   "file": "backend/api/utils/message_flagging.py",
+   "line_start": 148,
+   "line_end": 149,
+   "related_file": "backend/api/utils/message_flagging.py",
+   "related_line": 806,
+   "what": "Prompt says classify only the latest message. Code sends earlier messages as context and has no check that the evidence comes from the latest message",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "low"
+  }
+ ]
+}

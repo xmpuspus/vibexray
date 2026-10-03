@@ -212,5 +212,195 @@
     "boot_state": "could not boot",
     "folder": "gg-mo__agent-tea",
     "builder_evidence": "Merge commit: Merge pull request #16 from gg-mo/codex/fix-vercel-analytics-dependency. Codex branch name only, no trailer seen."
+  },
+  {
+    "url": "https://github.com/Allen-Saji/everdesk",
+    "sha": "789eabfafeafba4a0ef2847585e1105648303cee",
+    "license": "MIT",
+    "builder": "claude-code",
+    "kind": "ai-chatbot",
+    "boot_state": "not_tested",
+    "folder": "Allen-Saji__everdesk",
+    "evidence": "Files in repo: AGENTS.md, CLAUDE.md"
+  },
+  {
+    "url": "https://github.com/RTE404/Doctor-Appointment-Agent",
+    "sha": "713f8d2f924636c86ed5a7bd5ff83f644f2eb2c0",
+    "license": "Apache-2.0",
+    "builder": "claude-code",
+    "kind": "ai-chatbot",
+    "boot_state": "not_tested",
+    "folder": "RTE404__Doctor-Appointment-Agent",
+    "evidence": "Files in repo: CLAUDE.md"
+  },
+  {
+    "url": "https://github.com/SIDEYS/intelligent-bistro",
+    "sha": "c56a9ac801d432427432d560c73ae9c569b34606",
+    "license": "MIT",
+    "builder": "claude-code",
+    "kind": "ai-chatbot",
+    "boot_state": "not_tested",
+    "folder": "SIDEYS__intelligent-bistro",
+    "evidence": "Files in repo: CLAUDE.md, apps/mobile/AGENTS.md, apps/mobile/CLAUDE.md"
+  },
+  {
+    "url": "https://github.com/R3108/Customer_Support_Agent",
+    "sha": "282f94db2fc301216b1d004e2ee20a71201cd09a",
+    "license": "Apache-2.0",
+    "builder": "claude-code",
+    "kind": "ai-chatbot",
+    "boot_state": "not_tested",
+    "folder": "R3108__Customer_Support_Agent",
+    "evidence": "Files in repo: frontend/AGENTS.md, frontend/CLAUDE.md, .claude/settings.local.json"
+  },
+  {
+    "url": "https://github.com/klio-tech/customer_support_agent",
+    "sha": "30e4e1f560f9f44ea4e43fcabf7d699da157deac",
+    "license": "Apache-2.0",
+    "builder": "claude-code",
+    "kind": "ai-chatbot",
+    "boot_state": "not_tested",
+    "folder": "klio-tech__customer_support_agent",
+    "evidence": "Files in repo: CLAUDE.md, .claude/agents/better-auth-expert.md, .claude/agents/code-review.md"
+  },
+  {
+    "url": "https://github.com/mrnetwork0001/Nestor",
+    "sha": "42dc4817eff140f0c6eb884ecf6b4032ede43d85",
+    "license": "Apache-2.0",
+    "builder": "claude-code",
+    "kind": "ai-chatbot",
+    "boot_state": "not_tested",
+    "folder": "mrnetwork0001__Nestor",
+    "evidence": "Files in repo: .claude/settings.json, .claude/skills/convex-hackathon-skill/SKILL.md"
+  },
+  {
+    "url": "https://github.com/perfectcse/refund-ai-customer-support-agent",
+    "sha": "c9b397b57db123fd5b6db3042085c1108be2ff14",
+    "license": "MIT",
+    "builder": "claude-code",
+    "kind": "ai-chatbot",
+    "boot_state": "not_tested",
+    "folder": "perfectcse__refund-ai-customer-support-agent",
+    "evidence": "Files in repo: AGENTS.md, CLAUDE.md"
+  },
+  {
+    "url": "https://github.com/thesolvers005/queuezeroai",
+    "sha": "6b4770cef3221da934143854dfecf0fb9016b0e7",
+    "license": "MIT",
+    "builder": "claude-code",
+    "kind": "ai-chatbot",
+    "boot_state": "not_tested",
+    "folder": "thesolvers005__queuezeroai",
+    "evidence": "Files in repo: CLAUDE.md, .claude/launch.json, .claude/settings.local.json"
+  },
+  {
+    "url": "https://github.com/trevhud/concier",
+    "sha": "50a421a2cf1b12520eedda6933ea98871cf8bcf5",
+    "license": "MIT",
+    "builder": "claude-code",
+    "kind": "ai-chatbot",
+    "boot_state": "not_tested",
+    "folder": "trevhud__concier",
+    "evidence": "Files in repo: CLAUDE.md"
+  },
+  {
+    "url": "https://github.com/vintasoftware/medplum-ai-concierge",
+    "sha": "c54f5256e30513fb7b653ac2d86bf58432d50984",
+    "license": "Apache-2.0",
+    "builder": "codex",
+    "kind": "ai-chatbot",
+    "boot_state": "not_tested",
+    "folder": "vintasoftware__medplum-ai-concierge",
+    "evidence": "Files in repo: AGENTS.md"
+  },
+  {
+    "url": "https://github.com/harshadasari/ai-customer-support-agent",
+    "sha": "3fd1ef8d5b938d77871ca01bddf9c982857dde6e",
+    "license": "MIT",
+    "builder": "claude-code",
+    "kind": "ai-chatbot",
+    "boot_state": "not_tested",
+    "folder": "harshadasari__ai-customer-support-agent",
+    "evidence": "Files in repo: CLAUDE.md, .claude/settings.local.json"
+  },
+  {
+    "url": "https://github.com/yedlurisrinu/reno-compass",
+    "sha": "66edb6f837f1401007b8829d0eba6757336e3423",
+    "license": "Apache-2.0",
+    "builder": "claude-code",
+    "kind": "ai-chatbot",
+    "boot_state": "not_tested",
+    "folder": "yedlurisrinu__reno-compass",
+    "evidence": "Files in repo: CLAUDE.md"
+  },
+  {
+    "url": "https://github.com/Ali1raz/teamcomms",
+    "sha": "eea302639694f993fd428bb18b83ff04b1941fef",
+    "license": "MIT",
+    "builder": "claude-code",
+    "kind": "general",
+    "boot_state": "not_tested",
+    "folder": "Ali1raz__teamcomms",
+    "evidence": "AGENTS.md and CLAUDE.md at repo root"
+  },
+  {
+    "url": "https://github.com/boffti/stardash",
+    "sha": "4f9d6322feb164af365ba0ad5f8156057c89c712",
+    "license": "MIT",
+    "builder": "claude-code",
+    "kind": "general",
+    "boot_state": "not_tested",
+    "folder": "boffti__stardash",
+    "evidence": "AGENTS.md and CLAUDE.md at repo root"
+  },
+  {
+    "url": "https://github.com/kupzed/catatz",
+    "sha": "4e8cad0daab1d2044f738f0840021f6288d26582",
+    "license": "MIT",
+    "builder": "claude-code",
+    "kind": "general",
+    "boot_state": "not_tested",
+    "folder": "kupzed__catatz",
+    "evidence": "Folder .claude/agents/ (code-reviewer.md, docs-researcher.md, planner.md)"
+  },
+  {
+    "url": "https://github.com/SpaceSyt/watch-tracker",
+    "sha": "338e94ab52342c624a657c0e6832b23341081afa",
+    "license": "MIT",
+    "builder": "codex",
+    "kind": "general",
+    "boot_state": "not_tested",
+    "folder": "SpaceSyt__watch-tracker",
+    "evidence": "AGENTS.md at repo root"
+  },
+  {
+    "url": "https://github.com/OysterD3/tesboard",
+    "sha": "09e99d33bfb73e28381e98bc129a9bbbf791eb30",
+    "license": "MIT",
+    "builder": "claude-code",
+    "kind": "general",
+    "boot_state": "not_tested",
+    "folder": "OysterD3__tesboard",
+    "evidence": "AGENTS.md and CLAUDE.md at repo root"
+  },
+  {
+    "url": "https://github.com/mentee-global/mentee",
+    "sha": "93d6fd852f36d683c6afe1b1f64d62b0d33a469a",
+    "license": "MIT",
+    "builder": "claude-code",
+    "kind": "general",
+    "boot_state": "not_tested",
+    "folder": "mentee-global__mentee",
+    "evidence": "AGENTS.md and CLAUDE.md at repo root"
+  },
+  {
+    "url": "https://github.com/solusops/MyGPU",
+    "sha": "428b97d374b28b4d62d2470887be9c844366179a",
+    "license": "MIT",
+    "builder": "codex",
+    "kind": "general",
+    "boot_state": "not_tested",
+    "folder": "solusops__MyGPU",
+    "evidence": "AGENTS.md at repo root"
   }
 ]

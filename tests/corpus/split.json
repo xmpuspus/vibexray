@@ -34,5 +34,25 @@
     "laughingkid-sg__sg-remote-food-order",
     "gg-mo__agent-tea"
   ],
-  "sealed": []
+  "sealed": [
+    "Allen-Saji__everdesk",
+    "RTE404__Doctor-Appointment-Agent",
+    "SIDEYS__intelligent-bistro",
+    "R3108__Customer_Support_Agent",
+    "klio-tech__customer_support_agent",
+    "mrnetwork0001__Nestor",
+    "perfectcse__refund-ai-customer-support-agent",
+    "thesolvers005__queuezeroai",
+    "trevhud__concier",
+    "vintasoftware__medplum-ai-concierge",
+    "harshadasari__ai-customer-support-agent",
+    "yedlurisrinu__reno-compass",
+    "Ali1raz__teamcomms",
+    "boffti__stardash",
+    "kupzed__catatz",
+    "SpaceSyt__watch-tracker",
+    "OysterD3__tesboard",
+    "mentee-global__mentee",
+    "solusops__MyGPU"
+  ]
 }

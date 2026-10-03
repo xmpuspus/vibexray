@@ -190,3 +190,49 @@ def test_key_block_pasted_in_a_prompt_is_hidden_across_its_lines(tmp_path, monke
     text = read_history(ROOT, "auto").prompts[0].text
     assert body not in text
     assert "Only admins can export." in text
+
+
+def _claude_home_with_records(tmp_path, changes):
+    """Copy the real Claude session, then add one user record per change to its first prompt."""
+    src = next((FIXTURES / "claude" / "projects").glob("*/*.jsonl"))
+    dest_dir = tmp_path / "claude" / "projects" / src.parent.name
+    dest_dir.mkdir(parents=True)
+    records = [json.loads(line) for line in src.read_text().splitlines()]
+    first = next(d for d in records if d["type"] == "user")
+    out = []
+    for change in changes:
+        d = json.loads(json.dumps(first))
+        d["message"]["content"] = change.pop("content")
+        d.update(change)
+        out.append(json.dumps(d))
+    (dest_dir / src.name).write_text("\n".join(out) + "\n")
+    return tmp_path / "claude"
+
+
+def test_a_folder_with_the_same_claude_folder_name_reads_nothing(homes):
+    # Claude Code names both /home/pm/sample-bot and /home/pm/sample_bot "-home-pm-sample-bot".
+    # The records say cwd /home/pm/sample-bot, so a scan of sample_bot must not show them.
+    assert read_history(Path("/home/pm/sample_bot"), "auto").prompts == []
+    assert read_history(ROOT, "auto").prompts
+
+
+def test_summaries_and_shell_output_are_not_pm_words(tmp_path, monkeypatch):
+    home = _claude_home_with_records(
+        tmp_path,
+        [
+            {
+                "content": "Summary: the user said only admins must refund.",
+                "isCompactSummary": True,
+            },
+            {"content": "Earlier turns, shown for context.", "isVisibleInTranscriptOnly": True},
+            {"content": "<bash-input>cat .env</bash-input>"},
+            {
+                "content": "<bash-stdout>DB_PASS=hunter2pass</bash-stdout><bash-stderr></bash-stderr>"
+            },
+            {"content": "Refunds over 100 dollars need a manager."},
+        ],
+    )
+    monkeypatch.setenv("VIBEXRAY_CLAUDE_HOME", str(home))
+    monkeypatch.setenv("VIBEXRAY_CODEX_HOME", str(tmp_path / "no-codex"))
+    texts = [p.text for p in read_history(ROOT, "auto").prompts]
+    assert texts == ["Refunds over 100 dollars need a manager."]

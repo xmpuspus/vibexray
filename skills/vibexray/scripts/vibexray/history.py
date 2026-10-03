@@ -25,6 +25,7 @@ _INJECTED_PREFIXES = (
     "<skill",
     "<teammate-message",
     "<task-notification",
+    "<bash-",
     "# AGENTS.md instructions",
     "Caveat:",
     "[Request interrupted",
@@ -110,10 +111,20 @@ def _jsonl(path: Path) -> list[dict]:
     return out
 
 
-def _read_claude_session(path: Path) -> list[_Chat]:
+def _inside(cwd: object, forms: list[str]) -> bool:
+    return isinstance(cwd, str) and any(cwd == f or cwd.startswith(f + os.sep) for f in forms)
+
+
+def _read_claude_session(path: Path, forms: list[str]) -> list[_Chat]:
     chats = []
     for d in _jsonl(path):
         if d.get("type") != "user" or d.get("isMeta") or d.get("isSidechain"):
+            continue
+        # Summaries and transcript-only records are Claude's words, not the PM's.
+        if d.get("isCompactSummary") or d.get("isVisibleInTranscriptOnly"):
+            continue
+        # Folder names collide: my-app and my_app both become "-my-app". The cwd decides.
+        if not _inside(d.get("cwd"), forms):
             continue
         message = d.get("message")
         if not isinstance(message, dict) or message.get("role") != "user":
@@ -127,12 +138,13 @@ def _read_claude_session(path: Path) -> list[_Chat]:
 def _claude_sessions(root: Path) -> list[list[_Chat]]:
     projects = _home("VIBEXRAY_CLAUDE_HOME", ".claude") / "projects"
     out = []
-    for name in sorted({_claude_dir_name(p) for p in _root_forms(root)}):
+    forms = _root_forms(root)
+    for name in sorted({_claude_dir_name(p) for p in forms}):
         folder = projects / name
         if not folder.is_dir():
             continue
         for f in sorted(folder.glob("*.jsonl")):
-            chats = _read_claude_session(f)
+            chats = _read_claude_session(f, forms)
             if chats:
                 out.append(chats)
     return out

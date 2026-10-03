@@ -30,6 +30,7 @@ _INJECTED_PREFIXES = (
     "[Request interrupted",
     "Base directory for this skill",
 )
+_SELF = re.compile(r"\bvibe\s?x-?ray\b", re.I)
 _REMINDER_BLOCK = re.compile(r"<(system-reminder|local-command-[a-z]+)>.*?</\1>", re.S)
 
 
@@ -46,6 +47,9 @@ def _home(env: str, default: str) -> Path:
 def _clean(text: str) -> str:
     text = _REMINDER_BLOCK.sub("", text).strip()
     if not text or text.startswith(_INJECTED_PREFIXES):
+        return ""
+    # A request to run vibexray itself is not part of the build.
+    if _SELF.search(text):
         return ""
     # redact() also truncates, so hide secrets word by word and cap the whole prompt after.
     text = " ".join(redact(word) for word in text.split())

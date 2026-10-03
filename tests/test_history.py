@@ -169,3 +169,11 @@ def test_agent_team_messages_are_not_pm_prompts(tmp_path, monkeypatch, text):
     monkeypatch.setenv("VIBEXRAY_CLAUDE_HOME", str(home))
     monkeypatch.setenv("VIBEXRAY_CODEX_HOME", str(tmp_path / "no-codex"))
     assert read_history(ROOT, "auto").prompts == []
+
+
+def test_prompts_that_ask_for_vibexray_are_not_build_chat(tmp_path, monkeypatch):
+    # A PM who runs the skill again in the same folder must not see that request as a rule.
+    home = _claude_home_with_prompt(tmp_path, "Is this support bot ready? Run vibexray on it.")
+    monkeypatch.setenv("VIBEXRAY_CLAUDE_HOME", str(home))
+    monkeypatch.setenv("VIBEXRAY_CODEX_HOME", str(tmp_path / "no-codex"))
+    assert read_history(ROOT, "auto").prompts == []

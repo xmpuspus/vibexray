@@ -18,6 +18,8 @@ CATEGORIES: dict[str, tuple[str, str]] = {
     "ai_tool_unbounded": ("AI tool with no limit in code", "ai"),
     "ai_prompt_only_rule": ("Rule that lives only in the AI prompt", "ai"),
     "ai_no_human_review": ("AI acts with no human check", "ai"),
+    "ai_no_tests": ("AI behavior has no tests", "ai"),
+    "ai_no_cost_limit": ("AI use has no cost limit", "ai"),
 }
 
 GROUPS: dict[str, str] = {
@@ -50,6 +52,7 @@ class Finding:
     related_file: str | None = None
     related_line: int | None = None
     related_snippet: str | None = None
+    related_end_line: int | None = None
 
     @property
     def group(self) -> str:

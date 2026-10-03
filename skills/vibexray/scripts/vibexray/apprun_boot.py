@@ -52,7 +52,9 @@ def detect_package_manager(root: Path) -> str:
 
 
 def detect_script(pkg: dict) -> str | None:
-    scripts = pkg.get("scripts") or {}
+    scripts = pkg.get("scripts")
+    if not isinstance(scripts, dict):
+        return None
     return next((s for s in SCRIPT_ORDER if s in scripts), None)
 
 

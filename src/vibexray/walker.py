@@ -125,9 +125,13 @@ def _package_deps(root: Path) -> dict[str, str]:
         data = json.loads(pkg.read_text(encoding="utf-8"))
     except (OSError, ValueError):
         return {}
+    if not isinstance(data, dict):
+        return {}
     deps: dict[str, str] = {}
     for key in ("dependencies", "devDependencies"):
-        deps.update(data.get(key) or {})
+        section = data.get(key)
+        if isinstance(section, dict):
+            deps.update(section)
     return deps
 
 

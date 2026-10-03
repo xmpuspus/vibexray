@@ -105,8 +105,11 @@ def _mock_lib(rule: Rule, files: list[SourceFile]) -> Iterable[Finding]:
             if not f.path.endswith("package.json"):
                 continue
             try:
-                deps = json.loads(f.text).get("dependencies") or {}
+                data = json.loads(f.text)
             except ValueError:
+                continue
+            deps = data.get("dependencies") if isinstance(data, dict) else None
+            if not isinstance(deps, dict):
                 continue
             for name in deps:
                 if re.fullmatch(_FAKE_LIB, name) and name != "msw":

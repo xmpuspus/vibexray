@@ -59,6 +59,12 @@ def test_script_order_dev_start_preview():
     assert detect_script({}) is None
 
 
+def test_script_list_that_is_not_an_object_finds_nothing():
+    # "dev" in "dev" is True for a string, so a string must not count as a script table.
+    assert detect_script({"scripts": "dev"}) is None
+    assert detect_script({"scripts": ["dev"]}) is None
+
+
 @pytest.mark.corpus
 def test_env_names_from_real_repo():
     names = find_env_names(corpus_repo("ai-customer-support-agent"))

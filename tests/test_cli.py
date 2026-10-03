@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import pytest
 from conftest import load_report_json
 
 from vibexray import __version__
@@ -85,3 +86,22 @@ def test_terminal_summary_counts_read_as_plain_english(cli, tmp_path):
     result = cli("scan", str(target), "--out", str(tmp_path / "out"), "--no-run", "--no-history")
     assert "vibexray found no app code in empty-app." in result.stdout
     assert " 1 questions" not in result.stdout
+
+
+@pytest.mark.parametrize(
+    "package",
+    [
+        '["not", "an", "object"]',
+        '{"dependencies": ["react"], "devDependencies": "vite"}',
+    ],
+)
+def test_odd_package_json_never_crashes_the_scan(cli, tmp_path, package):
+    # A hand-edited package.json can hold any JSON. The scan must still write its outputs.
+    target = tmp_path / "app"
+    target.mkdir()
+    (target / "package.json").write_text(package)
+    out = tmp_path / "out"
+    result = cli("scan", str(target), "--out", str(out), "--no-run", "--no-history")
+    assert result.returncode == 0, result.stderr
+    assert "Traceback" not in result.stderr
+    assert (out / "report.html").is_file()

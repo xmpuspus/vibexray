@@ -1,41 +1,16 @@
+ALTER TABLE "public"."names" ENABLE ROW LEVEL SECURITY;
 
 
-ALTER TYPE "public"."app_role" OWNER TO "postgres";
+ALTER TABLE "public"."notification_preferences" ENABLE ROW LEVEL SECURITY;
 
 
-CREATE TYPE "public"."notification_type" AS ENUM (
-    'like',
-    'comment'
-);
+ALTER TABLE "public"."notifications" ENABLE ROW LEVEL SECURITY;
 
 
-ALTER TYPE "public"."notification_type" OWNER TO "postgres";
+ALTER TABLE "public"."product_barcodes" ENABLE ROW LEVEL SECURITY;
 
 
-CREATE OR REPLACE FUNCTION "public"."check_username_exists"("username_to_check" "text") RETURNS boolean
-    LANGUAGE "sql" STABLE SECURITY DEFINER
-    SET "search_path" TO 'public'
-    AS $$
-  SELECT EXISTS (
-    SELECT 1 
-    FROM public.profiles 
-    WHERE username = username_to_check
-  );
-$$;
+ALTER TABLE "public"."product_flavors" ENABLE ROW LEVEL SECURITY;
 
 
-ALTER FUNCTION "public"."check_username_exists"("username_to_check" "text") OWNER TO "postgres";
-
-
-CREATE OR REPLACE FUNCTION "public"."create_comment_notification"() RETURNS "trigger"
-    LANGUAGE "plpgsql" SECURITY DEFINER
-    SET "search_path" TO 'public'
-    AS $$
-DECLARE
-  milk_test_data RECORD;
-  preferences RECORD;
-  product_desc TEXT;
-BEGIN
-  -- Get the milk test owner and detailed product data
-  SELECT 
-    mt.user_id, 
+ALTER TABLE "public"."product_properties" ENABLE ROW LEVEL SECURITY;

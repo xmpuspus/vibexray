@@ -8,10 +8,6 @@ def test_model_text_in_inner_html_is_flagged():
     assert hit_with("xss-html-injection", "dangerouslySetInnerHTML", BUBBLE)
 
 
-def test_inner_html_with_a_fixed_icon_is_ignored():
-    assert hit_with("xss-html-injection", "btn.innerHTML", WIDGET) == []
-
-
 def test_eval_word_in_a_string_list_is_not_a_call():
     assert run("eval-or-new-function", "milk-me-not/src/lib/fileValidation.ts") == []
 

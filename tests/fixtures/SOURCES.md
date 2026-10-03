@@ -34,9 +34,13 @@ Doc fixtures sit under `tests/fixtures/docs/` and name the page they come from.
 | https://github.com/Tech4Humanity-001/workfamilai | 36e2ac44156b012dfed03c4c7821548424ec90ca | MIT | `src/pages/DemoComingSoon.tsx` | 1-253 |
 | https://github.com/Tech4Humanity-001/workfamilai | 36e2ac44156b012dfed03c4c7821548424ec90ca | MIT | `supabase/config.toml` | 1-71 |
 | https://github.com/Tech4Humanity-001/workfamilai | 36e2ac44156b012dfed03c4c7821548424ec90ca | MIT | `supabase/functions/create-donation/index.ts` | 1-83 |
+| https://github.com/Tech4Humanity-001/workfamilai | 36e2ac44156b012dfed03c4c7821548424ec90ca | MIT | `supabase/functions/submit-contact-form/index.ts` | 1-339 |
+| https://github.com/Tech4Humanity-001/workfamilai | 36e2ac44156b012dfed03c4c7821548424ec90ca | MIT | `supabase/functions/submit-work-package-quote/index.ts` | 1-445 |
+| https://github.com/Tech4Humanity-001/workfamilai | 36e2ac44156b012dfed03c4c7821548424ec90ca | MIT | `supabase/functions/subscribe-newsletter/index.ts` | 1-143 |
 | https://github.com/aaryanaik/SliceIQ | 5e11c01a9c06e6a6878dd6020edd7bea06e9439f | MIT | `backend/src/agent/react-loop.ts` | 1-237 |
 | https://github.com/aaryanaik/SliceIQ | 5e11c01a9c06e6a6878dd6020edd7bea06e9439f | MIT | `backend/src/agent/tools.ts` | 1-248 |
 | https://github.com/aaryanaik/SliceIQ | 5e11c01a9c06e6a6878dd6020edd7bea06e9439f | MIT | `backend/src/index.ts` | 1-53 |
+| https://github.com/aaryanaik/SliceIQ | 5e11c01a9c06e6a6878dd6020edd7bea06e9439f | MIT | `backend/src/routes/auth.ts` | 1-123 |
 | https://github.com/aaryanaik/SliceIQ | 5e11c01a9c06e6a6878dd6020edd7bea06e9439f | MIT | `frontend/src/components/Login.tsx` | 1-137 |
 | https://github.com/aaryanaik/SliceIQ | 5e11c01a9c06e6a6878dd6020edd7bea06e9439f | MIT | `frontend/src/components/MessageBubble.tsx` | 1-72 |
 | https://github.com/aaryanaik/SliceIQ | 5e11c01a9c06e6a6878dd6020edd7bea06e9439f | MIT | `frontend/src/components/Toast.tsx` | 1-51 |
@@ -58,6 +62,7 @@ Doc fixtures sit under `tests/fixtures/docs/` and name the page they come from.
 | https://github.com/mehranmls4-arch/ai-customer-support-agent | e2ea5e322a22dbe35a7e95da29eca5cb115fba6c | MIT | `src/app/api/orders/[id]/route.ts` | 1-29 |
 | https://github.com/mehranmls4-arch/ai-customer-support-agent | e2ea5e322a22dbe35a7e95da29eca5cb115fba6c | MIT | `src/app/api/tickets/route.ts` | 1-43 |
 | https://github.com/mehranmls4-arch/ai-customer-support-agent | e2ea5e322a22dbe35a7e95da29eca5cb115fba6c | MIT | `src/lib/agent/tools.ts` | 1-259 |
+| https://github.com/mj-deving/ai-support-agent | 4162c29e0ff50f674ac63bcbd79e8e8cddcfaf2e | MIT | `public/index.html` | 510-565 |
 | https://github.com/nileshtripathy/nexora-ai | 83e26dc06453bdad742be46a6f9a00de87e2a13a | MIT | `app/api/admin/tickets/[id]/route.ts` | 1-25 |
 | https://github.com/nileshtripathy/nexora-ai | 83e26dc06453bdad742be46a6f9a00de87e2a13a | MIT | `app/api/chat/route.ts` | 1-90 |
 | https://github.com/nileshtripathy/nexora-ai | 83e26dc06453bdad742be46a6f9a00de87e2a13a | MIT | `app/api/documents/route.ts` | 1-32 |
@@ -69,7 +74,9 @@ Doc fixtures sit under `tests/fixtures/docs/` and name the page they come from.
 | https://github.com/preijm/milk-me-not | 7ae61867787b83b86e8464f1349e27e5124332d3 | MIT | `src/contexts/AuthContext.tsx` | 80-100 |
 | https://github.com/preijm/milk-me-not | 7ae61867787b83b86e8464f1349e27e5124332d3 | MIT | `src/hooks/auth/useAuthOperations.ts` | 60-120 |
 | https://github.com/preijm/milk-me-not | 7ae61867787b83b86e8464f1349e27e5124332d3 | MIT | `src/lib/fileValidation.ts` | 100-130 |
+| https://github.com/preijm/milk-me-not | 7ae61867787b83b86e8464f1349e27e5124332d3 | MIT | `supabase/migrations/00000000000000_baseline.sql` | 1835-1850 |
 | https://github.com/preijm/milk-me-not | 7ae61867787b83b86e8464f1349e27e5124332d3 | MIT | `supabase/migrations/00000000000000_baseline.sql` | 30-70 |
+| https://github.com/preijm/milk-me-not | 7ae61867787b83b86e8464f1349e27e5124332d3 | MIT | `supabase/migrations/20260820120000_remember_product_barcodes.sql` | 1-75 |
 | https://github.com/velcont/yana-contabila | 648fb73b87cebb592ab57c1aa2f1894c38cce8cf | Apache-2.0 | `public/yana-local-agent/agent.mjs` | 70-100 |
 | https://github.com/velcont/yana-contabila | 648fb73b87cebb592ab57c1aa2f1894c38cce8cf | Apache-2.0 | `src/components/AICreditsPurchase.tsx` | 1-80 |
 | https://github.com/velcont/yana-contabila | 648fb73b87cebb592ab57c1aa2f1894c38cce8cf | Apache-2.0 | `src/components/VisualFeedback.tsx` | 105-125 |

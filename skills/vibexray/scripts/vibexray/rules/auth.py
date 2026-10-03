@@ -146,7 +146,7 @@ _AUTH_FLAG = re.compile(
 _INTERNAL_FN = re.compile(
     r"cron|schedul|daily|weekly|hourly|cleanup|decay|reflect|sync|backfill|webhook|callback|hook|digest|notify"
     r"|alerts|status|tracker|detector|worker|trigger|incoming|completed|rate-limit|health|ping|contact"
-    r"|subscribe|newsletter",
+    r"|subscribe|newsletter|donat|quote|signup|register|waitlist|feedback|checkout",
     re.I,
 )
 _FN_SECTION = re.compile(r"^\s*\[functions\.([\w-]+)\]\s*\n\s*(verify_jwt\s*=\s*false)", re.M)
@@ -272,7 +272,14 @@ _AUTH_WORDS = re.compile(
 )
 _PUBLIC_ROUTE = re.compile(
     r"chat|contact|webhook|subscribe|public|waitlist|newsletter|login|register|signup|callback|auth|rate-limit|health|ping"
+    r"|quote|donat|feedback"
 )
+_LIMITED = re.compile(r"rate[-_ ]?limit|throttle", re.I)
+_PUBLIC_LITERAL = re.compile(
+    r"['\"/](register|signup|sign-up|login|signin|contact|subscribe|newsletter|waitlist|webhook|quote|donat)",
+    re.I,
+)
+_AUTH_FILE = re.compile(r"(^|/)(auth|login|register|signup|session)\.(ts|js|py)$")
 _TAKES_INPUT = re.compile(r"req\.json\(|formData\(|searchParams|req\.text\(|await req\b")
 _FN_JWT_OFF = re.compile(r"^\[functions\.([\w-]+)\]\s*\n\s*verify_jwt\s*=\s*false", re.M)
 
@@ -300,7 +307,13 @@ def _api_no_auth(rule: Rule, files: list[SourceFile]) -> Iterable[Finding]:
         wm = _WRITE_ROUTE.search(code)
         if (not wm and not is_edge) or not _DATA_CALL.search(code) or _AUTH_WORDS.search(code):
             continue
-        if is_edge and (not _TAKES_INPUT.search(code) or _PUBLIC_ROUTE.search(p)):
+        if is_edge and (
+            not _TAKES_INPUT.search(code) or _PUBLIC_ROUTE.search(p) or _LIMITED.search(f.text)
+        ):
+            continue
+        if wm and _PUBLIC_LITERAL.search(f.lines[line_of(f.text, wm.start()) - 1]):
+            continue
+        if _AUTH_FILE.search(p):
             continue
         ln = line_of(f.text, wm.start()) if wm else 1
         fnd = rule.finding(f, ln, f.lines[ln - 1] if f.lines else f.path)

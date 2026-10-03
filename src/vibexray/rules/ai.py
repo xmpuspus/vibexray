@@ -43,6 +43,9 @@ GATE_GLOBAL = re.compile(
     r"toolApproval|needsApproval|requireApproval|requires_approval|human_?approval|addToolApprovalResponse"
     r"|\binterrupt\(|dryRun|pending_?approval|awaiting_?approval|\bapprove\w*\("
 )
+GATE_RAW = re.compile(
+    r"awaiting_?(?:customer_|human_)?approval|pending_?approval|needs_?approval|requires_?approval"
+)
 GATE_LOCAL = re.compile(r"\b(?:confirm|confirmed|approved|approval|human|manager)\b", re.I)
 GENERIC = {
     "get",
@@ -283,6 +286,8 @@ def tools_in(files: list[SourceFile]) -> list[Tool]:
 
 
 def _gated(tool: Tool, files: list[SourceFile]) -> bool:
+    if GATE_RAW.search(tool.raw):
+        return True
     if GATE_LOCAL.search(tool.code + code_only(tool.schema)):
         return True
     return any(GATE_GLOBAL.search(code_only(f.text)) for f in live(files, SRC))
@@ -447,7 +452,7 @@ def _canned(rule: Rule, files: list[SourceFile]) -> Iterable[Finding]:
         r"\bawait\b|\bfetch\(|\bdb\.|prisma|supabase|\.query\(|\.select\(|\.find\w*\(|axios|readFile|\.from\(|\.execute\("
     )
     literal = re.compile(
-        r"\breturn\b[^;]{0,200}?\b(?!ok|success|found|error|message)\w+\s*:\s*(?:'[^']*'|\"[^\"]*\"|\d+)"
+        r"\breturn\b[^;]{0,200}?\b(?!ok|success|found|error|message|note|hint|results|matches)\w+\s*:\s*(?:'[^']*'|\"[^\"]*\"|\d+)"
     )
     for t in tools_in(files):
         if not t.handlers:

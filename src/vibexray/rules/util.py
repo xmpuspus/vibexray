@@ -71,9 +71,6 @@ _SERVER_PATH = re.compile(
     r"|(^|/)api/|(^|/)route\.(ts|js|mjs)$|(^|/)middleware\.(ts|js)$"
 )
 _CLIENT_DIR = re.compile(r"(^|/)(frontend|client|web)/|(^|/)public/")
-_APP_SRC_DIR = re.compile(
-    r"(^|/)src/(components|hooks|pages|lib|utils|services|contexts|context|store|stores|views)/"
-)
 _SERVER_TEXT = re.compile(
     r"process\.env\.(?!NEXT_PUBLIC_)|from ['\"](express|fastify|@nestjs/\w+|next/server|koa|hono|pg)['\"]"
     r"|require\(['\"]express|Deno\.|@prisma/client|drizzle-orm|createServer\("
@@ -107,9 +104,7 @@ def is_client(f: SourceFile) -> bool:
         return not server_text and not re.search(r"(^|/)app/", p)
     if _CLIENT_DIR.search(p) and not server_text:
         return True
-    if _BROWSER_API.search(f.text) and not server_text:
-        return True
-    return bool(_APP_SRC_DIR.search(p)) and not server_text and f.suffix in UI
+    return bool(_BROWSER_API.search(f.text)) and not server_text
 
 
 _STRIP = re.compile(
@@ -140,6 +135,8 @@ def match_close(code: str, open_idx: int) -> int | None:
     """Index of the bracket that closes the one at open_idx, on blanked code."""
     pairs = {"{": "}", "[": "]", "(": ")"}
     o = code[open_idx]
+    if o not in pairs:
+        return None
     c = pairs[o]
     depth = 0
     for i in range(open_idx, len(code)):
@@ -160,7 +157,8 @@ _FUNC_DEF = re.compile(
 )
 
 
-def function_bodies(text: str) -> list[tuple[str, int, int]]:
+@lru_cache(maxsize=1024)
+def function_bodies(text: str) -> tuple[tuple[str, int, int], ...]:
     """(name, body start, body end) for named JS and TS functions."""
     code = code_only(text)
     out = []
@@ -168,7 +166,7 @@ def function_bodies(text: str) -> list[tuple[str, int, int]]:
         end = match_close(code, m.end() - 1)
         if end is not None:
             out.append((m.group("n1") or m.group("n2"), m.end(), end))
-    return out
+    return tuple(out)
 
 
 def enclosing_function(text: str, pos: int) -> tuple[str, int, int] | None:
@@ -316,5 +314,11 @@ def custom_rule(
 
 
 def live(files: list[SourceFile], suffixes: tuple[str, ...] = SRC) -> list[SourceFile]:
-    """Files a cross-file rule may read: right suffix, not a test, story, or UI kit file."""
-    return [f for f in files if f.suffix in suffixes and not is_noise(f.path, allow_config=True)]
+    """Files a cross-file rule may read: right suffix, not a test, story, script, or UI kit file."""
+    return [
+        f
+        for f in files
+        if f.suffix in suffixes
+        and not is_noise(f.path, allow_config=True)
+        and not is_script_or_seed(f.path)
+    ]

@@ -22,13 +22,13 @@ from vibexray.rules.util import (
 from vibexray.walker import SourceFile
 
 _DEV_LINE = re.compile(
-    r"\bis_?dev\b|\bdev\s*\?|NODE_ENV|import\.meta\.env\.DEV|isLocal|listen\(|console\.|Logger",
+    r"\bis_?dev\b|\bdev\s*\?|NODE_ENV|import\.meta\.env\.DEV|isLocal|listen|console\.|Logger",
     re.I,
 )
 
 
 def _localhost(f: SourceFile, m: re.Match, t: str) -> dict | None:
-    if _DEV_LINE.search(t):
+    if _DEV_LINE.search(t) or f.path.endswith((".example", ".sample")) or ".env." in f.path:
         return None
     sev = "medium"
     if re.search(r"fetch\(|axios", t) and is_client(f) and not re.search(r"\?\?|\|\|", t):
@@ -106,7 +106,8 @@ feature_flag = line_rule(
 )
 
 _NAMED_NUMBER = re.compile(
-    r"\b((?:max|min)?\w*(?:amount|refund|price|fee|credits|discount|quota|threshold)\w*)\s*[:=]\s*(\d+(?:\.\d+)?)\b",
+    r"\b((?:max|min)\w*(?:amount|price|fee|credits|refund|discount)\w*|\w*refund\w*|\w*threshold\w*|\w*quota\w*)"
+    r"\s*[:=]\s*(\d+(?:\.\d+)?)\b",
     re.I,
 )
 
@@ -121,7 +122,11 @@ def _magic_conflict(rule: Rule, files: list[SourceFile]) -> Iterable[Finding]:
     for places in seen.values():
         if len({p[2] for p in places}) < 2 or len({p[0].path for p in places}) < 2:
             continue
-        (f, ln, _), (g, gl, _) = places[0], next(p for p in places if p[2] != places[0][2])
+        first = places[0]
+        other = next((p for p in places if p[2] != first[2] and p[0].path != first[0].path), None)
+        if other is None:
+            continue
+        (f, ln, _), (g, gl, _) = first, other
         yield rule.finding(
             f,
             ln,

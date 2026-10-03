@@ -134,25 +134,60 @@ rls_no_policy = custom_rule(
 _POLICY_TRUE = re.compile(
     r"create\s+policy[^;]{0,400}?(?P<hit>(?:using|with\s+check)\s*\(\s*true\s*\))", re.I | re.S
 )
+_USER_COL = re.compile(
+    r"\b(?:user_id|owner_id|email|created_by|author_id|profile_id|customer_id|member_id|phone)\b",
+    re.I,
+)
+_TABLE_DEF = re.compile(
+    r'create\s+table\s+(?:if\s+not\s+exists\s+)?(?:"?public"?\.)?"?(\w+)"?\s*\(', re.I
+)
+_POLICY_ON = re.compile(r'\son\s+(?:"?public"?\.)?"?(\w+)"?')
+_WRITE_POLICY = re.compile(r"for\s+(?:all|insert|update|delete)")
 
 
-def _policy_refine(f: SourceFile, m: re.Match, t: str) -> dict:
-    stmt = m.group(0).lower()
-    write = bool(re.search(r"for\s+(?:all|insert|update|delete)", stmt)) or "with check" in stmt
-    return {"severity": "high" if write else "medium"}
+def _user_tables(sqls: list[SourceFile]) -> set[str]:
+    out: set[str] = set()
+    for f in sqls:
+        for m in _TABLE_DEF.finditer(f.text):
+            end = f.text.find(");", m.end())
+            if _USER_COL.search(f.text[m.end() : end if end != -1 else m.end() + 2000]):
+                out.add(m.group(1).lower())
+    return out
 
 
-policy_true = line_rule(
+def _policy_true(rule: Rule, files: list[SourceFile]) -> Iterable[Finding]:
+    sqls = _sql_files(files)
+    user_tables = _user_tables(sqls)
+    reported: set[str] = set()
+    for f in sqls:
+        for m in _POLICY_TRUE.finditer(f.text):
+            stmt = m.group(0).lower()
+            if "service_role" in stmt:
+                continue
+            table = _POLICY_ON.search(stmt)
+            write = bool(_WRITE_POLICY.search(stmt)) or "with check" in stmt
+            if not write and not (table and table.group(1) in user_tables):
+                continue
+            if table:
+                # One finding per table keeps a repo with many policies readable.
+                if table.group(1) in reported:
+                    continue
+                reported.add(table.group(1))
+            ln = line_of(f.text, m.start("hit"))
+            fnd = rule.finding(f, ln, f.lines[ln - 1])
+            fnd.severity = "high" if write else "medium"
+            yield fnd
+
+
+policy_true = custom_rule(
     "policy-using-true",
     "database_rules",
     "high",
     "rewrite",
     "A database rule says everyone is allowed where a user check belongs.",
     "Replace true with an owner check such as auth.uid() = user_id. Keep true only for public read data.",
-    pattern=_POLICY_TRUE,
-    suffixes=SQL,
-    refine=_policy_refine,
-    skip_scripts=True,
+    _policy_true,
+    SQL,
 )
 
 _SERVICE = re.compile(

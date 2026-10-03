@@ -34,6 +34,8 @@ _ADMIN_PAGE = re.compile(
 _PAGE_FILE = re.compile(
     r"(^|/)app/.*page\.(tsx|jsx|ts|js)$|(^|/)pages/.*\.(tsx|jsx|vue)$|(^|/)src/(routes|views)/.*\.(tsx|jsx|vue|svelte)$"
 )
+_ALWAYS_SENSITIVE = re.compile(r"(^|/)(admin|billing|backoffice)(/|\.|$)", re.I)
+_LOGIN_PAGE = re.compile(r"(^|/)(login|signin|sign-in|signup|register|auth)(/|\.|$)", re.I)
 _WRAPPER = re.compile(r"<(?:Protected|Private|Require|Admin)\w*Route\b")
 
 
@@ -52,8 +54,13 @@ def _guarded_by_chain(f: SourceFile, files: list[SourceFile]) -> bool:
 
 def _admin_route(rule: Rule, files: list[SourceFile]) -> Iterable[Finding]:
     wrapper = any(_WRAPPER.search(f.text) for f in files if not is_noise(f.path))
+    repo_auth = any(
+        _GUARD_STRONG.search(code_only(f.text)) or _GUARD_WEAK.search(f.text) for f in live(files)
+    )
     for f in live(files, UI + (".vue", ".svelte")):
         if not _PAGE_FILE.search(f.path) or not _ADMIN_PAGE.search(f.path):
+            continue
+        if _LOGIN_PAGE.search(f.path) or (not repo_auth and not _ALWAYS_SENSITIVE.search(f.path)):
             continue
         code = code_only(f.text)
         if _GUARD_STRONG.search(code) or _guarded_by_chain(f, files):
@@ -203,8 +210,9 @@ _AUTH_WORDS = re.compile(
     re.I,
 )
 _PUBLIC_ROUTE = re.compile(
-    r"chat|contact|webhook|subscribe|public|waitlist|newsletter|login|register|signup|callback|auth"
+    r"chat|contact|webhook|subscribe|public|waitlist|newsletter|login|register|signup|callback|auth|rate-limit|health|ping"
 )
+_TAKES_INPUT = re.compile(r"req\.json\(|formData\(|searchParams|req\.text\(|await req\b")
 _FN_JWT_OFF = re.compile(r"^\[functions\.([\w-]+)\]\s*\n\s*verify_jwt\s*=\s*false", re.M)
 
 
@@ -231,9 +239,11 @@ def _api_no_auth(rule: Rule, files: list[SourceFile]) -> Iterable[Finding]:
         wm = _WRITE_ROUTE.search(code)
         if (not wm and not is_edge) or not _DATA_CALL.search(code) or _AUTH_WORDS.search(code):
             continue
+        if is_edge and (not _TAKES_INPUT.search(code) or _PUBLIC_ROUTE.search(p)):
+            continue
         ln = line_of(f.text, wm.start()) if wm else 1
         fnd = rule.finding(f, ln, f.lines[ln - 1] if f.lines else f.path)
-        if _PUBLIC_ROUTE.search(p):
+        if _PUBLIC_ROUTE.search(p) or f.suffix == ".py":
             fnd.severity = "medium"
             fnd.label = "check"
             fnd.engineer_text = "Public by design? Then add a rate limit and input checks. Otherwise add a session check."

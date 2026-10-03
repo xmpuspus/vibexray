@@ -51,7 +51,9 @@ _RECORD_ARRAY = re.compile(r"\b(?:const|let)\s+(\w+)\s*(?::[^=\n]+)?=\s*\[\s*\{"
 _SAFE_LIST = re.compile(
     r"link|nav|menu|tab|option|column|route|icon|faq|breadcrumb|step|plan|tier|social", re.I
 )
-_BIZ_KEYS = re.compile(r"\b(email|customer|order|status|amount|invoice|balance)\b")
+_BIZ_KEYS = re.compile(
+    r"\b(email|customer|order|invoice|amount|balance|phone|address|ticket|patient|student)\b"
+)
 _NO_FETCH = re.compile(r"\bfetch\(|axios|useQuery|supabase|\bawait\b|useSWR|trpc")
 
 
@@ -71,10 +73,10 @@ def _inline_records(rule: Rule, files: list[SourceFile]) -> Iterable[Finding]:
             if len(re.findall(r"\{\s*(?:id|name|title|label)\s*:", body)) < 3:
                 continue
             ln = line_of(f.text, m.start())
-            hit = rule.finding(f, ln, f.lines[ln - 1])
             if _BIZ_KEYS.search(body):
+                hit = rule.finding(f, ln, f.lines[ln - 1])
                 hit.severity = "high"
-            yield hit
+                yield hit
 
 
 inline_records = custom_rule(

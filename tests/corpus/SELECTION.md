@@ -1,0 +1,24 @@
+# The sealed test set uses repos picked by fixed rules, before any scan
+
+These rules picked the repos of the `sealed` split. I wrote them on 2026-10-04, before the search started. Nobody ran vibexray on a candidate before the set was sealed.
+
+## A repo qualifies when it meets every rule
+
+1. It is public on GitHub, and its license is MIT or Apache-2.0.
+2. It shows that Claude Code or Codex built it. Accepted evidence: a `CLAUDE.md`, `AGENTS.md`, `.claude/` folder, or `.codex/` folder, or commit trailers that name Claude or Codex.
+3. It is a web app prototype in JavaScript, TypeScript, or Python, with between 15 and 400 source files of its own.
+4. Its last push is in 2025 or 2026.
+5. It is not a fork. It is not one of the 23 earlier corpus repos, and it is not a near copy of one.
+6. The lock file pins its default branch head by commit SHA on the day of the choice.
+
+## The mix leans toward AI apps
+
+- At least half of the repos call an AI model, best with tools or actions.
+- Examples are a support bot or an agent that books, refunds, or sends.
+- The rest are general prototypes, such as a dashboard, a booking app, or a Supabase app.
+
+## The set stays sealed after labeling
+
+- Independent labelers label every repo with [LABELING.md](LABELING.md). They never see vibexray's code, its skill, or its output.
+- After the labels land, nobody reads them, changes them, or checks which of them vibexray missed.
+- vibexray runs on the set once, at one commit, and the README publishes the result as it comes out.

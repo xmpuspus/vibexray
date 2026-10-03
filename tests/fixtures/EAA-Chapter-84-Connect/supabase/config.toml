@@ -1,0 +1,33 @@
+project_id = "exhrqwxmezowohckuzvv"
+
+[auth]
+refresh_token_rotation_enabled = true
+refresh_token_reuse_interval = 60
+access_token_expiry = 3600
+refresh_token_expiry = 2592000
+
+[functions]
+  [functions.auth-email-hook]
+    verify_jwt = false
+
+  [functions.preview-transactional-email]
+    verify_jwt = false
+
+  [functions.handle-email-events]
+    verify_jwt = false
+
+
+  [functions.resend-test]
+    verify_jwt = false
+
+  [functions.hangar-talk-link]
+    verify_jwt = false
+
+  [functions.hangar-talk-digest]
+    verify_jwt = true
+
+  [functions.new-member-notify]
+    verify_jwt = false
+
+  [functions.flyover-public]
+    verify_jwt = false

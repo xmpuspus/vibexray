@@ -54,7 +54,7 @@ exclude = ["docs/*.gif", "docs/*.mp4", "tmp", ".cache"]
 [tool.ruff]
 line-length = 100
 target-version = "py311"
-extend-exclude = ["dist", "build", ".venv", "tmp", ".cache", "skills/vibexray/scripts/vibexray"]
+extend-exclude = ["dist", "build", ".venv", "tmp", ".cache", "skills/vibexray/scripts/vibexray", "tests/fixtures"]
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "B", "C4", "SIM", "I", "UP", "N"]
@@ -65,6 +65,7 @@ known-first-party = ["vibexray"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+norecursedirs = ["fixtures"]
 pythonpath = ["src"]
 markers = [
     "corpus: runs against the pinned real prototype repos (fetch with make corpus)",

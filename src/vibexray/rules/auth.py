@@ -14,6 +14,7 @@ from vibexray.rules.util import (
     code_only,
     custom_rule,
     function_bodies,
+    is_comment_line,
     is_noise,
     line_of,
     line_rule,
@@ -36,6 +37,9 @@ _PAGE_FILE = re.compile(
 )
 _ALWAYS_SENSITIVE = re.compile(r"(^|/)(admin|billing|backoffice)(/|\.|$)", re.I)
 _LOGIN_PAGE = re.compile(r"(^|/)(login|signin|sign-in|signup|register|auth)(/|\.|$)", re.I)
+_REPO_AUTH = re.compile(
+    r"getUser\b|getSession\b|getServerSession|useAuth|useUser|useSession|ProtectedRoute|RequireAuth|supabase\.auth|next-auth"
+)
 _WRAPPER = re.compile(r"<(?:Protected|Private|Require|Admin)\w*Route\b")
 
 
@@ -54,9 +58,7 @@ def _guarded_by_chain(f: SourceFile, files: list[SourceFile]) -> bool:
 
 def _admin_route(rule: Rule, files: list[SourceFile]) -> Iterable[Finding]:
     wrapper = any(_WRAPPER.search(f.text) for f in files if not is_noise(f.path))
-    repo_auth = any(
-        _GUARD_STRONG.search(code_only(f.text)) or _GUARD_WEAK.search(f.text) for f in live(files)
-    )
+    repo_auth = any(_REPO_AUTH.search(code_only(f.text)) for f in live(files))
     for f in live(files, UI + (".vue", ".svelte")):
         if not _PAGE_FILE.search(f.path) or not _ADMIN_PAGE.search(f.path):
             continue
@@ -64,6 +66,12 @@ def _admin_route(rule: Rule, files: list[SourceFile]) -> Iterable[Finding]:
             continue
         code = code_only(f.text)
         if _GUARD_STRONG.search(code) or _guarded_by_chain(f, files):
+            continue
+        page = re.sub(r"\.\w+$", "", f.path.rsplit("/", 1)[-1])
+        wrapped = re.compile(
+            rf"<(?:Protected|Private|Require|Admin)\w*Route\b[^>]*>\s*<{re.escape(page)}\b"
+        )
+        if any(wrapped.search(o.text) for o in live(files)):
             continue
         weak = bool(_GUARD_WEAK.search(code))
         fnd = rule.finding(f, 1, f.lines[0] if f.lines else f.path)
@@ -132,20 +140,73 @@ client_password = line_rule(
 
 _AUTH_FLAG = re.compile(
     r"\b(?:SKIP_AUTH|DISABLE_AUTH|AUTH_DISABLED|NO_AUTH|BYPASS_AUTH|AUTH_BYPASS|DEV_AUTH|DEMO_MODE|FAKE_AUTH|MOCK_AUTH)\b"
-    r"|requireAuth\s*[:=]\s*false|^\s*verify_jwt\s*=\s*false",
-    re.I | re.M,
+    r"|requireAuth\s*[:=]\s*false",
+    re.I,
 )
-auth_flag = line_rule(
+_INTERNAL_FN = re.compile(
+    r"cron|schedul|daily|weekly|hourly|cleanup|decay|reflect|sync|backfill|webhook|callback|hook|digest|notify"
+    r"|alerts|status|tracker|detector|worker|trigger|incoming|completed|rate-limit|health|ping|contact"
+    r"|subscribe|newsletter",
+    re.I,
+)
+_FN_SECTION = re.compile(r"^\s*\[functions\.([\w-]+)\]\s*\n\s*(verify_jwt\s*=\s*false)", re.M)
+_OWN_CHECK = re.compile(
+    r"getUser|getSession|headers\.get\(\s*['\"][Aa]uthorization|verifyToken|has_role|webhook[-_ ]?secret|CRON_SECRET"
+    r"|x-webhook|timingSafeEqual|constructEvent|verify_?[Ss]ignature"
+)
+
+
+def _auth_flag(rule: Rule, files: list[SourceFile]) -> Iterable[Finding]:
+    for f in live(files, SRC + ENVFILE):
+        if f.suffix not in SRC + ENVFILE and not f.path.split("/")[-1].startswith(".env"):
+            continue
+        seen = 0
+        for m in _AUTH_FLAG.finditer(f.text):
+            ln = line_of(f.text, m.start())
+            if is_comment_line(f.lines[ln - 1]):
+                continue
+            yield rule.finding(f, ln, f.lines[ln - 1])
+            seen += 1
+            if seen >= 5:
+                break
+    sources = {f.path: f for f in files}
+    for cfg in files:
+        if not cfg.path.endswith("supabase/config.toml"):
+            continue
+        base = cfg.path[: -len("config.toml")]
+        for m in _FN_SECTION.finditer(cfg.text):
+            src = next(
+                (
+                    sources[p]
+                    for p in (
+                        f"{base}functions/{m.group(1)}/index.ts",
+                        f"{base}functions/{m.group(1)}/index.js",
+                    )
+                    if p in sources
+                ),
+                None,
+            )
+            # Without the function source, or with a check inside it, the open JWT flag is a choice.
+            if src is None or _OWN_CHECK.search(src.text) or _INTERNAL_FN.search(m.group(1)):
+                continue
+            body = code_only(src.text)
+            if not _TAKES_INPUT.search(body) or not _DATA_CALL.search(body):
+                continue
+            ln = line_of(cfg.text, m.start(2))
+            fnd = rule.finding(cfg, ln, cfg.lines[ln - 1])
+            fnd.severity = "medium"
+            yield fnd
+
+
+auth_flag = custom_rule(
     "auth-disabled-flag",
     "auth_gap",
     "high",
     "check",
     "A switch can turn the login off.",
     "Check that production ignores this flag. Edge functions with the JWT check off need their own caller check.",
-    pattern=_AUTH_FLAG,
-    suffixes=SRC + ENVFILE + (".toml",),
-    refine=lambda f, m, t: {"severity": "medium"} if "verify_jwt" in t else {},
-    per_file=5,
+    _auth_flag,
+    SRC + ENVFILE + (".toml",),
 )
 
 ls_gate = line_rule(

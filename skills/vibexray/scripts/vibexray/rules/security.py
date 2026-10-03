@@ -27,16 +27,28 @@ from vibexray.walker import SourceFile
 CAT = "security_other"
 
 
-def _literal_only(value: str) -> bool:
-    v = value.strip().rstrip(";").strip()
-    return bool(re.fullmatch(r"""(['"`])[^$]*?\1""", v)) and "${" not in v
+def _has_variable(f: SourceFile, start: int, end: int) -> bool:
+    """True when the assigned text holds a template placeholder or a non-literal name."""
+    raw = f.text[start:end]
+    if "${" in raw:
+        return True
+    code = code_only(f.text)[start:end]
+    return bool(re.search(r"[A-Za-z_$]", re.sub(r"""['"`\\\s+()]""", "", code)))
 
 
 def _xss_refine(f: SourceFile, m: re.Match, t: str) -> dict | None:
-    value = m.group("val") or m.group("val2") or m.group("val3") or ""
-    if _literal_only(value.split("\n")[0]) or "JSON.stringify" in value:
-        return None
-    return {}
+    if m.group("val") is not None:
+        value = m.group("val")
+        if "JSON.stringify" in value:
+            return None
+        return {} if _has_variable(f, m.start("val"), m.end("val")) else None
+    if m.group("val3") is not None:
+        return {}
+    code = code_only(f.text)
+    start = m.start("val2")
+    stop = code.find(";", start)
+    stop = len(code) if stop == -1 else min(stop, start + 3000)
+    return {} if _has_variable(f, start, stop) else None
 
 
 xss = line_rule(
@@ -122,6 +134,9 @@ sql_concat = line_rule(
     suffixes=SRC,
 )
 
+_TOKEN_KEY = re.compile(r"token|jwt|api[_-]?key|(?<![a-z])auth(?![a-z])", re.I)
+_TOKEN_VALUE = re.compile(r"token|jwt|api[_-]?key", re.I)
+
 ls_token = line_rule(
     "token-in-localstorage",
     CAT,
@@ -130,11 +145,12 @@ ls_token = line_rule(
     "The login token is kept where any script on the page can read it.",
     "Use an httpOnly, secure cookie for session tokens. Browser storage is open to XSS.",
     pattern=re.compile(
-        r"""(?:local|session)Storage\.setItem\(\s*['"][\w.-]*(?:token|jwt|session|auth)[\w.-]*['"]""",
-        re.I,
+        r"(?:local|session)Storage\.setItem\(\s*(?P<key>[^,)]+),\s*(?P<val>[^)\n]*)"
     ),
     suffixes=UI,
-    client=True,
+    refine=lambda f, m, t: (
+        {} if _TOKEN_KEY.search(m.group("key")) or _TOKEN_VALUE.search(m.group("val")) else None
+    ),
 )
 
 _PAY_URL = r"""['"`][^'"`]*(?:checkout|payment|charge|pay|stripe|order)[^'"`]*['"`]"""

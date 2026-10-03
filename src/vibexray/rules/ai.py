@@ -87,6 +87,8 @@ class Tool:
     line: int
     schema: str = ""
     handlers: list[tuple[SourceFile, int, int]] = field(default_factory=list)
+    start_line: int = 0
+    end_line: int = 0
 
     @property
     def raw(self) -> str:
@@ -135,20 +137,41 @@ def _definitions(files: list[SourceFile]) -> list[Tool]:
             nm = _NAME.search(f.text, obj[0], obj[1])
             if nm:
                 tools.append(
-                    Tool(nm.group(1), f, line_of(f.text, nm.start()), f.text[obj[0] : obj[1]])
+                    Tool(
+                        nm.group(1),
+                        f,
+                        line_of(f.text, nm.start()),
+                        f.text[obj[0] : obj[1]],
+                        start_line=line_of(f.text, obj[0]),
+                        end_line=line_of(f.text, obj[1]),
+                    )
                 )
         for m in _INPUT_SCHEMA.finditer(f.text):
             obj = _enclosing_object(code, m.start())
             nm = _NAME.search(f.text, obj[0], obj[1]) if obj else None
             if obj and nm:
                 tools.append(
-                    Tool(nm.group(1), f, line_of(f.text, nm.start()), f.text[obj[0] : obj[1]])
+                    Tool(
+                        nm.group(1),
+                        f,
+                        line_of(f.text, nm.start()),
+                        f.text[obj[0] : obj[1]],
+                        start_line=line_of(f.text, obj[0]),
+                        end_line=line_of(f.text, obj[1]),
+                    )
                 )
         for m in _VERCEL.finditer(f.text):
             start = f.text.index("{", m.end() - 2)
             end = match_close(code, start)
             if end:
-                t = Tool(m.group(1), f, line_of(f.text, m.start()), f.text[start:end])
+                t = Tool(
+                    m.group(1),
+                    f,
+                    line_of(f.text, m.start()),
+                    f.text[start:end],
+                    start_line=line_of(f.text, start),
+                    end_line=line_of(f.text, end),
+                )
                 span = _after_key(code, (start, end), "execute")
                 if span:
                     t.handlers.append((f, span[0], span[1]))
@@ -158,7 +181,14 @@ def _definitions(files: list[SourceFile]) -> list[Tool]:
             end = match_close(code, start)
             nm = _NAME.search(f.text, start, end) if end else None
             if end and nm:
-                t = Tool(nm.group(1), f, line_of(f.text, nm.start()), f.text[start:end])
+                t = Tool(
+                    nm.group(1),
+                    f,
+                    line_of(f.text, nm.start()),
+                    f.text[start:end],
+                    start_line=line_of(f.text, start),
+                    end_line=line_of(f.text, end),
+                )
                 span = _after_key(code, (start, end), "run|handler|execute")
                 if span:
                     t.handlers.append((f, span[0], span[1]))
@@ -167,7 +197,14 @@ def _definitions(files: list[SourceFile]) -> list[Tool]:
         for m in _PY_TOOL.finditer(f.text):
             block = re.search(r"\n(?=\S)", f.text[m.end() :])
             end = m.end() + (block.start() if block else len(f.text) - m.end())
-            t = Tool(m.group(1), f, line_of(f.text, m.start(2) - 1), m.group(2))
+            t = Tool(
+                m.group(1),
+                f,
+                line_of(f.text, m.start(2) - 1),
+                m.group(2),
+                start_line=line_of(f.text, m.start()),
+                end_line=line_of(f.text, end),
+            )
             t.handlers.append((f, m.end(), end))
             tools.append(t)
     return tools
@@ -223,6 +260,7 @@ def _map_tools(files: list[SourceFile], index: dict) -> list[Tool]:
                 spans = _function_span(index, e.group(2))
                 if spans:
                     t = Tool(e.group(1), f, line_of(f.text, start + e.start()))
+                    t.start_line = t.end_line = t.line
                     t.handlers.extend(spans[:1])
                     out.append(t)
     return out
@@ -272,7 +310,12 @@ def _unbounded(rule: Rule, files: list[SourceFile]) -> Iterable[Finding]:
             if bound or not t.handlers:
                 continue
             ln = line_of(t.file.text, t.file.text.index(t.schema) + m.start())
-            fnd = rule.finding(t.file, ln, t.file.lines[ln - 1])
+            fnd = rule.finding(
+                t.file,
+                t.start_line or ln,
+                t.file.lines[ln - 1],
+                end_line=t.end_line or None,
+            )
             if MONEY_TOOL.search(t.name):
                 fnd.severity = "high"
             else:
@@ -299,7 +342,12 @@ def _no_approval(rule: Rule, files: list[SourceFile]) -> Iterable[Finding]:
             continue
         if _gated(t, files):
             continue
-        yield rule.finding(t.file, t.line, t.file.lines[t.line - 1])
+        yield rule.finding(
+            t.file,
+            t.start_line or t.line,
+            t.file.lines[t.line - 1],
+            end_line=t.end_line or None,
+        )
 
 
 no_approval = custom_rule(
@@ -366,6 +414,7 @@ def _prompt_only(rule: Rule, files: list[SourceFile]) -> Iterable[Finding]:
                     )
                     rel_f, rel_a, _ = t.handlers[0]
                     rel_line = line_of(rel_f.text, rel_a)
+                    rel_end = line_of(rel_f.text, t.handlers[0][2])
                     yield rule.finding(
                         f,
                         ln,
@@ -373,6 +422,7 @@ def _prompt_only(rule: Rule, files: list[SourceFile]) -> Iterable[Finding]:
                         related_file=rel_f.path,
                         related_line=rel_line,
                         related_snippet=rel_f.lines[rel_line - 1],
+                        related_end_line=rel_end,
                     )
                     emitted += 1
                     break
@@ -406,10 +456,12 @@ def _canned(rule: Rule, files: list[SourceFile]) -> Iterable[Finding]:
         m = literal.search(code)
         if real.search(code) or not m:
             continue
-        f, a, _ = t.handlers[0]
+        f, a, b = t.handlers[0]
         pos = code_only(f.text).find(m.group(0), a)
         ln = line_of(f.text, pos if pos != -1 else a)
-        yield rule.finding(f, ln, f.lines[ln - 1])
+        yield rule.finding(
+            f, line_of(f.text, a), f.lines[ln - 1], end_line=max(line_of(f.text, b), ln)
+        )
 
 
 canned = custom_rule(
@@ -509,7 +561,7 @@ def _no_eval(rule: Rule, files: list[SourceFile]) -> Iterable[Finding]:
 
 no_eval = custom_rule(
     "ai-no-eval-files",
-    "ai_no_human_review",
+    "ai_no_tests",
     "medium",
     "check",
     "Nobody tests the AI's answers, so a prompt change can break the product without notice.",
@@ -558,7 +610,7 @@ def _cost(rule: Rule, files: list[SourceFile]) -> Iterable[Finding]:
 
 cost_controls = custom_rule(
     "ai-cost-controls",
-    "ai_tool_unbounded",
+    "ai_no_cost_limit",
     "medium",
     "rewrite",
     "Nothing caps how much the AI writes, so one request can cost far more than expected.",

@@ -55,13 +55,28 @@ _MONEY = re.compile(
 )
 
 
+_NUMBER = re.compile(r"[:=]\s*(\d+(?:\.\d+)?)")
+_BUSINESS_PATH = re.compile(
+    r"config|constants?|pricing|plans?|billing|purchase|checkout|payment|prompts?"
+    r"|(^|/)(api|server|supabase/functions)/|route\.",
+    re.I,
+)
+_SAMPLE_PATH = re.compile(r"(^|/)(data|mocks?\w*|samples?\w*|seeds?\w*|fixtures?)(/|\.|-|_)", re.I)
+
+
 def _money(f: SourceFile, m: re.Match, t: str) -> dict | None:
+    """Flag a nonzero money or limit value in business code. Zero values are UI state."""
     if re.search(r"\bwidth|height|delay|timeout|offset|index", t, re.I):
         return None
-    sev = (
-        "high" if re.search(r"(^|/)(api|server|supabase/functions)/|route\.", f.path) else "medium"
-    )
-    return {"severity": sev}
+    value = _NUMBER.search(m.group(0))
+    if value is None or float(value.group(1)) == 0 or _SAMPLE_PATH.search(f.path):
+        return None
+    name = re.split(r"[:=]", m.group(0))[0].strip()
+    constant = name.upper() == name and "_" in name
+    if not constant and not _BUSINESS_PATH.search(f.path):
+        return None
+    server = re.search(r"(^|/)(api|server|supabase/functions)/|route\.", f.path)
+    return {"severity": "high" if server else "medium"}
 
 
 price_or_limit = line_rule(

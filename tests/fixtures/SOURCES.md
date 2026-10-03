@@ -141,7 +141,9 @@ Repo: https://github.com/Snodrod/ai-support-agent, SHA `4f239bd3e6baa008f7be935f
 `review/review.json` is the unchanged output of one real headless run on 2026-10-04.
 
 - Command: `scripts/eval_review.py --runtime claude --runs 1 --keep Snodrod__ai-support-agent`.
+- Repo: https://github.com/Snodrod/ai-support-agent, MIT license.
 - The script copied the repo at SHA `4f239bd3e6baa008f7be935ff5fb4f23e00573ed` to a temp folder and put the skill at `.claude/skills/vibexray/`.
+- The temp folder sat outside this repo, so the session could not read this repo's guide or the hand labels.
 - Session: Claude Code 2.1.288 on the subscription login. It ran `claude -p "Use the vibexray skill to x-ray this prototype. Write review.json and run the review step." --max-turns 60`.
 - Session flags: `--setting-sources project,local --no-session-persistence --permission-mode acceptEdits`.
 - Result: 16 entries, 16 kept, 0 dropped, 0 repeats of a rule finding.
@@ -161,5 +163,6 @@ The tests change a real entry in memory only. The file on disk stays as the sess
 | whitespace in the quote | 0 | wider spaces and a trailing newline in the quote |
 | unknown category and label | 0 | `category` becomes `vibes`, then `label` becomes `maybe` |
 | repeat of a rule finding | 15 | `line` moves from 11 to 7 and `end_line` becomes 11 |
+| key in the review text | 0 | both texts get a key-shaped string, built as in `test_history.py` |
 
 The run repeated no rule finding, so the repeat case needs a change. After it, entry 15 spans the rule finding `prompt-limit-not-in-code` at `src/prompt.ts:7`.

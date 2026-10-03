@@ -28,7 +28,7 @@ from vibexray.model import (
 from vibexray.parts import build_parts
 from vibexray.questions import build_questions
 from vibexray.report import write_reports
-from vibexray.rules.base import redact
+from vibexray.rules.base import SECRET_VALUE, redact
 from vibexray.walker import collect_files
 
 RESULT_NAME = "review-result.json"
@@ -86,6 +86,11 @@ def load_result(data: dict) -> ScanResult:
         history=History(**history),
         questions=[Question(**q) for q in data.get("questions") or []],
     )
+
+
+def hide_keys(text: str) -> str:
+    """Hide key-shaped strings like redact() does, with no length cap for long review text."""
+    return SECRET_VALUE.sub(lambda m: m.group(0)[:6] + "...[hidden]", text.strip())
 
 
 def _whole(value: object) -> int | None:
@@ -169,8 +174,8 @@ def check_entry(entry: object, root: Path) -> tuple[Finding | None, str]:
         file=rel,
         line=line,
         snippet=redact(lines[line - 1]),
-        pm_text=texts["pm_text"].strip(),
-        engineer_text=texts["engineer_text"].strip(),
+        pm_text=hide_keys(texts["pm_text"]),
+        engineer_text=hide_keys(texts["engineer_text"]),
         label=label,
         end_line=end_line if end_line and end_line != line else None,
         related_file=related_file,

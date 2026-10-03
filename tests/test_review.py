@@ -122,6 +122,21 @@ def test_whitespace_differences_in_the_quote_still_match(scanned):
     assert len(result.kept) == 1
 
 
+def test_key_in_review_text_never_reaches_the_outputs(scanned):
+    # Built the same way as the key in test_history.py, so no real key sits in the repo.
+    key = "sk-" + "A1b2C3d4" * 4
+    entry = dict(ENTRIES[PLAIN])
+    entry["pm_text"] = f"{entry['pm_text']} The key {key} is in the code."
+    entry["engineer_text"] = f"{entry['engineer_text']} Rotate {key}."
+    result = apply_review(scanned, write_review(scanned, [entry]))
+    assert len(result.kept) == 1
+    for name in ("vibexray.json", "report.html", "handoff.md"):
+        text = (scanned / name).read_text()
+        assert key not in text, name
+    assert "[hidden]" in (scanned / "handoff.md").read_text()
+    assert result.kept[0].engineer_text.startswith(ENTRIES[PLAIN]["engineer_text"][:40])
+
+
 def test_unknown_category_and_label_are_dropped(scanned):
     entry = ENTRIES[PLAIN]
     bad = [dict(entry, category="vibes"), dict(entry, label="maybe")]

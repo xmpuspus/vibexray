@@ -119,6 +119,17 @@ def score(name: str, findings: list[dict]) -> dict:
     }
 
 
+def score_parts(name: str, findings: list[dict]) -> dict:
+    # The review-only score shows whether rule noise or the review misses the precision bar.
+    source = {"rules": "rule", "review": "review"}
+    out = {
+        k: score(name, [f for f in findings if f.get("source", "rule") == v])
+        for k, v in source.items()
+    }
+    out["all"] = score(name, findings)
+    return out
+
+
 def ratio(a: int, b: int) -> float:
     return round(a / b, 4) if b else 1.0
 
@@ -176,8 +187,7 @@ def one_run(args: argparse.Namespace, name: str, run: int) -> dict:
             shutil.copy(report.parent / extra, keep_dir / extra)
 
     findings = json.loads(report.read_text())["findings"]
-    row["rules"] = score(name, [f for f in findings if f.get("source", "rule") == "rule"])
-    row["all"] = score(name, findings)
+    row.update(score_parts(name, findings))
     if not args.keep:
         shutil.rmtree(work, ignore_errors=True)
     return row
@@ -196,7 +206,7 @@ def summarize(args: argparse.Namespace, repos: list[str], rows: list[dict]) -> d
     per_run = []
     for run in range(1, args.runs + 1):
         mine = [r for r in rows if r["run"] == run]
-        per_run.append({"run": run, "all": pooled(mine, "all"), "rules": pooled(mine, "rules")})
+        per_run.append({"run": run, **{k: pooled(mine, k) for k in ("all", "rules", "review")}})
     recalls = [p["all"]["recall"] for p in per_run]
     precisions = [p["all"]["precision"] for p in per_run]
     entries = sum(r.get("entries", 0) for r in rows)
@@ -231,16 +241,16 @@ def markdown(s: dict) -> str:
         f"- Citation drop rate: {'no review entries' if drop is None else f'{drop:.2f}'} "
         f"({s['review_dropped']} of {s['review_entries']} entries)",
         "",
-        "| Run | Recall | Precision | Rules-only recall | Rules-only precision |",
-        "|---|---|---|---|---|",
+        "| Run | Findings | Recall | Precision |",
+        "|---|---|---|---|",
     ]
     for p in s["per_run"]:
-        a, r = p["all"], p["rules"]
-        lines.append(
-            f"| {p['run']} | {a['recall']:.2f} ({a['found']}/{a['labels']}) "
-            f"| {a['precision']:.2f} ({a['correct']}/{a['findings']}) "
-            f"| {r['recall']:.2f} | {r['precision']:.2f} |"
-        )
+        for key, title in (("all", "rules plus review"), ("rules", "rules"), ("review", "review")):
+            a = p[key]
+            lines.append(
+                f"| {p['run']} | {title} | {a['recall']:.2f} ({a['found']}/{a['labels']}) "
+                f"| {a['precision']:.2f} ({a['correct']}/{a['findings']}) |"
+            )
     lines += ["", "| Repo | Run | Scan | Review | Kept | Dropped | Repeats | Minutes |"]
     lines.append("|---|---|---|---|---|---|---|---|")
     for r in s["per_repo_run"]:

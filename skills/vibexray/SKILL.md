@@ -149,16 +149,8 @@ A reject entry removes one rule finding that the code shows to be wrong:
 - Keep the PM message plain. Do not use jargon.
 - If the review step fails, show the error. The scan report stays valid without the review.
 
-## Labels
+## Labels and output files
 
-- Keep: the part is real and the engineer can build on it.
-- Rewrite: the part works but needs a new build.
-- Throw away: the part is fake or a demo stub. Write `throwaway` in `review.json`.
-- Check: the scan cannot decide. A person must look.
-
-## Output files
-
-- `report.html`: the PM report. Review findings show "AI review, line checked".
-- `handoff.md`: the engineer handoff.
-- `vibexray.json`: findings, parts, questions, and build-chat prompts. Each finding has `source`: `rule` or `review`.
-- `review-result.json`: the kept count, and each dropped or skipped entry with its reason.
+- Labels: `keep` is real code to build on. `rewrite` works but needs a new build. `throwaway` is fake or a demo stub. `check` needs a person.
+- `report.html` is for the PM. `handoff.md` is for the engineer. `vibexray.json` holds every finding, with `source` set to `rule` or `review`.
+- `review-result.json` holds the kept count, and each dropped, skipped, or rejected entry with its reason.

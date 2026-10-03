@@ -97,11 +97,10 @@ def _prompt_rule(f: Finding) -> Question:
     )
 
 
-def _sample_data(f: Finding, noun: str) -> Question:
+def _sample_data(f: Finding, subject: str) -> Question:
     where = f.related_file or f.file
-    verb = "shows" if noun == "screen" else "returns"
     return Question(
-        text=f"This {noun} {verb} sample data from {where}. Where does the real data come from?",
+        text=f"{subject} sample data from {where}. Where does the real data come from?",
         why="The engineer needs the real source before the sample data can go.",
         source="finding",
         file=f.file,
@@ -192,9 +191,9 @@ def _from_finding(f: Finding) -> Question | None:
     if f.category == "ai_prompt_only_rule":
         return _prompt_rule(f)
     if f.category == "mock_data":
-        return _sample_data(f, "screen")
+        return _sample_data(f, "The app uses")
     if f.category == "ai_fake_tool":
-        return _sample_data(f, "tool")
+        return _sample_data(f, "This tool returns")
     if f.category == "ai_no_human_review":
         return _human_review(f)
     if f.category == "hardcoded_config" and f.related_snippet:

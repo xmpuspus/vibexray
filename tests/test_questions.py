@@ -105,9 +105,9 @@ def test_prompt_only_rule_question():
 
 def test_mock_data_question_names_the_file():
     (q,) = build_questions([MOCK], NO_CHAT)
+    # The file can be a seed script, not a screen, so the question says "the app".
     assert (
-        q.text
-        == "This screen shows sample data from src/data.ts. Where does the real data come from?"
+        q.text == "The app uses sample data from src/data.ts. Where does the real data come from?"
     )
 
 

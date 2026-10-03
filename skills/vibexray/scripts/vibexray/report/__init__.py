@@ -17,7 +17,7 @@ def write_reports(result: ScanResult, out_dir: Path) -> dict[str, Path]:
         "markdown": out_dir / "handoff.md",
         "json": out_dir / "vibexray.json",
     }
-    paths["html"].write_text(render_html(result), encoding="utf-8")
+    paths["html"].write_text(render_html(result, out_dir), encoding="utf-8")
     paths["markdown"].write_text(render_markdown(result), encoding="utf-8")
     paths["json"].write_text(json.dumps(result.to_dict(), indent=2) + "\n", encoding="utf-8")
     return paths

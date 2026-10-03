@@ -176,8 +176,16 @@ class Process:
         self._fh.close()
 
 
+def _ps(args: list[str]) -> str:
+    # A sandbox, such as the one Codex uses, can block ps. The process group kill still works.
+    try:
+        return subprocess.run(["ps", *args], capture_output=True, text=True).stdout
+    except OSError:
+        return ""
+
+
 def _descendants(pid: int) -> list[int]:
-    out = subprocess.run(["ps", "-axo", "pid=,ppid="], capture_output=True, text=True).stdout
+    out = _ps(["-axo", "pid=,ppid="])
     children: dict[int, list[int]] = {}
     for line in out.splitlines():
         parts = line.split()
@@ -246,9 +254,8 @@ def _pids_with_env(marker: str) -> list[int]:
     me = os.getpid()
     if sys.platform == "darwin":
         # -E appends each process's environment to its command line.
-        out = subprocess.run(["ps", "-axE", "-o", "pid=,command="], capture_output=True, text=True)
         found = []
-        for line in out.stdout.splitlines():
+        for line in _ps(["-axE", "-o", "pid=,command="]).splitlines():
             pid, _, rest = line.strip().partition(" ")
             if pid.isdigit() and int(pid) != me and f" {marker}" in f" {rest} ":
                 found.append(int(pid))

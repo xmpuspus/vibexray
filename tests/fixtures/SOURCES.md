@@ -62,6 +62,7 @@ Doc fixtures sit under `tests/fixtures/docs/` and name the page they come from.
 | https://github.com/mehranmls4-arch/ai-customer-support-agent | e2ea5e322a22dbe35a7e95da29eca5cb115fba6c | MIT | `src/app/api/orders/[id]/route.ts` | 1-29 |
 | https://github.com/mehranmls4-arch/ai-customer-support-agent | e2ea5e322a22dbe35a7e95da29eca5cb115fba6c | MIT | `src/app/api/tickets/route.ts` | 1-43 |
 | https://github.com/mehranmls4-arch/ai-customer-support-agent | e2ea5e322a22dbe35a7e95da29eca5cb115fba6c | MIT | `src/lib/agent/tools.ts` | 1-259 |
+| https://github.com/mehranmls4-arch/ai-customer-support-agent | e2ea5e322a22dbe35a7e95da29eca5cb115fba6c | MIT | `package.json` | 1-55 |
 | https://github.com/mj-deving/ai-support-agent | 4162c29e0ff50f674ac63bcbd79e8e8cddcfaf2e | MIT | `public/index.html` | 510-565 |
 | https://github.com/nileshtripathy/nexora-ai | 83e26dc06453bdad742be46a6f9a00de87e2a13a | MIT | `app/api/admin/tickets/[id]/route.ts` | 1-25 |
 | https://github.com/nileshtripathy/nexora-ai | 83e26dc06453bdad742be46a6f9a00de87e2a13a | MIT | `app/api/chat/route.ts` | 1-90 |

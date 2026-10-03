@@ -6,8 +6,10 @@ import re
 
 from vibexray.model import GROUPS, LABELS, Finding, ScanResult
 from vibexray.report.common import (
+    APP_STATES,
     LABEL_MEANING,
     LABEL_NAMES,
+    app_line,
     by_group,
     chat_source,
     found_by,
@@ -31,11 +33,6 @@ FENCE_LANG = {
     ".toml": "toml",
     ".yaml": "yaml",
     ".yml": "yaml",
-}
-APP_STATES = {
-    "ran": "The app ran.",
-    "could_not_boot": "The app did not start.",
-    "not_attempted": "The app did not run.",
 }
 
 
@@ -63,9 +60,7 @@ def _where(file: str, line: int | None) -> str:
 def _summary(r: ScanResult) -> list[str]:
     c, lbl = r.counts(), r.label_counts()
     stack = ", ".join(r.stack) if r.stack else "not detected"
-    run = APP_STATES.get(r.app_run.state, "The app did not run.")
-    if r.app_run.reason:
-        run += f" {r.app_run.reason}"
+    run = app_line(r)
     text = (
         f"vibexray {r.version} scanned `{r.app_name}` on {r.generated_at}. "
         f"It read {plural(r.files_scanned, 'file')}. Stack: {stack}. "

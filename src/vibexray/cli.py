@@ -12,10 +12,11 @@ from pathlib import Path
 from vibexray import __version__
 from vibexray.apprun import run_app
 from vibexray.history import read_history
-from vibexray.model import GROUPS, ScanResult
+from vibexray.model import ScanResult
 from vibexray.parts import build_parts
 from vibexray.questions import build_questions
 from vibexray.report import write_reports
+from vibexray.report.common import app_line, headline, parts_with, plural
 from vibexray.review import ReviewError, apply_review
 from vibexray.rules import all_rules, run_rules
 from vibexray.walker import collect_files, detect_stack
@@ -48,20 +49,32 @@ def scan(target: Path, out_dir: Path, run: bool, history_mode: str) -> ScanResul
 
 
 def print_summary(result: ScanResult, paths: dict[str, Path]) -> None:
+    # The same words and numbers as the top of report.html.
     counts = result.counts()
     labels = result.label_counts()
     stack = " · ".join(result.stack) if result.stack else "stack not detected"
+    rows = (
+        ("Fake parts", parts_with(result, True), plural(counts["fake"], "place")),
+        (
+            "Parts that can break",
+            parts_with(result, False),
+            f"{plural(counts['security'], 'security risk')}, {plural(counts['ai'], 'AI risk')}",
+        ),
+        ("Decisions for you", len(result.questions), ""),
+    )
     print(f"{_color('1', 'vibexray')} {__version__}  {result.app_name}")
-    print(f"  {result.files_scanned} files · {stack}")
+    print(f"  {plural(result.files_scanned, 'file')} · {stack}")
     print()
-    for group, title in GROUPS.items():
-        print(f"  {title:<28} {counts[group]:>3}")
+    print(f"  {_color('1', headline(result))}")
+    print()
+    for title, n, detail in rows:
+        print(f"  {title:<22} {n:>3}   {detail if n else ''}".rstrip())
     print()
     print(
         f"  Keep {labels['keep']} · Rewrite {labels['rewrite']} · "
         f"Throw away {labels['throwaway']} · Check {labels['check']}"
     )
-    print(f"  {len(result.questions)} questions for the PM")
+    print(f"  App run   {app_line(result)}")
     print()
     print(f"  Report   {paths['html']}")
     print(f"  Handoff  {paths['markdown']}")

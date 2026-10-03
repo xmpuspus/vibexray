@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import re
 from collections import defaultdict
 
 from vibexray.model import CATEGORIES, Finding, ScanResult
@@ -15,6 +14,11 @@ LABEL_MEANING = {
     "throwaway": "Demo only. It shows sample data or fakes an action. Remove it before launch.",
     "check": "vibexray is not sure about these. A person must look at each one.",
 }
+APP_STATES = {
+    "ran": "The app ran.",
+    "could_not_boot": "The app did not start.",
+    "not_attempted": "The app did not run.",
+}
 SOURCE_NAMES = {"claude-code": "Claude Code", "codex": "Codex"}
 SEVERITY_RANK = {"high": 0, "medium": 1, "low": 2}
 
@@ -23,13 +27,14 @@ def plural(n: int, one: str, many: str | None = None) -> str:
     return f"{n:,} {one if n == 1 else many or one + 's'}"
 
 
-# A key starts a word. Without this guard, a path like "risk-enhanced" reads as an "sk-" key.
-KEY = re.compile(r"(?<![A-Za-z0-9])(?:" + SECRET_VALUE.pattern + ")")
-
-
 def hide_secrets(text: str) -> str:
     # Rules redact snippets already. This second pass covers every other string.
-    return KEY.sub(lambda m: m.group(0)[:6] + "...[hidden]", text)
+    return SECRET_VALUE.sub(lambda m: m.group(0)[:6] + "...[hidden]", text)
+
+
+def app_line(result: ScanResult) -> str:
+    run = APP_STATES.get(result.app_run.state, "The app did not run.")
+    return f"{run} {result.app_run.reason}".strip()
 
 
 def parts_with(result: ScanResult, fake: bool) -> int:

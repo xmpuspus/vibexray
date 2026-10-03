@@ -14,9 +14,9 @@ from vibexray.cli import scan
 from vibexray.history import read_history
 from vibexray.questions import build_questions
 from vibexray.report import write_reports
-from vibexray.report.common import KEY
 from vibexray.report.html import render_html
 from vibexray.report.markdown import render_markdown
+from vibexray.rules.base import SECRET_VALUE as KEY
 
 FIXTURES = Path(__file__).parent / "fixtures"
 SESSIONS = FIXTURES / "sessions"

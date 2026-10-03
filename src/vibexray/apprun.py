@@ -72,6 +72,15 @@ def run_app(root: Path, out_dir: Path, enabled: bool) -> AppRun:
         if entry == "manage.py":
             cmd = ["python3", entry, "runserver"]
         return _boot_and_crawl(work, out_dir, home, " ".join(cmd), cmd, None)
+    except PermissionError as exc:
+        return AppRun(
+            state="could_not_boot",
+            reason=(
+                "This computer blocked the app from starting "
+                f"({exc.strerror or exc}). A sandbox, such as the one in Codex, does this. "
+                "Run the scan in a normal terminal to see the app run."
+            ),
+        )
     finally:
         reap_strays(home)
         shutil.rmtree(home, ignore_errors=True)

@@ -310,11 +310,14 @@ def _risks(r: ScanResult) -> str:
     return _section("risks", title, "".join(blocks), sub)
 
 
-def _image(path: str | None) -> str:
+def _image(path: str | None, base: Path | None) -> str:
     # Screenshots go into the file as data, so the report stays one file with no requests.
     if not path:
         return '<p class="none">No screenshot for this page.</p>'
     file = Path(path)
+    # The app run stores paths relative to the report folder.
+    if not file.is_absolute() and base is not None:
+        file = base / file
     if not file.is_file():
         return '<p class="none">The screenshot file is missing.</p>'
     mime = mimetypes.guess_type(file.name)[0] or "image/png"
@@ -328,11 +331,11 @@ def _chips(items: list[str], none: str, cls: str = "chips") -> str:
     return f'<ul class="{cls}">{"".join(f"<li>{e(i)}</li>" for i in items)}</ul>'
 
 
-def _page(p: Page) -> str:
+def _page(p: Page, base: Path | None) -> str:
     status = f" returned {p.status}" if p.status else ""
     title = e(p.title) if p.title else f"<code>{e(p.path)}</code>"
     return (
-        f'<div class="page">{_image(p.screenshot)}<h3>{title}</h3>'
+        f'<div class="page">{_image(p.screenshot, base)}<h3>{title}</h3>'
         f'<p class="none"><code>{e(p.path)}</code>{status}</p>'
         f'<p class="k">Buttons</p>{_chips(p.buttons, "No buttons found.")}'
         f'<p class="k">Inputs</p>{_chips(p.inputs, "No inputs found.")}'
@@ -341,7 +344,7 @@ def _page(p: Page) -> str:
     )
 
 
-def _app(r: ScanResult) -> str:
+def _app(r: ScanResult, base: Path | None) -> str:
     run = r.app_run
     if run.state == "ran":
         how = f" with <code>{e(run.command)}</code>" if run.command else ""
@@ -350,7 +353,7 @@ def _app(r: ScanResult) -> str:
         if not run.pages:
             body = '<p class="empty">The app ran, but vibexray found no pages to open.</p>'
             return _section("app", "The app ran with no pages to open", body, sub)
-        pages = "".join(_page(p) for p in run.pages)
+        pages = "".join(_page(p, base) for p in run.pages)
         title = f"The app ran. vibexray opened {plural(len(run.pages), 'page')}."
         return _section("app", title, f'<div class="pages">{pages}</div>', sub)
     booted = run.state == "could_not_boot"
@@ -418,11 +421,13 @@ def _engineer(r: ScanResult) -> str:
     return _section("engineer", "Your engineer starts from handoff.md", body)
 
 
-def render_html(result: ScanResult) -> str:
+def render_html(result: ScanResult, base: Path | None = None) -> str:
     r = result
     stack = ", ".join(r.stack) if r.stack else "Stack not found"
     meta = f"{e(r.app_name)} · {e(r.generated_at)} · {e(stack)}"
-    sections = _decisions(r) + _parts(r) + _fake(r) + _risks(r) + _app(r) + _chat(r) + _engineer(r)
+    sections = (
+        _decisions(r) + _parts(r) + _fake(r) + _risks(r) + _app(r, base) + _chat(r) + _engineer(r)
+    )
     foot = (
         f"vibexray {e(r.version)} read {e(r.app_name)} on {e(r.generated_at)}. "
         "A scan reads code. It cannot prove that an app is safe."

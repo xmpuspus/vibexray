@@ -3,6 +3,9 @@ from pathlib import Path
 from conftest import load_report_json
 
 from vibexray import __version__
+from vibexray.model import CATEGORIES
+
+FAKE_CATEGORIES = {k for k, v in CATEGORIES.items() if v[1] == "fake"}
 
 
 def test_version_flag_prints_version(cli):
@@ -52,3 +55,33 @@ def test_report_json_records_target_and_version(cli, tmp_path):
     assert data["version"] == __version__
     assert Path(data["target"]).name == "app"
     assert data["files_scanned"] == 1
+
+
+FIXTURE = Path(__file__).parent / "fixtures" / "ai-customer-support-agent"
+
+
+def _row(stdout: str, label: str) -> int:
+    line = next(ln for ln in stdout.splitlines() if ln.strip().startswith(label))
+    return int(line.split()[len(label.split())])
+
+
+def test_terminal_summary_uses_the_report_numbers(cli, tmp_path):
+    out = tmp_path / "out"
+    result = cli("scan", str(FIXTURE), "--out", str(out), "--no-run", "--no-history")
+    assert result.returncode == 0, result.stderr
+    data = load_report_json(out)
+    files = {"fake": set(), "risk": set()}
+    for f in data["findings"]:
+        files["fake" if f["category"] in FAKE_CATEGORIES else "risk"].add(f["file"])
+    assert _row(result.stdout, "Fake parts") == len(files["fake"])
+    assert _row(result.stdout, "Parts that can break") == len(files["risk"])
+    assert _row(result.stdout, "Decisions for you") == len(data["questions"])
+    assert "App run   The app did not run. Skipped: the scan ran with --no-run." in result.stdout
+
+
+def test_terminal_summary_counts_read_as_plain_english(cli, tmp_path):
+    target = tmp_path / "empty-app"
+    target.mkdir()
+    result = cli("scan", str(target), "--out", str(tmp_path / "out"), "--no-run", "--no-history")
+    assert "vibexray found no app code in empty-app." in result.stdout
+    assert " 1 questions" not in result.stdout

@@ -50,6 +50,11 @@ class Finding:
     related_file: str | None = None
     related_line: int | None = None
     related_snippet: str | None = None
+    # "rule" for a pattern rule, "review" for the host AI's review. vibexray checks the
+    # file, line, and quote of every review finding before it keeps one.
+    source: str = "rule"
+    verified: bool = True
+    quote: str | None = None
 
     @property
     def group(self) -> str:

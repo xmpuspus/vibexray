@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Northwind Gear — AI Support Agent</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="header">
+    <div class="brand">
+      <div class="wordmark">Northwind Gear</div>
+      <div class="subtitle">AI support agent · tool calling demo</div>
+    </div>
+    <div class="header-right">
+      <span class="model-badge" id="model-badge">loading…</span>
+      <span class="counter">Tokens: <span id="tokens-in">0</span> in / <span id="tokens-out">0</span> out</span>
+      <span class="counter">Cost: $<span id="cost">0.0000</span></span>
+      <button class="btn reset-btn" id="reset-btn" type="button">Reset</button>
+    </div>
+  </header>
+
+  <main class="main">
+    <section class="chat-col" aria-label="Chat">
+      <div class="chat-scroll" id="chat-list">
+        <div class="empty-state" id="empty-state">
+          <p>Ask about an order, stock, returns or a callback.<br>Every tool the agent uses shows up in the trace on the right.</p>
+        </div>
+      </div>
+      <div class="chat-footer">
+        <div class="suggestions" id="suggestions">
+          <button class="suggestion-chip" type="button">Where is my order A1001?</button>
+          <button class="suggestion-chip" type="button">Is the Trail Runner 2 in size 44 in stock?</button>
+          <button class="suggestion-chip" type="button">I want to return the jacket from order A1002, it's too small</button>
+          <button class="suggestion-chip" type="button">Can I get a callback tomorrow at 11:30? My number is +1 555 0142</button>
+        </div>
+        <div class="input-row">
+          <textarea id="message-input" rows="1" placeholder="Message the support agent…" aria-label="Message the support agent"></textarea>
+          <button class="btn send-btn" id="send-btn" type="button">Send</button>
+        </div>
+        <div class="demo-footer">Demo data only · tools run against a mock store</div>
+      </div>
+    </section>
+
+    <section class="trace-col" aria-label="Agent trace">
+      <div class="trace-header">
+        <h2>Agent trace</h2>
+        <p>Live view of every model call and tool call</p>
+      </div>
+      <div class="trace-scroll" id="trace-list"></div>
+    </section>
+  </main>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>

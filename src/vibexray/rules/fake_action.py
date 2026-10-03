@@ -83,8 +83,10 @@ promise_resolve = line_rule(
 )
 
 
+_AWAIT_PROMISE = re.compile(r"await\s+new\s+Promise\(\s*\(?\w*\)?\s*=>\s*setTimeout\([^)]*\)\s*\)")
+_REAL_WORK = re.compile(r"\bawait\b|clipboard|\bcopy|download|\.then\(|\bprint\(")
 _TOAST_CALL = re.compile(r"\b(?:toast(?:\.success)?|notify|message\.success|alert)\(")
-_OK_WORD = re.compile(r"saved|success|sent|submitted|created|updated|deleted|done|booked", re.I)
+_OK_WORD = re.compile(r"saved|sent|submitted|created|updated|deleted|booked", re.I)
 
 
 def _toast_without_network(rule: Rule, files: list[SourceFile]) -> Iterable[Finding]:
@@ -93,8 +95,8 @@ def _toast_without_network(rule: Rule, files: list[SourceFile]) -> Iterable[Find
         for name, a, b in function_bodies(f.text):
             if not _HANDLER_NAME.match(name):
                 continue
-            body = code[a:b]
-            if NETWORK.search(body):
+            body = _AWAIT_PROMISE.sub(lambda m: re.sub(r"[^\n]", " ", m.group(0)), code[a:b])
+            if NETWORK.search(body) or _REAL_WORK.search(body):
                 continue
             for m in _TOAST_CALL.finditer(body):
                 near = f.text[a + m.start() : a + m.start() + 160]

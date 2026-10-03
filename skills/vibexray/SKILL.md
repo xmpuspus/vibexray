@@ -28,18 +28,25 @@ vibexray checks each review finding line by line. It keeps a finding only if the
    Run the scan in the foreground and wait until it ends. Never run it in the background. When it starts the app, it can take up to 10 minutes, so set the command timeout to 10 minutes.
 
    Add `--no-run` only if the user says not to start the app. If the command exits with an error, show the error and stop. If the app did not start, for example because a sandbox blocked it, the scan is still valid. Go on to step 3.
-3. Read `<folder>/vibexray-report/vibexray.json`. Use the rule findings as anchors. Open each cited file and line, and look for related problems near it.
-4. Read the prototype's own source files. Skip `node_modules`, build output, lock files, tests, `vibexray-report`, and this skill folder. Walk the checklist below for each file.
-5. Write `<folder>/vibexray-report/review.json` in the format below. Give an exact quote for each finding. Never paraphrase a quote.
-6. Run the review step:
+3. Read `<folder>/vibexray-report/vibexray.json`. Its `parts` list names every source file of the app. Its `findings` list holds the rule findings.
+4. Check each rule finding. Open its file and line. If the code shows that the rule is wrong there, write a reject entry with the reason. Keep the rule findings that hold.
+5. Read every file in the `parts` list. Also read the env examples, and the data or knowledge-base files that the app loads. Skip vendored UI library files, such as `components/ui/*` from shadcn. Then walk the checklist below one group at a time, over all the files:
+   1. fake data and fake actions,
+   2. login, access, and database rules,
+   3. secrets,
+   4. each AI tool, then the AI as a whole,
+   5. other security risks.
+6. Verify each finding before you keep it. Reread its cited lines. Keep it only if those lines show the problem. Drop a finding that guesses about code you did not read.
+7. Write `<folder>/vibexray-report/review.json` in the format below. Give an exact quote for each finding. Never paraphrase a quote.
+8. Run the review step:
 
    ```bash
    python3 scripts/run_vibexray.py review <folder>/vibexray-report --input <folder>/vibexray-report/review.json
    ```
 
    The command prints the kept count, the dropped count, and the reason for each drop. If a drop comes from a wrong line or a wrong quote, fix that entry and run the step again. Do not add new findings to replace drops.
-7. Tell the PM the result in 3 short sentences. Then list the top 3 decisions.
-8. Offer to open `report.html`.
+9. Tell the PM the result in 3 short sentences. Then list the top 3 decisions.
+10. Offer to open `report.html`.
 
 ## Review checklist
 
@@ -124,6 +131,15 @@ The file holds a JSON list. Each entry is one finding:
 - If the line holds a secret value, quote the part without the value, for example the variable name.
 - Use `related_file` and `related_line` for a second place. For `ai_prompt_only_rule`, the second place is the tool code.
 - Write `pm_text` with no jargon. Write `engineer_text` with the file, the problem, and the fix.
+
+A reject entry removes one rule finding that the code shows to be wrong:
+
+```json
+{"reject": true, "file": "<file of the rule finding>", "line": 0, "rule_id": "<its rule_id>", "reason": "<what in the code shows that the rule is wrong>"}
+```
+
+- Reject only when the code clearly shows that the rule is wrong. When you are not sure, keep the rule finding.
+- The reason needs 12 characters or more. The engineer sees every reason in `handoff.md`.
 
 ## Rules
 

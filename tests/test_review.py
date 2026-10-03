@@ -253,3 +253,56 @@ def test_span_over_300_lines_is_dropped(cli, tmp_path):
     result = apply_review(out, write_review(out, [entry]))
     assert not result.kept
     assert "300" in result.dropped[0].reason
+
+
+def _reject(f: dict, reason: str) -> dict:
+    return {
+        "reject": True,
+        "file": f["file"],
+        "line": f["line"],
+        "rule_id": f["rule_id"],
+        "reason": reason,
+    }
+
+
+def test_review_can_reject_a_rule_finding_with_a_reason(scanned):
+    target = rule_findings(scanned)[0]
+    reason = "The value is read from settings two lines up, so nothing is fixed in code."
+    result = apply_review(scanned, write_review(scanned, [_reject(target, reason)]))
+    assert len(result.rejected) == 1
+    left = [(f["file"], f["line"], f["rule_id"]) for f in rule_findings(scanned)]
+    assert (target["file"], target["line"], target["rule_id"]) not in left
+    data = json.loads((scanned / "vibexray.json").read_text())
+    assert data["rejected"][0]["reason"] == reason
+    handoff = (scanned / "handoff.md").read_text()
+    assert "The AI review removed 1 rule finding" in handoff
+    assert reason in handoff
+
+
+def test_a_second_review_without_the_reject_restores_the_rule_finding(scanned):
+    target = rule_findings(scanned)[0]
+    before = len(rule_findings(scanned))
+    reject = _reject(target, "The value comes from settings, so the rule is wrong here.")
+    apply_review(scanned, write_review(scanned, [reject]))
+    apply_review(scanned, write_review(scanned, []))
+    assert len(rule_findings(scanned)) == before
+
+
+@pytest.mark.parametrize("reason", ["", "wrong"])
+def test_reject_needs_a_real_reason(scanned, reason):
+    target = rule_findings(scanned)[0]
+    result = apply_review(scanned, write_review(scanned, [_reject(target, reason)]))
+    assert not result.rejected
+    assert "reason" in result.dropped[0].reason
+
+
+def test_reject_of_a_place_with_no_rule_finding_is_dropped(scanned):
+    entry = {
+        "reject": True,
+        "file": "src/tools.ts",
+        "line": 2,
+        "reason": "No problem on this line.",
+    }
+    result = apply_review(scanned, write_review(scanned, [entry]))
+    assert not result.rejected
+    assert "no rule finding" in result.dropped[0].reason

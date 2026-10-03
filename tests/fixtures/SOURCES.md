@@ -20,6 +20,9 @@ Doc fixtures sit under `tests/fixtures/docs/` and name the page they come from.
 | https://github.com/AlchemyGeek/EAA-Chapter-84-Connect | a5b5c07a89b627afeb1c1e94d04796fb1bc49ac8 | MIT | `supabase/migrations/20260228011510_2e8af2f8-2ab1-4382-b8e8-c1636a06aeef.sql` | 1-234 |
 | https://github.com/AlchemyGeek/EAA-Chapter-84-Connect | a5b5c07a89b627afeb1c1e94d04796fb1bc49ac8 | MIT | `supabase/migrations/20260302234155_82a8f4f7-af24-4ddc-91e3-6e9fb9ecc700.sql` | 1-81 |
 | https://github.com/Contractor-x/MIND-MIRROR | 3b129b1e228e06c14f5c5331576e12f79756ebc3 | MIT | `src/data/dummyUsers.json` | 1-1 |
+| https://github.com/Contractor-x/MIND-MIRROR | 3b129b1e228e06c14f5c5331576e12f79756ebc3 | MIT | `src/libs/revenuecat.js` | 1-1 |
+| https://github.com/Contractor-x/MIND-MIRROR | 3b129b1e228e06c14f5c5331576e12f79756ebc3 | MIT | `src/pages/paywall.jsx` | 1-1 |
+| https://github.com/backblaze-b2-samples/gpt-realtime-2-customer-support-voice-agent | a41a78f6e19f71bae5709fca90aeacc5f71d9ce2 | MIT | `services/api/app/__init__.py` | 1-1 |
 | https://github.com/Hesper-Labs/owly | 430c646e51aea8367d1e1a88953e9b56d059fa8d | MIT | `public/widget/owly-chat.js` | 45-75 |
 | https://github.com/Luoluo0511/resolve-webmcp | 4c6bd5e07c83c4911419f0ab24da7a8e0a15b197 | MIT | `app/workspace/page.tsx` | 1-383 |
 | https://github.com/Luoluo0511/resolve-webmcp | 4c6bd5e07c83c4911419f0ab24da7a8e0a15b197 | MIT | `lib/data.ts` | 1-20 |

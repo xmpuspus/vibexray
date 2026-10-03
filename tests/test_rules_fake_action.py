@@ -52,3 +52,19 @@ def test_promise_resolve_success_ignores_function_that_awaits_a_call():
 def test_rules_without_a_corpus_hit_stay_quiet():
     for rid in ("console-log-as-send", "route-returns-ok-only", "localstorage-as-backend"):
         assert run(rid, ROLES, UPDATE_BTN) == [], rid
+
+
+# MIND-MIRROR ships its paywall and RevenueCat files as a single newline each.
+EMPTY_LIB = "MIND-MIRROR/src/libs/revenuecat.js"
+EMPTY_PAGE = "MIND-MIRROR/src/pages/paywall.jsx"
+EMPTY_INIT = "gpt-realtime-2-customer-support-voice-agent/services/api/app/__init__.py"
+
+
+def test_empty_feature_file_flags_each_empty_source_file():
+    found = run("empty-feature-file", EMPTY_LIB, EMPTY_PAGE)
+    assert sorted(f.file for f in found) == ["src/libs/revenuecat.js", "src/pages/paywall.jsx"]
+    assert all(f.category == "fake_action" and f.line == 1 for f in found)
+
+
+def test_empty_feature_file_ignores_an_empty_python_package_marker():
+    assert run("empty-feature-file", EMPTY_INIT) == []

@@ -232,7 +232,28 @@ ls_backend = line_rule(
     absent=re.compile(r"\bfetch\(|supabase|axios"),
 )
 
+
+def _empty_file(rule: Rule, files: list[SourceFile]) -> Iterable[Finding]:
+    # A scaffold that was never filled in: a page, function, or library file with no code.
+    for f in live(files, SRC):
+        name = f.path.rsplit("/", 1)[-1]
+        if f.text.strip() or name == "__init__.py" or name.endswith(".d.ts"):
+            continue
+        yield rule.finding(f, 1, "(the file is empty)")
+
+
+empty_file = custom_rule(
+    "empty-feature-file",
+    "fake_action",
+    "medium",
+    "rewrite",
+    "This file is empty, so the feature it stands for does not exist yet.",
+    "Build the feature in this file, or delete the file and every link to it.",
+    _empty_file,
+)
+
 RULES: list[Rule] = [
+    empty_file,
     settimeout_success,
     promise_resolve,
     toast_no_network,

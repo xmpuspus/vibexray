@@ -117,6 +117,10 @@ def cmd_review(args: argparse.Namespace) -> int:
         print(f"  dropped #{drop.index} {drop.file}:{drop.line}  {drop.reason}")
     for dup in result.duplicates:
         print(f"  skipped #{dup.index} {dup.file}:{dup.line}  {dup.reason}")
+    if result.rejected:
+        print(f"Removed {plural(len(result.rejected), 'rule finding')} as false alarms.")
+    for rej in result.rejected:
+        print(f"  removed #{rej.index} {rej.file}:{rej.line}  {rej.reason}")
     if result.dropped:
         print(
             "  Drops are normal. vibexray keeps a finding only if its file, line, and quote match."

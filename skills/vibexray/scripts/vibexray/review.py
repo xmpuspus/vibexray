@@ -23,6 +23,7 @@ from vibexray.model import (
     Part,
     Prompt,
     Question,
+    Rejection,
     ScanResult,
 )
 from vibexray.parts import build_parts
@@ -52,6 +53,7 @@ class ReviewResult:
     kept: list[Finding] = field(default_factory=list)
     dropped: list[Drop] = field(default_factory=list)
     duplicates: list[Drop] = field(default_factory=list)
+    rejected: list[Drop] = field(default_factory=list)
 
     def to_dict(self) -> dict:
         return {
@@ -59,6 +61,7 @@ class ReviewResult:
             "kept": len(self.kept),
             "dropped": [asdict(d) for d in self.dropped],
             "duplicates": [asdict(d) for d in self.duplicates],
+            "rejected": [asdict(d) for d in self.rejected],
             "drop_rate": round(len(self.dropped) / self.total, 4) if self.total else 0.0,
         }
 
@@ -85,6 +88,10 @@ def load_result(data: dict) -> ScanResult:
         app_run=AppRun(**run),
         history=History(**history),
         questions=[Question(**q) for q in data.get("questions") or []],
+        rejected=[
+            Rejection(finding=Finding(**r["finding"]), reason=r["reason"])
+            for r in data.get("rejected") or []
+        ],
     )
 
 
@@ -228,6 +235,21 @@ def _load_entries(review_path: Path) -> list:
     return entries
 
 
+MIN_REASON = 12
+
+
+def _rejected_rule(entry: dict, rule_findings: list[Finding]) -> tuple[Finding | None, str]:
+    reason = entry.get("reason")
+    if not isinstance(reason, str) or len(reason.strip()) < MIN_REASON:
+        return None, f"a reject needs a reason of {MIN_REASON} characters or more"
+    line = _whole(entry.get("line"))
+    file, rule_id = entry.get("file"), entry.get("rule_id")
+    for f in rule_findings:
+        if f.file == file and f.line == line and (not rule_id or f.rule_id == rule_id):
+            return f, ""
+    return None, f"no rule finding at {file}:{entry.get('line')} to reject"
+
+
 def apply_review(report_dir: Path, review_path: Path) -> ReviewResult:
     """Check each review entry, merge the kept ones, and re-render all three outputs."""
     report_dir, review_path = Path(report_dir), Path(review_path)
@@ -243,10 +265,27 @@ def apply_review(report_dir: Path, review_path: Path) -> ReviewResult:
         raise ReviewError(f"the scanned folder {root} no longer exists")
     entries = _load_entries(review_path)
 
-    # review.json is the whole review, so a second run replaces the first one.
+    # review.json is the whole review, so a second run replaces the first one. Rule
+    # findings that an earlier review rejected come back until this review rejects them.
     rule_findings = [f for f in result.findings if f.source != "review"]
+    rule_findings += [r.finding for r in result.rejected]
     out = ReviewResult(total=len(entries))
+    rejections: list[Rejection] = []
+    # Rejects go first, so a review finding never counts as a repeat of a rejected one.
     for index, entry in enumerate(entries, start=1):
+        if not (isinstance(entry, dict) and entry.get("reject")):
+            continue
+        target, why = _rejected_rule(entry, rule_findings)
+        if target is None:
+            out.dropped.append(Drop(index, str(entry.get("file") or ""), entry.get("line"), why))
+            continue
+        rule_findings.remove(target)
+        reason = hide_keys(entry["reason"])
+        rejections.append(Rejection(finding=target, reason=reason))
+        out.rejected.append(Drop(index, target.file, target.line, reason))
+    for index, entry in enumerate(entries, start=1):
+        if isinstance(entry, dict) and entry.get("reject"):
+            continue
         finding, why = check_entry(entry, root)
         if finding is None:
             file = entry.get("file") if isinstance(entry, dict) else None
@@ -261,6 +300,7 @@ def apply_review(report_dir: Path, review_path: Path) -> ReviewResult:
         out.kept.append(finding)
 
     result.findings = rule_findings + out.kept
+    result.rejected = rejections
     result.parts = build_parts(collect_files(root), result.findings)
     result.questions = build_questions(result.findings, result.history)
     write_reports(result, report_dir)

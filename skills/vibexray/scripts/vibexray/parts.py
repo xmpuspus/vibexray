@@ -10,7 +10,19 @@ from vibexray.walker import SourceFile
 # A worse label wins when one file carries several findings.
 LABEL_RANK = {"keep": 0, "check": 1, "rewrite": 2, "throwaway": 3}
 
-APP_SUFFIXES = (".ts", ".tsx", ".js", ".jsx", ".vue", ".svelte", ".py", ".sql")
+APP_SUFFIXES = (
+    ".ts",
+    ".tsx",
+    ".js",
+    ".jsx",
+    ".mjs",
+    ".cjs",
+    ".vue",
+    ".svelte",
+    ".py",
+    ".sql",
+    ".rules",
+)
 SKIP_PARTS = ("components/ui/", "test", "spec", ".config.", "vite-env.d.ts")
 
 

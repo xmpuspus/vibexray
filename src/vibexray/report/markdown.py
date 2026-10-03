@@ -124,6 +124,24 @@ def _findings(r: ScanResult) -> list[str]:
     return out
 
 
+def _rejected(r: ScanResult) -> list[str]:
+    # The engineer sees every rule finding that the review removed, and why.
+    if not r.rejected:
+        return []
+    n = len(r.rejected)
+    out = [
+        "## Rule findings the AI review removed",
+        "",
+        f"The AI review removed {plural(n, 'rule finding')} as false alarms. "
+        "Check each reason before you trust it.",
+        "",
+    ]
+    for rej in r.rejected:
+        f = rej.finding
+        out.append(f"- {_where(f.file, f.line)} `{f.rule_id}`: {hide_secrets(rej.reason)}")
+    return out + [""]
+
+
 def _app(r: ScanResult) -> list[str]:
     run = r.app_run
     out = ["## What the app does", ""]
@@ -191,7 +209,7 @@ AGENT_STEPS = [
 def render_markdown(result: ScanResult) -> str:
     r = result
     lines = [f"# Handoff: {r.app_name}", "", *_summary(r)]
-    lines += _parts(r) + _findings(r) + _app(r) + _questions(r) + _chat(r)
+    lines += _parts(r) + _findings(r) + _rejected(r) + _app(r) + _questions(r) + _chat(r)
     lines += ["## Instructions for a coding agent", ""]
     lines += [f"{i}. {step}" for i, step in enumerate(AGENT_STEPS, start=1)]
     return "\n".join(lines) + "\n"

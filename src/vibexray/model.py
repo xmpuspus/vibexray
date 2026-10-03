@@ -120,6 +120,14 @@ class Part:
 
 
 @dataclass
+class Rejection:
+    """A rule finding that the AI review showed to be a false alarm, with its reason."""
+
+    finding: Finding
+    reason: str
+
+
+@dataclass
 class ScanResult:
     version: str
     target: str
@@ -132,6 +140,7 @@ class ScanResult:
     app_run: AppRun = field(default_factory=AppRun)
     history: History = field(default_factory=History)
     questions: list[Question] = field(default_factory=list)
+    rejected: list[Rejection] = field(default_factory=list)
 
     def counts(self) -> dict[str, int]:
         out = dict.fromkeys(GROUPS, 0)

@@ -2,7 +2,7 @@
 name: vibexray
 description: X-rays a prototype built with AI and writes a PM report, an engineer handoff, and a JSON file. It shows what is real, what is fake, what can break, and what the PM must decide. Use when the user asks "is this ready for engineering", "what is fake in my prototype", "hand this off", "x-ray my app", or "vibexray". Also use for a prototype built with Claude Code, Codex, Lovable, v0, or Bolt.
 license: MIT
-compatibility: Needs Python 3.11 or newer and no network. Running the app is optional and needs Node and Playwright.
+compatibility: The scan needs Python 3.11 or newer and no network. The app run is optional. It needs Node, Playwright, and network access to install packages.
 metadata:
   version: "0.1.0"
   repository: https://github.com/xmpuspus/vibexray

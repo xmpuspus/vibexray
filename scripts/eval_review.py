@@ -84,6 +84,9 @@ def command(runtime: str, copy: Path, max_turns: int, model: str | None) -> list
         cmd += ["--permission-mode", "acceptEdits", "--allowedTools", CLAUDE_TOOLS]
     else:
         cmd = ["codex", "exec", "--skip-git-repo-check", "--ephemeral", "--json"]
+        # Skip the user's hooks, MCP servers, and exec rules, like a PM's machine. Codex still
+        # loads $CODEX_HOME/AGENTS.md, and a separate CODEX_HOME would risk the user's login.
+        cmd += ["--ignore-user-config", "--ignore-rules"]
         cmd += ["-C", str(copy), "-s", "workspace-write", PROMPT]
     if model:
         cmd[2:2] = ["--model", model]

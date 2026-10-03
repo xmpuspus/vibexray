@@ -27,6 +27,7 @@ from vibexray.apprun_crawl import RUN_EXTRA_HINT, crawl
 from vibexray.model import AppRun
 
 BOOT_SECONDS = 90
+COPY_SKIP = (".git", "node_modules", ".next", "dist", "build", "vibexray-report")
 BUILD_MISSING = re.compile(r"(not found|ENOENT|Cannot find).*\b(dist|build|\.next)\b", re.I)
 INSTALL_SECONDS = 600
 INSTALL_ARGS = {
@@ -53,8 +54,11 @@ def run_app(root: Path, out_dir: Path, enabled: bool) -> AppRun:
         )
     out_dir.mkdir(parents=True, exist_ok=True)
     home = out_dir / ".vibexray-home"
+    run_dir = out_dir / ".vibexray-run"
     home.mkdir(parents=True, exist_ok=True)
     try:
+        # Install and start in a copy, so the user's folder never changes.
+        work = _make_copy(root, run_dir / "app", out_dir)
         if pkg is not None:
             script = detect_script(pkg)
             if script is None:
@@ -63,14 +67,29 @@ def run_app(root: Path, out_dir: Path, enabled: bool) -> AppRun:
                 )
             manager = detect_package_manager(root)
             command = f"{manager} run {script}"
-            return _boot_and_crawl(root, out_dir, home, command, [manager, "run", script], manager)
+            return _boot_and_crawl(work, out_dir, home, command, [manager, "run", script], manager)
         cmd = ["python3", entry]
         if entry == "manage.py":
             cmd = ["python3", entry, "runserver"]
-        return _boot_and_crawl(root, out_dir, home, " ".join(cmd), cmd, None)
+        return _boot_and_crawl(work, out_dir, home, " ".join(cmd), cmd, None)
     finally:
         reap_strays(home)
         shutil.rmtree(home, ignore_errors=True)
+        shutil.rmtree(run_dir, ignore_errors=True)
+
+
+def _make_copy(root: Path, dest: Path, out_dir: Path) -> Path:
+    skip = set(COPY_SKIP)
+    out_resolved = out_dir.resolve()
+
+    def ignore(folder: str, names: list[str]) -> set[str]:
+        return {n for n in names if n in skip or (Path(folder) / n).resolve() == out_resolved}
+
+    shutil.copytree(root, dest, ignore=ignore, symlinks=True)
+    # Reuse the user's installed packages instead of installing again.
+    if (root / "node_modules").is_dir():
+        (dest / "node_modules").symlink_to((root / "node_modules").resolve())
+    return dest
 
 
 def _boot_and_crawl(root, out_dir, home, command, cmd, manager) -> AppRun:

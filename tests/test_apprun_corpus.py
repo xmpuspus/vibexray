@@ -1,5 +1,6 @@
 """App-run tests on copies of real corpus repos. Copies live in tmp/ and are deleted after."""
 
+import hashlib
 import os
 import shutil
 import signal
@@ -50,6 +51,8 @@ def ports_used(result) -> list[int]:
 @pytest.mark.browser
 def test_next_app_boots_and_crawls(cleanup, tmp_path):
     root = copy_repo("ai-customer-support-agent")
+    lock_before = hashlib.sha256((root / "package-lock.json").read_bytes()).hexdigest()
+    assert not (root / "node_modules").exists()
     # An unrelated process of the user that mentions the app folder must survive the scan.
     decoy = subprocess.Popen(["/bin/sh", "-c", DECOY, str(root)], start_new_session=True)
     try:
@@ -59,6 +62,10 @@ def test_next_app_boots_and_crawls(cleanup, tmp_path):
         os.killpg(decoy.pid, signal.SIGKILL)
         decoy.wait()
     assert result.state == "ran", result.reason
+    # The scan works in a copy and never changes the user's folder.
+    assert not (root / "node_modules").exists()
+    assert hashlib.sha256((root / "package-lock.json").read_bytes()).hexdigest() == lock_before
+    assert not (tmp_path / ".vibexray-run").exists()
     assert result.url and result.command
     assert result.pages
     shot = result.pages[0].screenshot
@@ -70,7 +77,7 @@ def test_next_app_boots_and_crawls(cleanup, tmp_path):
     assert len(result.pages) <= 8
     for port in ports_used(result):
         assert port_free(port)
-    assert not (left := leftover_processes(root)), left
+    assert not (left := leftover_processes(tmp_path)), left
 
 
 def test_bun_app_with_missing_build_could_not_boot(cleanup, tmp_path):
@@ -81,7 +88,7 @@ def test_bun_app_with_missing_build_could_not_boot(cleanup, tmp_path):
     assert result.command
     assert isinstance(result.missing_env, list)
     assert result.log_tail
-    assert not (left := leftover_processes(root)), left
+    assert not (left := leftover_processes(tmp_path)), left
 
 
 def test_repo_without_root_entry_not_attempted(cleanup, tmp_path):

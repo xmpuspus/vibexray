@@ -88,6 +88,14 @@ def load_result(data: dict) -> ScanResult:
     )
 
 
+# A short token sits on almost every line, and a wide span holds almost any token. Real
+# reviews of the corpus never quoted fewer than 6 characters or spanned more than 232 lines.
+MIN_QUOTE = 6
+WIDE_SPAN = 30
+WIDE_QUOTE = 16
+MAX_SPAN = 300
+
+
 def hide_keys(text: str) -> str:
     """Hide key and password values like redact() does, with no length cap for long review text."""
     return hide(text.strip())
@@ -140,9 +148,18 @@ def check_entry(entry: object, root: Path) -> tuple[Finding | None, str]:
     if not line <= last <= len(lines):
         return None, f"end_line {last} is outside lines {line} to {len(lines)} of {rel}"
 
+    if last - line > MAX_SPAN:
+        return None, f"lines {line} to {last} span more than {MAX_SPAN} lines"
     quote = entry.get("quote")
     if not isinstance(quote, str) or not norm(quote):
         return None, "quote is empty"
+    chars = len("".join(quote.split()))
+    if chars < MIN_QUOTE:
+        return None, f"quote is too short: it needs {MIN_QUOTE} characters or more"
+    if last - line > WIDE_SPAN and chars < WIDE_QUOTE:
+        return None, (
+            f"lines {line} to {last} need a longer quote, of {WIDE_QUOTE} characters or more"
+        )
     span = f"line {line}" if last == line else f"lines {line} to {last}"
     if norm(quote) not in norm("\n".join(lines[line - 1 : last])):
         return None, f"quote not found on {rel} {span}"

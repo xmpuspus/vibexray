@@ -217,3 +217,39 @@ def test_cli_review_without_a_scan_fails_plainly(cli, tmp_path):
     result = cli("review", str(tmp_path), "--input", str(path))
     assert result.returncode == 2
     assert "vibexray.json" in result.stderr
+
+
+@pytest.mark.parametrize("quote", [";", "l", "=> {"])
+def test_quote_under_six_characters_is_dropped(scanned, quote):
+    # Any short token sits on almost every line, so it proves nothing about the cited line.
+    entry = dict(ENTRIES[PLAIN], quote=quote)
+    result = apply_review(scanned, write_review(scanned, [entry]))
+    assert not result.kept
+    assert "quote is too short" in result.dropped[0].reason
+
+
+def test_span_over_30_lines_needs_a_16_character_quote(scanned):
+    short = dict(ENTRIES[PLAIN], line=1, end_line=71, quote="import { z }")
+    long = dict(ENTRIES[PLAIN], line=1, end_line=71, quote="run: ({ order_id }) => {")
+    result = apply_review(scanned, write_review(scanned, [short]))
+    assert not result.kept
+    assert "longer quote" in result.dropped[0].reason
+    result = apply_review(scanned, write_review(scanned, [long]))
+    assert len(result.kept) == 1
+
+
+def test_span_over_300_lines_is_dropped(cli, tmp_path):
+    # One real file built from three real fixture files, so it runs past 300 lines.
+    app = tmp_path / "app"
+    (app / "src").mkdir(parents=True)
+    parts = ["tools.ts", "executor.ts", "server.ts"]
+    text = "".join((REPO_COPY / "src" / p).read_text() for p in parts)
+    (app / "src" / "all.ts").write_text(text)
+    out = tmp_path / "report"
+    assert cli("scan", str(app), "--out", str(out), "--no-run", "--no-history").returncode == 0
+    entry = dict(
+        ENTRIES[PLAIN], file="src/all.ts", line=1, end_line=320, quote="run: ({ order_id }) => {"
+    )
+    result = apply_review(out, write_review(out, [entry]))
+    assert not result.kept
+    assert "300" in result.dropped[0].reason

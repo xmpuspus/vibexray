@@ -113,6 +113,8 @@ The file holds a JSON list. Each entry is one finding:
 - Leave out `end_line` for a problem on one line.
 - `quote` must be on the cited line or lines. Copy it from the file. Do not include the line numbers that a file viewer shows.
 - A short part of the line is enough for `quote`, for example `orders.find((o) => o.id === id)`.
+- Quote at least 6 characters, not counting spaces. For a span of more than 30 lines, quote at least 16.
+- Never cite more than 300 lines in one finding.
 - If the line holds a secret value, quote the part without the value, for example the variable name.
 - Use `related_file` and `related_line` for a second place. An example is the prompt line that states a limit the code does not enforce.
 - Write `pm_text` with no jargon. Write `engineer_text` with the file, the problem, and the fix.

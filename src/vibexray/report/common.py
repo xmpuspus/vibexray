@@ -60,11 +60,20 @@ def by_group(result: ScanResult, group: str) -> list[Finding]:
     return [f for f in result.findings if f.group == group]
 
 
+def found_by(f: Finding) -> str:
+    # getattr: the source and verified fields land in model.py later. Old findings come from rules.
+    if getattr(f, "source", "rule") != "review":
+        return "Found by a rule"
+    if getattr(f, "verified", True):
+        return "Found by AI review, line checked"
+    return "Found by AI review, line not checked"
+
+
 def cards(findings: list[Finding]) -> list[list[Finding]]:
-    """One card per rule and message, worst first, then the most places first."""
-    grouped: dict[tuple[str, str], list[Finding]] = defaultdict(list)
+    """One card per rule, message, and source, worst first, then the most places first."""
+    grouped: dict[tuple[str, str, str], list[Finding]] = defaultdict(list)
     for f in findings:
-        grouped[(f.rule_id, f.pm_text)].append(f)
+        grouped[(f.rule_id, f.pm_text, found_by(f))].append(f)
     return sorted(
         grouped.values(),
         key=lambda fs: (SEVERITY_RANK.get(fs[0].severity, 3), -len(fs), fs[0].pm_text),

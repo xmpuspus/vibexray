@@ -1,5 +1,6 @@
 """Report tests. Every scan here runs the real rules on real prototype code."""
 
+import copy
 import dataclasses
 import re
 from html import escape, unescape
@@ -212,6 +213,26 @@ def test_handoff_fences_hold_snippets_with_backticks(sliceiq):
     assert fences and len(fences) % 2 == 0
     for f in sliceiq.findings:
         assert f.snippet in md
+
+
+def test_every_card_and_finding_names_its_source(sliceiq):
+    html, md = render_html(sliceiq), render_markdown(sliceiq)
+    assert html.count("Found by a rule") == html.count('<article class="card')
+    assert md.count("- Found by a rule.") == len(sliceiq.findings)
+
+
+def test_review_findings_show_whether_the_line_was_checked(sliceiq):
+    # No AI review output exists yet, so two real rule findings take the review source.
+    # Their file, line, and snippet stay real. Only the source fields change.
+    first, second = (copy.copy(f) for f in sliceiq.findings[:2])
+    first.source, first.verified = "review", True
+    second.source, second.verified = "review", False
+    result = dataclasses.replace(sliceiq, findings=[first, second, *sliceiq.findings[2:]])
+    html, md = render_html(result), render_markdown(result)
+    for doc in (html, md):
+        assert "Found by AI review, line checked" in doc
+        assert "Found by AI review, line not checked" in doc
+    assert "Found by a rule" in html
 
 
 def test_write_reports_writes_the_new_documents(sliceiq, tmp_path):

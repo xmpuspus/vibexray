@@ -85,6 +85,9 @@ padding:16px 18px;margin:0 0 16px;min-width:0}
 color:var(--navy);font-weight:700}
 .tag.high{background:var(--coral-wash);color:var(--coral-ink)}
 .tags .cnt{color:var(--muted)}
+.tags .src{color:var(--muted)}
+.tags .src::before{content:"\\00B7";margin-right:12px}
+.tags .src.unchecked{color:var(--coral-ink);font-weight:700}
 .ct{font-size:19px;line-height:1.35;color:var(--ink);margin:8px 0 6px;overflow-wrap:anywhere}
 .fix{margin:0 0 10px;color:var(--muted);font-size:15px}
 .fix b{color:var(--ink)}

@@ -10,6 +10,7 @@ from vibexray.report.common import (
     LABEL_NAMES,
     by_group,
     chat_source,
+    found_by,
     hide_secrets,
     plural,
 )
@@ -102,6 +103,7 @@ def _finding(f: Finding) -> list[str]:
     if f.related_file:
         out.append(f"- Related: {_where(f.related_file, f.related_line)}")
     out += [
+        f"- {found_by(f)}.",
         f"- Severity: {f.severity}. Label: {LABEL_NAMES.get(f.label, f.label)}.",
         f"- The PM sees: {hide_secrets(f.pm_text)}",
         f"- Fix: {hide_secrets(f.engineer_text)}",

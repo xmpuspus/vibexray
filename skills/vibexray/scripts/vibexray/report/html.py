@@ -15,6 +15,7 @@ from vibexray.report.common import (
     by_group,
     cards,
     chat_source,
+    found_by,
     headline,
     hide_secrets,
     parts_with,
@@ -222,10 +223,12 @@ def _card(fs: list[Finding], words: dict[str, str], heading: str) -> str:
     if files > 1:
         count += f" in {files:,} files"
     sev = first.severity if first.severity in words else "low"
+    src_cls = "unchecked" if found_by(first).endswith("not checked") else ""
     locs = [_location(f, not same_fix) for f in fs]
     return (
         f'<article class="card {sev}"><div class="tags"><span class="tag {sev}">'
-        f'{words[sev]}</span><span class="cnt">{count}</span></div>'
+        f'{words[sev]}</span><span class="cnt">{count}</span>'
+        f'<span class="src {src_cls}">{found_by(first)}</span></div>'
         f'<{heading} class="ct">{e(first.pm_text)}</{heading}>{fix}'
         f"{_more(locs, SHOWN, cls='locs')}</article>"
     )

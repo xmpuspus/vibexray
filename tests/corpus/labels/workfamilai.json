@@ -1,0 +1,274 @@
+{
+ "repo": "workfamilai",
+ "sha": "36e2ac44156b012dfed03c4c7821548424ec90ca",
+ "labeler": "b-label-general",
+ "files_reviewed": [
+  "src/App.tsx",
+  "src/pages/Admin.tsx",
+  "src/pages/Auth.tsx",
+  "src/pages/WorkPackages.tsx",
+  "src/pages/DemoComingSoon.tsx",
+  "src/components/auth/ProtectedRoute.tsx",
+  "src/components/chat/ChatInterface.tsx",
+  "src/components/organizational/VoiceQueryInterface.tsx",
+  "src/components/courses/NewsletterSignupModal.tsx",
+  "src/components/guidance/ProgressIndicator.tsx",
+  "src/config/production.ts",
+  "src/integrations/supabase/client.ts",
+  "src/utils/familyAgentGeneration.ts",
+  "src/data/divisionLeaders.ts",
+  "src/data/completeOrganizationalStructure.ts",
+  "src/data/leaders/marcusBennett.ts",
+  "supabase/config.toml",
+  "supabase/functions/chat-with-agent/index.ts",
+  "supabase/functions/create-donation/index.ts",
+  "supabase/functions/voice-to-text/index.ts",
+  "supabase/functions/subscribe-newsletter/index.ts",
+  "supabase/functions/submit-contact-form/index.ts",
+  "supabase/functions/submit-work-package-quote/index.ts",
+  "supabase/migrations/20250828084802_5725a145-562d-4713-87af-3768e2e16f9b.sql",
+  "supabase/migrations/20250830002732_c078cfe7-b357-4067-9031-73e098a42b42.sql",
+  "supabase/migrations/20250830004806_7396d0c9-9d8d-4769-a63e-a61e2ca2ab22.sql",
+  "supabase/migrations/20250830010838_c45d7f54-3a33-4a03-9845-a4b89d0c5e29.sql",
+  "supabase/migrations/20251005033523_902bbe22-0015-4d8f-944f-5c3c8b8a29ec.sql",
+  "supabase/migrations/20251009024556_77d730c9-c585-400e-8315-a60f9acb8a37.sql",
+  "scripts/audit-family-data.mjs",
+  "triggers/estate-worker.ts"
+ ],
+ "labels": [
+  {
+   "category": "database_rules",
+   "file": "supabase/migrations/20250830004806_7396d0c9-9d8d-4769-a63e-a61e2ca2ab22.sql",
+   "line_start": 3,
+   "line_end": 25,
+   "what": "Admin-only policies on family_agents are dropped and replaced by insert, update and delete policies for role public with USING/WITH CHECK (true); anyone with the public key can write or delete rows. Not reversed by a later migration",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "high"
+  },
+  {
+   "category": "database_rules",
+   "file": "supabase/migrations/20250830010838_c45d7f54-3a33-4a03-9845-a4b89d0c5e29.sql",
+   "line_start": 6,
+   "line_end": 12,
+   "what": "Public read policy USING (true) on family_agents",
+   "keep_rewrite_throwaway": "keep",
+   "confidence": "low"
+  },
+  {
+   "category": "database_rules",
+   "file": "supabase/migrations/20251009024556_77d730c9-c585-400e-8315-a60f9acb8a37.sql",
+   "line_start": 74,
+   "line_end": 80,
+   "what": "Quote request table has an insert policy WITH CHECK (true) for anyone; contains contact details, so spam and fake rows are possible (reads are admin-only)",
+   "keep_rewrite_throwaway": "keep",
+   "confidence": "low"
+  },
+  {
+   "category": "note_public_key",
+   "file": "src/integrations/supabase/client.ts",
+   "line_start": 5,
+   "line_end": 11,
+   "what": "Supabase URL and publishable key written in code; public by design",
+   "keep_rewrite_throwaway": "keep",
+   "confidence": "high"
+  },
+  {
+   "category": "auth_gap",
+   "file": "src/components/auth/ProtectedRoute.tsx",
+   "line_start": 24,
+   "line_end": 50,
+   "what": "/admin protection is a client-side check (getUser plus has_role rpc); real protection rests on database policies, which are open on family_agents",
+   "keep_rewrite_throwaway": "keep",
+   "confidence": "medium"
+  },
+  {
+   "category": "auth_gap",
+   "file": "src/App.tsx",
+   "line_start": 70,
+   "line_end": 70,
+   "what": "/contact-test, /site-audit and the admin-style test pages are public routes with no login check",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "auth_gap",
+   "file": "supabase/functions/chat-with-agent/index.ts",
+   "line_start": 42,
+   "line_end": 60,
+   "what": "AI chat function takes no login: anyone can call it, only an in-memory per-IP limit of 10 per minute applies, which resets on every cold start and is easy to bypass",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "high"
+  },
+  {
+   "category": "auth_gap",
+   "file": "supabase/functions/voice-to-text/index.ts",
+   "line_start": 11,
+   "line_end": 25,
+   "what": "Speech-to-text function is open to anyone, protected only by an in-memory per-IP limit",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "security_other",
+   "file": "supabase/functions/chat-with-agent/index.ts",
+   "line_start": 4,
+   "line_end": 7,
+   "what": "CORS allows any origin; the same wildcard is in create-donation, voice-to-text, subscribe-newsletter and the contact functions",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "security_other",
+   "file": "supabase/functions/chat-with-agent/index.ts",
+   "line_start": 78,
+   "line_end": 92,
+   "what": "Prompt injection defense is a regex deny list for a few phrases; easy to bypass",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "security_other",
+   "file": "supabase/functions/chat-with-agent/index.ts",
+   "line_start": 65,
+   "line_end": 66,
+   "what": "agentPersonality and agentBackground come from the client request and go straight into the system prompt",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "high"
+  },
+  {
+   "category": "security_other",
+   "file": "supabase/functions/create-donation/index.ts",
+   "line_start": 26,
+   "line_end": 36,
+   "what": "Donation amount comes from the client; only a minimum and maximum are checked (acceptable for donations)",
+   "keep_rewrite_throwaway": "keep",
+   "confidence": "low"
+  },
+  {
+   "category": "ai_tool_unbounded",
+   "file": "supabase/functions/chat-with-agent/index.ts",
+   "line_start": 10,
+   "line_end": 27,
+   "what": "The only usage limit on paid model calls is a per-IP map in memory; no per-user or daily spend cap in code",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "high"
+  },
+  {
+   "category": "ai_prompt_only_rule",
+   "file": "supabase/functions/chat-with-agent/index.ts",
+   "line_start": 125,
+   "line_end": 132,
+   "what": "Behavior rules ('respond in character', 'professional') exist only in the system prompt, and the persona text is client-supplied",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "ai_no_human_review",
+   "file": "supabase/functions/chat-with-agent/index.ts",
+   "line_start": 144,
+   "line_end": 165,
+   "what": "Model reply returned straight to the user with no filter; voice is generated from it as well",
+   "keep_rewrite_throwaway": "keep",
+   "confidence": "low"
+  },
+  {
+   "category": "hardcoded_config",
+   "file": "supabase/functions/chat-with-agent/index.ts",
+   "line_start": 36,
+   "line_end": 40,
+   "what": "Agent names list hardcoded in the function, duplicated from src/data (same list written in two places); also model gpt-4o-mini, max_tokens 500 and voice IDs written in code",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "hardcoded_config",
+   "file": "src/config/production.ts",
+   "line_start": 3,
+   "line_end": 34,
+   "what": "Config constants (RATE_LIMIT_REQUESTS 100 per hour, MAX_MESSAGE_LENGTH 2000, feature flags, ADMIN_EMAIL admin@lovable.dev) that disagree with the function's real limits of 10 per minute",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "hardcoded_config",
+   "file": "supabase/functions/create-donation/index.ts",
+   "line_start": 30,
+   "line_end": 34,
+   "what": "Donation minimum 100 and maximum 1000000 cents hardcoded",
+   "keep_rewrite_throwaway": "keep",
+   "confidence": "low"
+  },
+  {
+   "category": "mock_data",
+   "file": "src/utils/familyAgentGeneration.ts",
+   "line_start": 96,
+   "line_end": 125,
+   "what": "Agent salary-based costs and hourly rates generated from hardcoded base tables, shown as real prices",
+   "keep_rewrite_throwaway": "throwaway",
+   "confidence": "high"
+  },
+  {
+   "category": "mock_data",
+   "file": "src/utils/familyAgentGeneration.ts",
+   "line_start": 174,
+   "line_end": 174,
+   "what": "Task coverage percentage is Math.random between 70 and 100",
+   "keep_rewrite_throwaway": "throwaway",
+   "confidence": "high"
+  },
+  {
+   "category": "mock_data",
+   "file": "src/data/divisionLeaders.ts",
+   "line_start": 1,
+   "line_end": 214,
+   "what": "Hardcoded leaders, titles, experience and managed-agent counts for a made-up organization",
+   "keep_rewrite_throwaway": "throwaway",
+   "confidence": "high"
+  },
+  {
+   "category": "mock_data",
+   "file": "src/data/completeOrganizationalStructure.ts",
+   "line_start": 1,
+   "line_end": 259,
+   "what": "Hardcoded organization structure used as the app's data source",
+   "keep_rewrite_throwaway": "throwaway",
+   "confidence": "high"
+  },
+  {
+   "category": "mock_data",
+   "file": "src/data/leaders/marcusBennett.ts",
+   "line_start": 1,
+   "line_end": 277,
+   "what": "Hardcoded persona profile with background and achievements; same pattern for each leader file in src/data/leaders/",
+   "keep_rewrite_throwaway": "throwaway",
+   "confidence": "high"
+  },
+  {
+   "category": "mock_data",
+   "file": "supabase/migrations/20250830002732_c078cfe7-b357-4067-9031-73e098a42b42.sql",
+   "line_start": 28,
+   "line_end": 48,
+   "what": "Migration inserts a 'Demo agent row' into family_agents",
+   "keep_rewrite_throwaway": "throwaway",
+   "confidence": "high"
+  },
+  {
+   "category": "fake_action",
+   "file": "src/components/organizational/VoiceQueryInterface.tsx",
+   "line_start": 80,
+   "line_end": 83,
+   "what": "Voice query 'Simulate processing delay' with setTimeout 1000 before a plain keyword filter; no AI behind it",
+   "keep_rewrite_throwaway": "throwaway",
+   "confidence": "high"
+  },
+  {
+   "category": "fake_action",
+   "file": "src/pages/DemoComingSoon.tsx",
+   "line_start": 98,
+   "line_end": 98,
+   "what": "/demo page says 'Coming Soon Q4 2025'; demo does not exist",
+   "keep_rewrite_throwaway": "throwaway",
+   "confidence": "medium"
+  }
+ ]
+}

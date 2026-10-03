@@ -1,0 +1,188 @@
+{
+ "repo": "cal-ai-clone",
+ "sha": "eb530418731958e5a43ab548722bd13caabfb097",
+ "labeler": "b-label-general",
+ "files_reviewed": [
+  "src/App.tsx",
+  "src/pages/Index.tsx",
+  "src/pages/Analytics.tsx",
+  "src/pages/Settings.tsx",
+  "src/components/Dashboard.tsx",
+  "src/components/CameraCapture.tsx",
+  "src/components/CustomPlanPage.tsx",
+  "src/components/BirthdatePage.tsx",
+  "src/components/GenderSelectionPage.tsx",
+  "src/components/GoalSelectionPage.tsx",
+  "src/components/HeightWeightPage.tsx",
+  "src/components/WorkoutFrequencyPage.tsx",
+  "src/components/ValuePropositionPage.tsx",
+  "src/components/WelcomeScreen.tsx",
+  "src/components/BottomNavigation.tsx",
+  "package.json",
+  "README.md"
+ ],
+ "labels": [
+  {
+   "category": "mock_data",
+   "file": "src/components/Dashboard.tsx",
+   "line_start": 61,
+   "line_end": 76,
+   "what": "Hardcoded consumed calories, protein, carbs, fats and a streak of 7 shown as the user's real day",
+   "keep_rewrite_throwaway": "throwaway",
+   "confidence": "high"
+  },
+  {
+   "category": "mock_data",
+   "file": "src/components/Dashboard.tsx",
+   "line_start": 78,
+   "line_end": 82,
+   "what": "Three hardcoded recent meals shown as scanned or logged meals",
+   "keep_rewrite_throwaway": "throwaway",
+   "confidence": "high"
+  },
+  {
+   "category": "mock_data",
+   "file": "src/pages/Analytics.tsx",
+   "line_start": 60,
+   "line_end": 68,
+   "what": "Hardcoded weight history, all with the same date '26 Aug'",
+   "keep_rewrite_throwaway": "throwaway",
+   "confidence": "high"
+  },
+  {
+   "category": "mock_data",
+   "file": "src/pages/Analytics.tsx",
+   "line_start": 75,
+   "line_end": 75,
+   "what": "Hardcoded goal weight of 76 kg",
+   "keep_rewrite_throwaway": "throwaway",
+   "confidence": "high"
+  },
+  {
+   "category": "mock_data",
+   "file": "src/pages/Analytics.tsx",
+   "line_start": 268,
+   "line_end": 282,
+   "what": "Nutrition stats fixed at 0 and 0.0, not computed from any data",
+   "keep_rewrite_throwaway": "throwaway",
+   "confidence": "medium"
+  },
+  {
+   "category": "fake_action",
+   "file": "src/components/Dashboard.tsx",
+   "line_start": 87,
+   "line_end": 95,
+   "what": "Photo capture handler has a TODO, logs the image, and toasts 'Processing your food image for calorie analysis' but nothing is analysed",
+   "keep_rewrite_throwaway": "throwaway",
+   "confidence": "high"
+  },
+  {
+   "category": "fake_action",
+   "file": "src/components/CameraCapture.tsx",
+   "line_start": 72,
+   "line_end": 92,
+   "what": "Toast says photo captured successfully but the photo is only passed to the TODO handler; nothing is stored or sent",
+   "keep_rewrite_throwaway": "throwaway",
+   "confidence": "medium"
+  },
+  {
+   "category": "fake_action",
+   "file": "src/pages/Analytics.tsx",
+   "line_start": 109,
+   "line_end": 111,
+   "what": "'Log weight' button has no handler",
+   "keep_rewrite_throwaway": "throwaway",
+   "confidence": "high"
+  },
+  {
+   "category": "fake_action",
+   "file": "src/pages/Settings.tsx",
+   "line_start": 9,
+   "line_end": 32,
+   "what": "Profile, notifications, privacy and help rows are rendered with no click handler",
+   "keep_rewrite_throwaway": "throwaway",
+   "confidence": "high"
+  },
+  {
+   "category": "auth_gap",
+   "file": "src/pages/Index.tsx",
+   "line_start": 18,
+   "line_end": 23,
+   "what": "'Logged in' is the string 'true' in localStorage; anyone can set it to skip onboarding and reach the dashboard",
+   "keep_rewrite_throwaway": "throwaway",
+   "confidence": "high"
+  },
+  {
+   "category": "auth_gap",
+   "file": "src/components/CustomPlanPage.tsx",
+   "line_start": 376,
+   "line_end": 386,
+   "what": "The 'Let's get started' button sets isLoggedIn in localStorage; there is no account or login",
+   "keep_rewrite_throwaway": "throwaway",
+   "confidence": "high"
+  },
+  {
+   "category": "auth_gap",
+   "file": "src/App.tsx",
+   "line_start": 18,
+   "line_end": 22,
+   "what": "/analytics and /settings routes have no login check",
+   "keep_rewrite_throwaway": "throwaway",
+   "confidence": "high"
+  },
+  {
+   "category": "hardcoded_config",
+   "file": "src/components/Dashboard.tsx",
+   "line_start": 63,
+   "line_end": 72,
+   "what": "Fallback targets (2200 kcal, 150 g protein, 275 carbs, 73 fats) written in the page",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "hardcoded_config",
+   "file": "src/components/CustomPlanPage.tsx",
+   "line_start": 167,
+   "line_end": 174,
+   "what": "Default height 170, weight 70, birth year 1990, gender and goal defaults written as fallbacks",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "hardcoded_config",
+   "file": "src/components/CustomPlanPage.tsx",
+   "line_start": 307,
+   "line_end": 307,
+   "what": "Calorie ring max fixed at 3000",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "low"
+  },
+  {
+   "category": "hardcoded_config",
+   "file": "src/pages/Analytics.tsx",
+   "line_start": 14,
+   "line_end": 20,
+   "what": "Same user data read under keys fitnessGoal/gender/height/weight/birthday; onboarding writes userGoal/userGender/userHeight/userWeight, so Analytics and Dashboard read keys never written",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "high"
+  },
+  {
+   "category": "hardcoded_config",
+   "file": "src/components/Dashboard.tsx",
+   "line_start": 19,
+   "line_end": 30,
+   "what": "Dashboard reads localStorage keys (fitnessGoal, height, weight) that differ from the keys written in onboarding (userGoal, userHeight, userWeight)",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "high"
+  },
+  {
+   "category": "security_other",
+   "file": "src/components/CustomPlanPage.tsx",
+   "line_start": 166,
+   "line_end": 197,
+   "what": "All user health data (height, weight, birthday, gender, goal) held only in localStorage; no backend; debug console.log of the plan left in",
+   "keep_rewrite_throwaway": "throwaway",
+   "confidence": "medium"
+  }
+ ]
+}

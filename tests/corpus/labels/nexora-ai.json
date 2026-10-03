@@ -1,0 +1,12 @@
+{"repo":"nexora-ai","sha":"83e26dc06453bdad742be46a6f9a00de87e2a13a","labeler":"b-label-chatbots",
+"files_reviewed":["lib/tools/index.ts","lib/tools/create-support-ticket.ts","lib/tools/get-order-status.ts","lib/tools/get-customer-account.ts","lib/rag/prompt.ts","middleware.ts","lib/security.ts","lib/ai.ts","lib/ai-mock.ts","lib/seed-data.ts","lib/rate-limit.ts","lib/session.ts","docker-compose.yml"],
+"note":".env.example not read (permission denied)",
+"labels":[
+{"category":"ai_prompt_only_rule","file":"lib/rag/prompt.ts","line_start":24,"line_end":24,"what":"Prompt says to summarize the problem and ask the customer before creating a ticket unless they asked for one; the tool has no confirmation flag, only a 5 per hour cap and duplicate check","keep_rewrite_throwaway":"keep","confidence":"low","related_file":"lib/tools/create-support-ticket.ts","related_line":24},
+{"category":"mock_data","file":"lib/seed-data.ts","line_start":11,"line_end":29,"what":"Demo password, sample users (example.com emails, one admin) and four sample orders","keep_rewrite_throwaway":"throwaway","confidence":"high"},
+{"category":"secret_exposure","file":"lib/seed-data.ts","line_start":11,"line_end":11,"what":"Known demo password constant used for the seeded admin account","keep_rewrite_throwaway":"throwaway","confidence":"medium"},
+{"category":"hardcoded_config","file":"docker-compose.yml","line_start":7,"line_end":9,"what":"Postgres supportai/supportai credentials in compose, repeated at lines 23 and 31","keep_rewrite_throwaway":"throwaway","confidence":"medium"},
+{"category":"hardcoded_config","file":"lib/tools/create-support-ticket.ts","line_start":14,"line_end":14,"what":"MAX_TICKETS_PER_HOUR = 5 hardcoded; it is a real code limit","keep_rewrite_throwaway":"keep","confidence":"low"},
+{"category":"mock_data","file":"lib/ai-mock.ts","line_start":1,"line_end":24,"what":"AI_PROVIDER=mock path: rule-based canned model and hash embeddings so the app runs without a key","keep_rewrite_throwaway":"throwaway","confidence":"medium"},
+{"category":"security_other","file":"lib/rate-limit.ts","line_start":3,"line_end":33,"what":"Rate limits live in process memory and per-IP key trusts client-controlled x-forwarded-for; file comments admit it; fails with more than one instance","keep_rewrite_throwaway":"rewrite","confidence":"medium"}
+]}

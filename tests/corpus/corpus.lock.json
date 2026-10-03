@@ -1,0 +1,146 @@
+[
+  {
+    "url": "https://github.com/afhamahmed1/ai-support-agent",
+    "sha": "960ec90709482a9687a12410ec071c9e6d762ea2",
+    "license": "MIT",
+    "builder": "unknown",
+    "kind": "ai-chatbot",
+    "boot_state": "ran",
+    "folder": "afhamahmed1__ai-support-agent"
+  },
+  {
+    "url": "https://github.com/mehranmls4-arch/ai-customer-support-agent",
+    "sha": "e2ea5e322a22dbe35a7e95da29eca5cb115fba6c",
+    "license": "MIT",
+    "builder": "unknown",
+    "kind": "ai-chatbot",
+    "boot_state": "ran",
+    "folder": "ai-customer-support-agent"
+  },
+  {
+    "url": "https://github.com/backblaze-b2-samples/gpt-realtime-2-customer-support-voice-agent",
+    "sha": "a41a78f6e19f71bae5709fca90aeacc5f71d9ce2",
+    "license": "MIT",
+    "builder": "unknown",
+    "kind": "ai-chatbot",
+    "boot_state": "could not boot",
+    "folder": "gpt-realtime-2-customer-support-voice-agent"
+  },
+  {
+    "url": "https://github.com/mj-deving/ai-support-agent",
+    "sha": "4162c29e0ff50f674ac63bcbd79e8e8cddcfaf2e",
+    "license": "MIT",
+    "builder": "unknown",
+    "kind": "ai-chatbot",
+    "boot_state": "could not boot",
+    "folder": "mj-deving__ai-support-agent"
+  },
+  {
+    "url": "https://github.com/nileshtripathy/nexora-ai",
+    "sha": "83e26dc06453bdad742be46a6f9a00de87e2a13a",
+    "license": "MIT",
+    "builder": "unknown",
+    "kind": "ai-chatbot",
+    "boot_state": "ran",
+    "folder": "nexora-ai"
+  },
+  {
+    "url": "https://github.com/Luoluo0511/resolve-webmcp",
+    "sha": "4c6bd5e07c83c4911419f0ab24da7a8e0a15b197",
+    "license": "MIT",
+    "builder": "unknown",
+    "kind": "ai-chatbot",
+    "boot_state": "ran",
+    "folder": "resolve-webmcp"
+  },
+  {
+    "url": "https://github.com/aaryanaik/SliceIQ",
+    "sha": "5e11c01a9c06e6a6878dd6020edd7bea06e9439f",
+    "license": "MIT",
+    "builder": "unknown",
+    "kind": "ai-chatbot",
+    "boot_state": "not attempted",
+    "folder": "SliceIQ"
+  },
+  {
+    "url": "https://github.com/Snodrod/ai-support-agent",
+    "sha": "4f239bd3e6baa008f7be935ff5fb4f23e00573ed",
+    "license": "MIT",
+    "builder": "unknown",
+    "kind": "ai-chatbot",
+    "boot_state": "ran",
+    "folder": "Snodrod__ai-support-agent"
+  },
+  {
+    "url": "https://github.com/AlchemyGeek/EAA-Chapter-84-Connect",
+    "sha": "a5b5c07a89b627afeb1c1e94d04796fb1bc49ac8",
+    "license": "MIT",
+    "builder": "lovable",
+    "kind": "general",
+    "boot_state": "ran",
+    "folder": "EAA-Chapter-84-Connect"
+  },
+  {
+    "url": "https://github.com/preijm/milk-me-not",
+    "sha": "7ae61867787b83b86e8464f1349e27e5124332d3",
+    "license": "MIT",
+    "builder": "lovable",
+    "kind": "general",
+    "boot_state": "ran",
+    "folder": "milk-me-not"
+  },
+  {
+    "url": "https://github.com/marcodonghiaa/my-wealth-view",
+    "sha": "6d8b52f5e14d1a9d387d7a37aa0b995a2026c0cb",
+    "license": "MIT",
+    "builder": "lovable",
+    "kind": "general",
+    "boot_state": "ran",
+    "folder": "my-wealth-view"
+  },
+  {
+    "url": "https://github.com/velcont/yana-contabila",
+    "sha": "648fb73b87cebb592ab57c1aa2f1894c38cce8cf",
+    "license": "Apache-2.0",
+    "builder": "lovable",
+    "kind": "general",
+    "boot_state": "ran",
+    "folder": "yana-contabila"
+  },
+  {
+    "url": "https://github.com/Contractor-x/MIND-MIRROR",
+    "sha": "3b129b1e228e06c14f5c5331576e12f79756ebc3",
+    "license": "MIT",
+    "builder": "bolt",
+    "kind": "general",
+    "boot_state": "ran",
+    "folder": "MIND-MIRROR"
+  },
+  {
+    "url": "https://github.com/kingsidharth/vocal-note-keeper-ai",
+    "sha": "b777df9b96cd3777738fcf1a8e6e8decbc0661c7",
+    "license": "MIT",
+    "builder": "lovable",
+    "kind": "general",
+    "boot_state": "ran",
+    "folder": "vocal-note-keeper-ai"
+  },
+  {
+    "url": "https://github.com/chetan3854/cal-ai-clone",
+    "sha": "eb530418731958e5a43ab548722bd13caabfb097",
+    "license": "MIT",
+    "builder": "lovable",
+    "kind": "general",
+    "boot_state": "ran",
+    "folder": "cal-ai-clone"
+  },
+  {
+    "url": "https://github.com/Tech4Humanity-001/workfamilai",
+    "sha": "36e2ac44156b012dfed03c4c7821548424ec90ca",
+    "license": "MIT",
+    "builder": "lovable",
+    "kind": "general",
+    "boot_state": "ran",
+    "folder": "workfamilai"
+  }
+]

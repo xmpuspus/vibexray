@@ -1,0 +1,281 @@
+{
+ "repo": "MIND-MIRROR",
+ "sha": "3b129b1e228e06c14f5c5331576e12f79756ebc3",
+ "labeler": "b-label-general",
+ "files_reviewed": [
+  "src/pages/dashboard.jsx",
+  "src/context/AuthContext.js",
+  "src/components/MoodTracker.jsx",
+  "src/components/JournalEntry.jsx",
+  "src/components/MoodGrid.jsx",
+  "src/components/VideoTherapist.jsx",
+  "src/components/VoiceResponder.jsx",
+  "src/libs/tavus.js",
+  "src/libs/elevenlabs.js",
+  "src/libs/supabaseClient.js",
+  "src/utils/trackStreaks.jsx",
+  "src/utils/trackStreaks.js",
+  "src/components/SignInButton.jsx",
+  "src/data/dummyUsers.json",
+  "src/data/languages.json",
+  "src/utils/encryptData.js",
+  "src/libs/revenuecat.js",
+  "src/libs/algorand.js",
+  "src/components/PaywallModal.jsx",
+  "src/pages/paywall.jsx",
+  "src/pages/journal.jsx",
+  "src/pages/index.jsx",
+  "src/pages/setting.jsx",
+  "src/pages/mood-checkin.jsx",
+  "functions/create-video.js",
+  "functions/get-user-data.js",
+  "functions/synthesize-voice.js",
+  "functions/track-mood.js",
+  "netlify.toml"
+ ],
+ "labels": [
+  {
+   "category": "ai_browser_call",
+   "file": "src/libs/elevenlabs.js",
+   "line_start": 1,
+   "line_end": 23,
+   "what": "Browser code calls ElevenLabs text-to-speech directly with an API key read from process.env",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "high"
+  },
+  {
+   "category": "ai_browser_call",
+   "file": "src/libs/tavus.js",
+   "line_start": 3,
+   "line_end": 25,
+   "what": "Browser code calls the Tavus video API directly with an API key read from process.env",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "high"
+  },
+  {
+   "category": "secret_exposure",
+   "file": "src/libs/elevenlabs.js",
+   "line_start": 1,
+   "line_end": 1,
+   "what": "Secret ElevenLabs key read in client code; any bundler define would ship it to the browser",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "secret_exposure",
+   "file": "src/libs/tavus.js",
+   "line_start": 4,
+   "line_end": 4,
+   "what": "Secret Tavus key read in client code; any bundler define would ship it to the browser",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "note_public_key",
+   "file": "src/libs/supabaseClient.js",
+   "line_start": 3,
+   "line_end": 4,
+   "what": "Supabase URL and anon key read from VITE_ env vars; public by design",
+   "keep_rewrite_throwaway": "keep",
+   "confidence": "high"
+  },
+  {
+   "category": "hardcoded_config",
+   "file": "src/libs/tavus.js",
+   "line_start": 8,
+   "line_end": 8,
+   "what": "Placeholder template_id 'your_template_id' in code",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "high"
+  },
+  {
+   "category": "hardcoded_config",
+   "file": "src/libs/elevenlabs.js",
+   "line_start": 2,
+   "line_end": 2,
+   "what": "Placeholder voice id 'your_voice_id' in code",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "high"
+  },
+  {
+   "category": "hardcoded_config",
+   "file": "src/libs/elevenlabs.js",
+   "line_start": 14,
+   "line_end": 17,
+   "what": "Voice stability and similarity values fixed in code",
+   "keep_rewrite_throwaway": "keep",
+   "confidence": "low"
+  },
+  {
+   "category": "hardcoded_config",
+   "file": "src/pages/dashboard.jsx",
+   "line_start": 2,
+   "line_end": 2,
+   "what": "Imports ../lib/supabaseClient but the file lives in src/libs/ (same path written two ways; also tavus import ../lib/tavus in VideoTherapist.jsx line 5)",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "high"
+  },
+  {
+   "category": "fake_action",
+   "file": "src/libs/revenuecat.js",
+   "line_start": 1,
+   "line_end": 1,
+   "what": "Empty file; the paywall and subscriptions named in the README do not exist",
+   "keep_rewrite_throwaway": "throwaway",
+   "confidence": "high"
+  },
+  {
+   "category": "fake_action",
+   "file": "src/libs/algorand.js",
+   "line_start": 1,
+   "line_end": 1,
+   "what": "Empty file; the blockchain feature does not exist",
+   "keep_rewrite_throwaway": "throwaway",
+   "confidence": "high"
+  },
+  {
+   "category": "fake_action",
+   "file": "src/components/PaywallModal.jsx",
+   "line_start": 1,
+   "line_end": 1,
+   "what": "Empty component; no paywall",
+   "keep_rewrite_throwaway": "throwaway",
+   "confidence": "high"
+  },
+  {
+   "category": "fake_action",
+   "file": "src/pages/paywall.jsx",
+   "line_start": 1,
+   "line_end": 1,
+   "what": "Empty page",
+   "keep_rewrite_throwaway": "throwaway",
+   "confidence": "high"
+  },
+  {
+   "category": "fake_action",
+   "file": "src/utils/encryptData.js",
+   "line_start": 1,
+   "line_end": 1,
+   "what": "Empty file; journal entries are stored in plain text, not encrypted",
+   "keep_rewrite_throwaway": "throwaway",
+   "confidence": "high"
+  },
+  {
+   "category": "fake_action",
+   "file": "functions/track-mood.js",
+   "line_start": 1,
+   "line_end": 1,
+   "what": "Empty serverless function",
+   "keep_rewrite_throwaway": "throwaway",
+   "confidence": "high"
+  },
+  {
+   "category": "fake_action",
+   "file": "functions/create-video.js",
+   "line_start": 1,
+   "line_end": 1,
+   "what": "Empty serverless function; the video call happens in the browser instead",
+   "keep_rewrite_throwaway": "throwaway",
+   "confidence": "high"
+  },
+  {
+   "category": "fake_action",
+   "file": "functions/synthesize-voice.js",
+   "line_start": 1,
+   "line_end": 1,
+   "what": "Empty serverless function; the voice call happens in the browser instead",
+   "keep_rewrite_throwaway": "throwaway",
+   "confidence": "high"
+  },
+  {
+   "category": "fake_action",
+   "file": "functions/get-user-data.js",
+   "line_start": 1,
+   "line_end": 1,
+   "what": "Empty serverless function",
+   "keep_rewrite_throwaway": "throwaway",
+   "confidence": "high"
+  },
+  {
+   "category": "fake_action",
+   "file": "src/pages/index.jsx",
+   "line_start": 1,
+   "line_end": 1,
+   "what": "Empty page files: index, journal, mood-checkin and setting have no content",
+   "keep_rewrite_throwaway": "throwaway",
+   "confidence": "high"
+  },
+  {
+   "category": "mock_data",
+   "file": "src/data/dummyUsers.json",
+   "line_start": 1,
+   "line_end": 1,
+   "what": "Empty dummy users file",
+   "keep_rewrite_throwaway": "throwaway",
+   "confidence": "low"
+  },
+  {
+   "category": "fake_action",
+   "file": "src/pages/dashboard.jsx",
+   "line_start": 31,
+   "line_end": 31,
+   "what": "Typo 'onst handleJournalSubmit' and two nested Dashboard components; file cannot compile, so the dashboard cannot run",
+   "keep_rewrite_throwaway": "throwaway",
+   "confidence": "high"
+  },
+  {
+   "category": "auth_gap",
+   "file": "src/pages/dashboard.jsx",
+   "line_start": 31,
+   "line_end": 36,
+   "what": "Journal insert uses user.id with no check that a user exists",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "auth_gap",
+   "file": "src/pages/dashboard.jsx",
+   "line_start": 82,
+   "line_end": 94,
+   "what": "No route guard: dashboard shows 'Welcome back' and mood UI whether or not a user is signed in",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "database_rules",
+   "file": "src/pages/dashboard.jsx",
+   "line_start": 16,
+   "line_end": 38,
+   "what": "Client writes mood and journal rows (private mental-health text) straight to Supabase tables; no migrations or RLS policies exist in the repo",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "security_other",
+   "file": "src/pages/dashboard.jsx",
+   "line_start": 16,
+   "line_end": 38,
+   "what": "Journal entries (sensitive health text) are stored in plain text; encryptData.js is empty",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "ai_no_human_review",
+   "file": "src/components/VoiceResponder.jsx",
+   "line_start": 6,
+   "line_end": 15,
+   "what": "Mood and the user's private journal text are sent to a voice API and played back as a therapist message with no review",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "ai_prompt_only_rule",
+   "file": "src/components/VideoTherapist.jsx",
+   "line_start": 10,
+   "line_end": 20,
+   "what": "Video 'therapist' for a mental-health app has no safety or crisis limits in code; calls the video API on every render change",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "low"
+  }
+ ]
+}

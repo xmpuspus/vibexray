@@ -1,0 +1,109 @@
+{
+ "repo": "my-wealth-view",
+ "sha": "6d8b52f5e14d1a9d387d7a37aa0b995a2026c0cb",
+ "labeler": "b-label-general",
+ "files_reviewed": [
+  "src/integrations/supabase/client.ts",
+  "src/integrations/supabase/auth-middleware.ts",
+  "src/integrations/supabase/previewAuthStorage.ts",
+  "src/server.ts",
+  "src/start.ts",
+  "src/routes/__root.tsx",
+  "src/routes/auth.tsx",
+  "src/routes/_authenticated/route.tsx",
+  "src/routes/_authenticated/index.tsx",
+  "src/routes/_authenticated/rules.tsx",
+  "src/routes/_authenticated/accounts.tsx",
+  "src/routes/_authenticated/transactions.tsx",
+  "src/routes/demo/route.tsx",
+  "src/routes/demo/index.tsx",
+  "src/routes/demo/spending.tsx",
+  "src/components/push-subscribe.tsx",
+  "supabase/config.toml",
+  ".env.example",
+  "README.md"
+ ],
+ "labels": [
+  {
+   "category": "hardcoded_config",
+   "file": "src/integrations/supabase/client.ts",
+   "line_start": 11,
+   "line_end": 23,
+   "what": "If VITE_SUPABASE_* are missing, the app silently connects to the maintainer's own Supabase project; a self-hoster's finance data would go to someone else's database",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "high"
+  },
+  {
+   "category": "note_public_key",
+   "file": "src/integrations/supabase/client.ts",
+   "line_start": 13,
+   "line_end": 15,
+   "what": "Supabase URL and publishable key written in code as fallback; public by design",
+   "keep_rewrite_throwaway": "keep",
+   "confidence": "high"
+  },
+  {
+   "category": "hardcoded_config",
+   "file": "src/components/push-subscribe.tsx",
+   "line_start": 10,
+   "line_end": 12,
+   "what": "VAPID public key hardcoded as a fallback when VITE_VAPID_PUBLIC_KEY is not set (public key, but ties push to the maintainer's keypair)",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "database_rules",
+   "file": "supabase/config.toml",
+   "line_start": 1,
+   "line_end": 1,
+   "what": "No supabase/migrations folder in the repo: table definitions and row level security policies are not visible or reviewable; the README claims RLS protects every table",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "database_rules",
+   "file": "src/routes/demo/route.tsx",
+   "line_start": 16,
+   "line_end": 25,
+   "what": "The public /demo reads the same real tables as the signed-in app through an anonymous client, so those tables must allow anonymous reads; policy not visible in repo",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "mock_data",
+   "file": "src/routes/demo/index.tsx",
+   "line_start": 1,
+   "line_end": 6,
+   "what": "Demo pages reuse the real pages against whatever anonymous data the database returns, described as 'sample data'; no seed or fixture file in the repo",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "low"
+  },
+  {
+   "category": "auth_gap",
+   "file": "src/routes/_authenticated/route.tsx",
+   "line_start": 36,
+   "line_end": 47,
+   "what": "Login check runs only in the browser (ssr: false, beforeLoad); real protection depends on database policies, not on the route",
+   "keep_rewrite_throwaway": "keep",
+   "confidence": "medium"
+  },
+  {
+   "category": "security_other",
+   "file": "src/integrations/supabase/previewAuthStorage.ts",
+   "line_start": 18,
+   "line_end": 84,
+   "what": "Session tokens stored in localStorage and shared with framing parent windows by postMessage; origin list includes http://localhost:3000 in dev",
+   "keep_rewrite_throwaway": "keep",
+   "confidence": "low"
+  },
+  {
+   "category": "hardcoded_config",
+   "file": "src/integrations/supabase/previewAuthStorage.ts",
+   "line_start": 24,
+   "line_end": 29,
+   "what": "Allowed parent origins (lovable.dev, gptengineer.app, localhost:3000) hardcoded",
+   "keep_rewrite_throwaway": "keep",
+   "confidence": "low"
+  }
+ ]
+}

@@ -1,0 +1,79 @@
+{
+ "repo": "milk-me-not",
+ "sha": "7ae61867787b83b86e8464f1349e27e5124332d3",
+ "labeler": "b-label-general",
+ "files_reviewed": [
+  "src/components/MapboxWorldMap.tsx",
+  "src/components/milk-test/BarcodeScanner.tsx",
+  "src/hooks/auth/useAuthOperations.ts",
+  "src/hooks/useVersionCheck.ts",
+  "src/lib/appVersion.ts",
+  "src/lib/security.ts",
+  "src/pages/Home.tsx",
+  "supabase/functions/check-rate-limit/index.ts",
+  "supabase/seed.sql",
+  "supabase/migrations/00000000000000_baseline.sql",
+  "supabase/migrations/00000000000001_auth_user_triggers.sql",
+  "supabase/migrations/00000000000002_storage_buckets_and_policies.sql",
+  "supabase/migrations/20260819210000_countries_table_and_read_policy.sql",
+  "supabase/migrations/20260819213000_seed_countries_and_constrain_country_codes.sql",
+  "supabase/migrations/20260820120000_remember_product_barcodes.sql",
+  ".env.example"
+ ],
+ "labels": [
+  {
+   "category": "note_public_key",
+   "file": "src/components/MapboxWorldMap.tsx",
+   "line_start": 96,
+   "line_end": 101,
+   "what": "Mapbox public token (pk.*) read from VITE_ env var; public by design, code checks the pk. prefix",
+   "keep_rewrite_throwaway": "keep",
+   "confidence": "high"
+  },
+  {
+   "category": "security_other",
+   "file": "supabase/functions/check-rate-limit/index.ts",
+   "line_start": 4,
+   "line_end": 5,
+   "what": "CORS allows any origin on the rate-limit function",
+   "keep_rewrite_throwaway": "keep",
+   "confidence": "low"
+  },
+  {
+   "category": "security_other",
+   "file": "supabase/functions/check-rate-limit/index.ts",
+   "line_start": 60,
+   "line_end": 64,
+   "what": "Rate limiter fails open: if the check errors, the request is allowed",
+   "keep_rewrite_throwaway": "keep",
+   "confidence": "low"
+  },
+  {
+   "category": "database_rules",
+   "file": "supabase/migrations/00000000000000_baseline.sql",
+   "line_start": 1678,
+   "line_end": 1678,
+   "what": "Any signed-in user can add shops (insert check only tests auth.uid() is not null); same for products at line 1694. Shared reference data open to spam",
+   "keep_rewrite_throwaway": "keep",
+   "confidence": "low"
+  },
+  {
+   "category": "database_rules",
+   "file": "supabase/migrations/00000000000000_baseline.sql",
+   "line_start": 1698,
+   "line_end": 1698,
+   "what": "Any signed-in user can read all milk tests (USING true); intended as a community feed",
+   "keep_rewrite_throwaway": "keep",
+   "confidence": "low"
+  },
+  {
+   "category": "database_rules",
+   "file": "supabase/migrations/00000000000000_baseline.sql",
+   "line_start": 1730,
+   "line_end": 1738,
+   "what": "Public read policies USING (true) on products, brands, flavors, names, properties and shops; reference data, intended",
+   "keep_rewrite_throwaway": "keep",
+   "confidence": "low"
+  }
+ ]
+}

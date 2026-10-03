@@ -1,0 +1,144 @@
+{
+ "repo": "vocal-note-keeper-ai",
+ "sha": "b777df9b96cd3777738fcf1a8e6e8decbc0661c7",
+ "labeler": "b-label-general",
+ "files_reviewed": [
+  "src/App.tsx",
+  "src/pages/Index.tsx",
+  "src/pages/Settings.tsx",
+  "src/pages/Record.tsx",
+  "src/components/OnboardingWizard.tsx",
+  "src/components/SidePanel.tsx",
+  "src/components/SidePanelSheet.tsx",
+  "src/components/RecordingInterface.tsx",
+  "src/components/TestTranscriptionDialog.tsx",
+  "src/components/TestSummarizationDialog.tsx",
+  "src/components/settings/ApiKeysSettings.tsx",
+  "src/components/settings/SummarySettings.tsx",
+  "src/lib/transcription.ts",
+  "src/lib/summaryService.ts",
+  "src/lib/database.ts",
+  "src/lib/whisperWeb.ts",
+  "src/hooks/useRecordings.ts",
+  "src/hooks/useAudioRecorder.ts"
+ ],
+ "labels": [
+  {
+   "category": "ai_browser_call",
+   "file": "src/lib/summaryService.ts",
+   "line_start": 38,
+   "line_end": 43,
+   "what": "OpenAI client created in the browser with dangerouslyAllowBrowser and the user's own API key",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "high"
+  },
+  {
+   "category": "ai_browser_call",
+   "file": "src/lib/summaryService.ts",
+   "line_start": 98,
+   "line_end": 101,
+   "what": "Second OpenAI client in the browser (LM Studio) with dangerouslyAllowBrowser",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "ai_browser_call",
+   "file": "src/lib/transcription.ts",
+   "line_start": 35,
+   "line_end": 50,
+   "what": "Browser sends the audio and the user's OpenAI key straight to api.openai.com",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "high"
+  },
+  {
+   "category": "ai_browser_call",
+   "file": "src/lib/transcription.ts",
+   "line_start": 58,
+   "line_end": 68,
+   "what": "Browser sends the audio and the user's Hugging Face key to the inference API",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "high"
+  },
+  {
+   "category": "secret_exposure",
+   "file": "src/components/OnboardingWizard.tsx",
+   "line_start": 140,
+   "line_end": 148,
+   "what": "User's OpenAI and Hugging Face keys saved in the browser database (IndexedDB), readable by any script on the page",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "hardcoded_config",
+   "file": "src/lib/summaryService.ts",
+   "line_start": 89,
+   "line_end": 89,
+   "what": "Default LM Studio server URL is a private LAN IP http://192.168.0.11:1234",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "high"
+  },
+  {
+   "category": "hardcoded_config",
+   "file": "src/components/OnboardingWizard.tsx",
+   "line_start": 150,
+   "line_end": 150,
+   "what": "Summary model 'gpt-4.1-nano' fixed in the wizard while summaryService falls back to 'gpt-4o-mini': same setting written two ways",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "hardcoded_config",
+   "file": "src/lib/summaryService.ts",
+   "line_start": 57,
+   "line_end": 58,
+   "what": "max_tokens 500 and temperature 0.6 hardcoded (twice, also lines 116-117)",
+   "keep_rewrite_throwaway": "keep",
+   "confidence": "low"
+  },
+  {
+   "category": "fake_action",
+   "file": "src/components/OnboardingWizard.tsx",
+   "line_start": 98,
+   "line_end": 115,
+   "what": "Whisper model 'download' is a loop of setTimeout 200 ms that moves a progress bar, then toasts 'Model downloaded'; nothing is downloaded",
+   "keep_rewrite_throwaway": "throwaway",
+   "confidence": "high"
+  },
+  {
+   "category": "fake_action",
+   "file": "src/components/SidePanel.tsx",
+   "line_start": 13,
+   "line_end": 32,
+   "what": "Delete, retry, save and favorite handlers only console.log; no effect (Index.tsx has its own real handlers, so this component looks dead)",
+   "keep_rewrite_throwaway": "throwaway",
+   "confidence": "medium"
+  },
+  {
+   "category": "ai_prompt_only_rule",
+   "file": "src/lib/summaryService.ts",
+   "line_start": 50,
+   "line_end": 56,
+   "what": "Title length 'max 50 characters' and JSON shape are asked for only in the prompt text",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "low"
+  },
+  {
+   "category": "security_other",
+   "file": "src/lib/summaryService.ts",
+   "line_start": 50,
+   "line_end": 56,
+   "what": "Full transcript pasted into the prompt with no delimiting; a recording can carry instructions that change the summary",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "low"
+  },
+  {
+   "category": "auth_gap",
+   "file": "src/App.tsx",
+   "line_start": 18,
+   "line_end": 30,
+   "what": "Onboarding gate is a localStorage flag 'onboarding-completed'; there is no user account (single-user local app, so low impact)",
+   "keep_rewrite_throwaway": "keep",
+   "confidence": "low"
+  }
+ ]
+}

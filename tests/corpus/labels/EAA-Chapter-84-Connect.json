@@ -1,0 +1,105 @@
+{
+ "repo": "EAA-Chapter-84-Connect",
+ "sha": "a5b5c07a89b627afeb1c1e94d04796fb1bc49ac8",
+ "labeler": "b-label-general",
+ "files_reviewed": [
+  "src/integrations/supabase/previewAuthStorage.ts",
+  "src/components/CheckForUpdatesButton.tsx",
+  "src/hooks/useAuth.tsx",
+  "src/pages/HangarTalk.tsx",
+  "src/pages/BriefingRoom.tsx",
+  "src/pages/MemberVolunteering.tsx",
+  "src/lib/squawk/build.ts",
+  "supabase/config.toml",
+  "supabase/functions/mcp/index.ts",
+  "supabase/functions/roster-import/index.ts",
+  "supabase/migrations/20260228011510_2e8af2f8-2ab1-4382-b8e8-c1636a06eeab.sql",
+  "supabase/migrations/20260306235839 (dues_payments)",
+  "supabase/migrations/20260309215057 (new_member_applications)",
+  "supabase/migrations/20260309215132 (chapter_fees anon read)",
+  ".env"
+ ],
+ "labels": [
+  {
+   "category": "secret_exposure",
+   "file": ".env",
+   "line_start": 1,
+   "line_end": 1,
+   "what": "A .env file is committed to git (tracked). Contents not read in this review; check whether it holds only the public Supabase URL and key or also secret values",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "database_rules",
+   "file": "supabase/migrations/20260309215057 (new_member_applications)",
+   "line_start": 20,
+   "line_end": 24,
+   "what": "Anyone, including signed-out visitors, can insert into new_member_applications (WITH CHECK true); the table holds applicant personal details, so spam and fake rows are possible",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "database_rules",
+   "file": "supabase/migrations/20260309215132 (chapter_fees anon read)",
+   "line_start": 1,
+   "line_end": 6,
+   "what": "Signed-out visitors can read chapter fees (USING true); reference data, likely intended",
+   "keep_rewrite_throwaway": "keep",
+   "confidence": "low"
+  },
+  {
+   "category": "database_rules",
+   "file": "supabase/migrations/20260228011510_2e8af2f8-2ab1-4382-b8e8-c1636a06eeab.sql",
+   "line_start": 173,
+   "line_end": 176,
+   "what": "Any signed-in user can read every roster member row (USING true); roster has names and emails, so any member account sees all members",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "auth_gap",
+   "file": "supabase/config.toml",
+   "line_start": 9,
+   "line_end": 33,
+   "what": "Most edge functions have verify_jwt = false (only one is true); each function must do its own login check, and roster-import does (admin role check) but other functions were not all checked",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "low"
+  },
+  {
+   "category": "security_other",
+   "file": "supabase/functions/roster-import/index.ts",
+   "line_start": 4,
+   "line_end": 5,
+   "what": "CORS allows any origin on an admin function that uses the service role key (the function checks the caller's admin role first)",
+   "keep_rewrite_throwaway": "keep",
+   "confidence": "low"
+  },
+  {
+   "category": "fake_action",
+   "file": "src/components/CheckForUpdatesButton.tsx",
+   "line_start": 24,
+   "line_end": 24,
+   "what": "Fixed 800 ms wait, then toast 'Refreshing to get the latest version' and a hard reload whether or not an update exists; harmless",
+   "keep_rewrite_throwaway": "keep",
+   "confidence": "low"
+  },
+  {
+   "category": "note_public_key",
+   "file": "src/integrations/supabase/previewAuthStorage.ts",
+   "line_start": 18,
+   "line_end": 29,
+   "what": "Session token stored in localStorage and shared with framing parents by postMessage; origin list includes http://localhost:3000 in dev",
+   "keep_rewrite_throwaway": "keep",
+   "confidence": "low"
+  },
+  {
+   "category": "mock_data",
+   "file": "src/lib/squawk/build.ts",
+   "line_start": 8,
+   "line_end": 20,
+   "what": "Fallback quote slots and Math.random shuffling for a newsletter-style 'squawk' feed when no real content exists; content is generated, not stored",
+   "keep_rewrite_throwaway": "keep",
+   "confidence": "low"
+  }
+ ]
+}

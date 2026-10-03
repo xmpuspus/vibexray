@@ -1,0 +1,181 @@
+{
+ "repo": "yana-contabila",
+ "sha": "648fb73b87cebb592ab57c1aa2f1894c38cce8cf",
+ "labeler": "b-label-general",
+ "files_reviewed": [
+  "src/integrations/supabase/client.ts",
+  "src/components/demo/DemoChat.tsx",
+  "src/components/demo/BusinessDiagnostic.tsx",
+  "src/components/AICreditsPurchase.tsx",
+  "src/pages/Subscription.tsx",
+  "src/components/AcademicThesisAssistant.tsx",
+  "supabase/config.toml",
+  "supabase/functions/yana-agent/index.ts",
+  "supabase/functions/yana-self-modifier/index.ts",
+  "supabase/functions/yana-code-patch-promoter/index.ts",
+  "supabase/functions/demo-chat/index.ts",
+  "supabase/functions/stripe-webhook/index.ts",
+  "supabase/migrations/20251002064041_5e4be129-ff7d-492a-8a82-d1d372207625.sql",
+  "supabase/migrations/20251004041025_32cf31b5-c2f3-45aa-9885-7201720e9a9d.sql",
+  "supabase/migrations/20251004040817_aaf868a2-0803-41a2-82ff-ac81026454aa.sql",
+  "supabase/migrations/20251009095402_9f0e9cb6-3dbb-40e7-a8f9-898dc6bea8b2.sql",
+  "supabase/migrations/20251009104035_10373c95-22f6-4a41-b636-0074afb0ada0.sql",
+  ".env",
+  "(sampled only: about 200 edge functions and 231 migrations were searched by pattern, not read in full)"
+ ],
+ "labels": [
+  {
+   "category": "secret_exposure",
+   "file": ".env",
+   "line_start": 1,
+   "line_end": 1,
+   "what": "A .env file is committed to git (tracked). Contents not read; check for secret values beyond the public Supabase URL and key",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "note_public_key",
+   "file": "src/integrations/supabase/client.ts",
+   "line_start": 7,
+   "line_end": 7,
+   "what": "Supabase publishable key read from a VITE_ env var; public by design",
+   "keep_rewrite_throwaway": "keep",
+   "confidence": "high"
+  },
+  {
+   "category": "security_other",
+   "file": "supabase/functions/demo-chat/index.ts",
+   "line_start": 66,
+   "line_end": 75,
+   "what": "Signed-out demo function has a 'devReset' request flag that deletes the caller's rate limit row; any visitor can reset the limit and get unlimited free model calls",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "high"
+  },
+  {
+   "category": "security_other",
+   "file": "supabase/config.toml",
+   "line_start": 9,
+   "line_end": 200,
+   "what": "49 edge functions have verify_jwt = false (56 true), including yana-code-patch-promoter, yana-local-claim, yana-local-bridge, ai-strategy-advisor, yana-dynamic-agent, auto-optimizer, recursive-optimizer, update-client-profile, auto-generate-invoice; each needs its own secret or login check",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "high"
+  },
+  {
+   "category": "auth_gap",
+   "file": "supabase/functions/yana-code-patch-promoter/index.ts",
+   "line_start": 24,
+   "line_end": 60,
+   "what": "Function that opens code-change pull requests has verify_jwt = false and uses the service role key; any caller check inside was not confirmed",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "high"
+  },
+  {
+   "category": "security_other",
+   "file": "supabase/functions/demo-chat/index.ts",
+   "line_start": 15,
+   "line_end": 15,
+   "what": "IP hash for rate limiting salted with the first 10 characters of the service role key",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "hardcoded_config",
+   "file": "src/components/AICreditsPurchase.tsx",
+   "line_start": 27,
+   "line_end": 55,
+   "what": "Stripe price IDs hardcoded for four credit packs; amounts and credits are written here as well as in Stripe",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "hardcoded_config",
+   "file": "src/pages/Subscription.tsx",
+   "line_start": 14,
+   "line_end": 14,
+   "what": "Stripe price ID for the strategic plan hardcoded",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "database_rules",
+   "file": "supabase/migrations/20251009095402_9f0e9cb6-3dbb-40e7-a8f9-898dc6bea8b2.sql",
+   "line_start": 76,
+   "line_end": 80,
+   "what": "companies_audit_log insert policy WITH CHECK (true): any role allowed by the policy target can write audit rows",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "database_rules",
+   "file": "supabase/migrations/20251004040817_aaf868a2-0803-41a2-82ff-ac81026454aa.sql",
+   "line_start": 136,
+   "line_end": 138,
+   "what": "chat_analytics readable by everyone (USING true); analytics about user questions",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  },
+  {
+   "category": "database_rules",
+   "file": "supabase/migrations/20251004041025_32cf31b5-c2f3-45aa-9885-7201720e9a9d.sql",
+   "line_start": 6,
+   "line_end": 8,
+   "what": "chat_patterns readable by everyone (USING true); aggregate question patterns",
+   "keep_rewrite_throwaway": "keep",
+   "confidence": "low"
+  },
+  {
+   "category": "database_rules",
+   "file": "supabase/migrations/20251002064041_5e4be129-ff7d-492a-8a82-d1d372207625.sql",
+   "line_start": 21,
+   "line_end": 24,
+   "what": "fiscal_news readable by everyone; public news",
+   "keep_rewrite_throwaway": "keep",
+   "confidence": "low"
+  },
+  {
+   "category": "ai_browser_call",
+   "file": "src/components/demo/DemoChat.tsx",
+   "line_start": 112,
+   "line_end": 117,
+   "what": "Browser calls the demo-chat function using only the public key as bearer token; model spend is guarded only by the server-side IP limit",
+   "keep_rewrite_throwaway": "keep",
+   "confidence": "medium"
+  },
+  {
+   "category": "ai_tool_unbounded",
+   "file": "supabase/functions/yana-agent/index.ts",
+   "line_start": 36,
+   "line_end": 190,
+   "what": "Agent has tools to create tasks and calendar events, save notes, send email and manage Gmail; no per-tool limit or approval step (header comment: executed autonomously, without confirmation)",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "high"
+  },
+  {
+   "category": "ai_no_human_review",
+   "file": "supabase/functions/yana-agent/index.ts",
+   "line_start": 1115,
+   "line_end": 1115,
+   "what": "send_email action runs straight from the model's tool call with no user approval",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "high"
+  },
+  {
+   "category": "ai_no_human_review",
+   "file": "supabase/functions/yana-self-modifier/index.ts",
+   "line_start": 101,
+   "line_end": 111,
+   "what": "propose_patch creates a branch, commits files and opens a pull request with auto-merge enabled; guarded by a kill switch and daily limit stored in settings",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "high"
+  },
+  {
+   "category": "ai_prompt_only_rule",
+   "file": "supabase/functions/yana-agent/index.ts",
+   "line_start": 10,
+   "line_end": 10,
+   "what": "The rule about when to act without asking is a comment and prompt text, not a code check",
+   "keep_rewrite_throwaway": "rewrite",
+   "confidence": "medium"
+  }
+ ]
+}

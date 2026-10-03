@@ -1,0 +1,14 @@
+{"repo":"afhamahmed1__ai-support-agent","sha":"960ec90709482a9687a12410ec071c9e6d762ea2","labeler":"b-label-chatbots",
+"files_reviewed":["src/agent/tools.service.ts","src/agent/chat.service.ts","src/agent/chat.controller.ts","src/agent/dto/chat-request.dto.ts","src/main.ts","src/config/configuration.ts",".env.example","public/widget.js","data/knowledge-base.md","docker-compose.yml","render.yaml"],
+"labels":[
+{"category":"ai_fake_tool","file":"src/agent/tools.service.ts","line_start":45,"line_end":49,"what":"get_order_status ignores the order id and returns hardcoded status shipped, eta 2 business days; TODO says replace with real lookup","keep_rewrite_throwaway":"rewrite","confidence":"high"},
+{"category":"ai_fake_tool","file":"src/agent/tools.service.ts","line_start":50,"line_end":54,"what":"create_support_ticket makes a random TCK id and persists nothing; TODO says call helpdesk","keep_rewrite_throwaway":"rewrite","confidence":"high"},
+{"category":"ai_tool_unbounded","file":"src/agent/tools.service.ts","line_start":50,"line_end":54,"what":"create_support_ticket takes model-supplied email and summary with no validation, length limit or rate limit","keep_rewrite_throwaway":"rewrite","confidence":"medium"},
+{"category":"ai_no_human_review","file":"src/agent/tools.service.ts","line_start":50,"line_end":54,"what":"Ticket creation runs straight from the model call with no approval step (stub today, real action once wired)","keep_rewrite_throwaway":"rewrite","confidence":"low"},
+{"category":"auth_gap","file":"src/agent/chat.controller.ts","line_start":17,"line_end":27,"what":"POST /api/chat and /api/chat/stream have no auth and no rate limit; anyone can spend the OpenAI key","keep_rewrite_throwaway":"rewrite","confidence":"high"},
+{"category":"security_other","file":"src/main.ts","line_start":11,"line_end":14,"what":"CORS allows any origin by default (origin true when CORS_ORIGINS is *)","keep_rewrite_throwaway":"rewrite","confidence":"high"},
+{"category":"hardcoded_config","file":"src/config/configuration.ts","line_start":14,"line_end":14,"what":"corsOrigins default is wildcard","keep_rewrite_throwaway":"rewrite","confidence":"medium"},
+{"category":"hardcoded_config","file":"docker-compose.yml","line_start":12,"line_end":12,"what":"Default DATABASE_URL and db service use agent:agent credentials (also lines 20-21)","keep_rewrite_throwaway":"throwaway","confidence":"medium"},
+{"category":"hardcoded_config","file":"render.yaml","line_start":12,"line_end":13,"what":"CORS_ORIGINS pinned to * in the deploy blueprint","keep_rewrite_throwaway":"rewrite","confidence":"medium"},
+{"category":"mock_data","file":"data/knowledge-base.md","line_start":1,"line_end":40,"what":"Sample Acme Analytics help center with invented prices and policies; file says replace with your own docs","keep_rewrite_throwaway":"throwaway","confidence":"high"}
+]}

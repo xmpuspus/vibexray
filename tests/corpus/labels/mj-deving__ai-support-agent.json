@@ -1,0 +1,10 @@
+{"repo":"mj-deving__ai-support-agent","sha":"4162c29e0ff50f674ac63bcbd79e8e8cddcfaf2e","labeler":"b-label-chatbots",
+"files_reviewed":["src/tools.ts","src/shop.ts","src/handoff.ts","src/server.ts (grep of auth, rate limit, env use)","public/index.html (grep of fetch and storage use)"],
+"note":".env.example could not be read (permission denied); env names checked only through process.env use in src/server.ts",
+"labels":[
+{"category":"mock_data","file":"src/shop.ts","line_start":19,"line_end":44,"what":"Three hardcoded sample orders (1042 to 1044) with invented tracking numbers; file header says synthetic data only for a public demo","keep_rewrite_throwaway":"throwaway","confidence":"high"},
+{"category":"ai_fake_tool","file":"src/tools.ts","line_start":43,"line_end":54,"what":"Order lookup tool reads domain.entities, which is the hardcoded ORDERS map in shop.ts, not a real order system","keep_rewrite_throwaway":"rewrite","confidence":"medium"},
+{"category":"mock_data","file":"src/shop.ts","line_start":48,"line_end":60,"what":"Hardcoded German help articles (returns 30 days, free shipping from 50 EUR, express 9,90 EUR) used as the knowledge base","keep_rewrite_throwaway":"throwaway","confidence":"medium"},
+{"category":"ai_fake_tool","file":"src/handoff.ts","line_start":20,"line_end":45,"what":"Human handoff writes to an in-memory array that no human reads; ticket ids HO-0001 restart on every run (audit event is real)","keep_rewrite_throwaway":"rewrite","confidence":"medium"},
+{"category":"hardcoded_config","file":"src/server.ts","line_start":377,"line_end":377,"what":"Rate limit hardcoded default of 5 requests refilling 1 per 12 s; fine and tunable by deps","keep_rewrite_throwaway":"keep","confidence":"low"}
+]}

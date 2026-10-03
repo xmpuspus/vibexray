@@ -16,7 +16,7 @@ SCREEN = Path(__file__).parent / "fixtures" / "screens" / "07-chat.png"
 def _result_with_page(shot: str) -> ScanResult:
     run = AppRun(
         state="ran",
-        reason="The app started and 1 page(s) were visited.",
+        reason="vibexray started the app and visited 1 page.",
         url="http://localhost:3000",
         pages=[Page(path="/chat", title="Support", screenshot=shot, status=200)],
     )

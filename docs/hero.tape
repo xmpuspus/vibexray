@@ -4,7 +4,7 @@
 # Regenerate with:
 #   scripts/bootstrap-demo.sh
 #   vhs docs/hero.tape
-#   uv run python scripts/video_to_gif.py tmp/hero/hero.mp4 docs/hero.gif --trim-tail --seconds 50 --hold 10
+#   uv run python scripts/video_to_gif.py tmp/hero/hero.mp4 docs/hero.gif --trim-tail --seconds 35 --hold 10 --width 1100
 #
 # The session takes several minutes in real time. video_to_gif.py speeds it up to the
 # target length. The alias allows the tools the skill uses, so the GIF shows no permission

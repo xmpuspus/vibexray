@@ -53,9 +53,10 @@ def to_gif(
     lossy: int = 80,
     upto: float | None = None,
     hold: float = 0.0,
+    decimate: str = "hi=512:lo=256:frac=0.5",
 ) -> None:
     # mpdecimate drops frames that only differ by video noise, so a still screen costs one frame.
-    chain = f"setpts=PTS/{speed},fps={fps},mpdecimate=hi=512:lo=256:frac=0.5,scale={width}:-1:flags=lanczos"
+    chain = f"setpts=PTS/{speed},fps={fps},mpdecimate={decimate},scale={width}:-1:flags=lanczos"
     with tempfile.TemporaryDirectory() as tmp:
         palette = Path(tmp) / "palette.png"
         raw = Path(tmp) / "raw.gif"

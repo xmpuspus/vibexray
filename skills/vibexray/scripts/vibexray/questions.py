@@ -98,7 +98,8 @@ def _prompt_rule(f: Finding) -> Question:
 
 
 def _sample_data(f: Finding, subject: str) -> Question:
-    where = f.related_file or f.file
+    # A rule sets related_file to the data file. A review sets it to any second place.
+    where = (f.related_file if f.source == "rule" else None) or f.file
     return Question(
         text=f"{subject} sample data from {where}. Where does the real data come from?",
         why="The engineer needs the real source before the sample data can go.",

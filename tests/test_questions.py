@@ -294,3 +294,21 @@ def test_human_review_without_a_tool_name_names_the_file():
 
 def test_empty_inputs_give_no_questions():
     assert build_questions([], NO_CHAT) == []
+
+
+def test_review_mock_data_names_its_own_file_not_the_second_place():
+    # From the hero run on ai-customer-support-agent: the review cited the mock default in
+    # src/lib/ai/index.ts and gave the real provider as a second place. That file has no samples.
+    f = finding(
+        "review",
+        "mock_data",
+        "high",
+        "src/lib/ai/index.ts",
+        17,
+        '  const providerName = (process.env.AI_PROVIDER || "mock").toLowerCase();',
+        related_file="src/lib/ai/openai-provider.ts",
+        source="review",
+    )
+    (q,) = build_questions([f], NO_CHAT)
+    assert "src/lib/ai/index.ts" in q.text
+    assert "openai-provider" not in q.text

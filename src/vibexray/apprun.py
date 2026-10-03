@@ -140,7 +140,8 @@ def _boot_and_crawl(root, out_dir, home, command, cmd, manager) -> AppRun:
                 keep_url=True,
             )
         result.state = "ran"
-        result.reason = f"The app started and {len(result.pages)} page(s) were visited."
+        n = len(result.pages)
+        result.reason = f"vibexray started the app and visited {n} page{'' if n == 1 else 's'}."
         return result
     finally:
         server.stop()

@@ -5,6 +5,7 @@ import shutil
 from pathlib import Path
 
 import pytest
+from conftest import POSIX_SESSIONS
 
 from vibexray.history import read_history
 
@@ -42,6 +43,7 @@ def test_none_mode_skips_even_when_chats_exist(homes):
     assert "no-history" in h.note
 
 
+@POSIX_SESSIONS
 def test_claude_reader_finds_the_pm_prompt(only_claude):
     h = read_history(ROOT, "auto")
     assert h.source == "claude-code"
@@ -50,6 +52,7 @@ def test_claude_reader_finds_the_pm_prompt(only_claude):
     assert h.prompts[0].when == "2026-10-03"
 
 
+@POSIX_SESSIONS
 def test_codex_reader_finds_the_pm_prompt_and_skips_the_subagent(only_codex):
     h = read_history(ROOT, "auto")
     assert h.source == "codex"
@@ -59,6 +62,7 @@ def test_codex_reader_finds_the_pm_prompt_and_skips_the_subagent(only_codex):
     assert h.prompts[0].when == "2026-10-03"
 
 
+@POSIX_SESSIONS
 def test_both_sources_merge_in_time_order(homes):
     h = read_history(ROOT, "auto")
     assert h.source == "claude-code+codex"
@@ -121,6 +125,7 @@ def _claude_home_with_prompt(tmp_path, new_text):
     return tmp_path / "claude"
 
 
+@POSIX_SESSIONS
 def test_secret_in_prompt_is_hidden(tmp_path, monkeypatch):
     key = "sk-" + "A1b2C3d4" * 4
     home = _claude_home_with_prompt(
@@ -135,6 +140,7 @@ def test_secret_in_prompt_is_hidden(tmp_path, monkeypatch):
     assert "Refunds are manual." in text
 
 
+@POSIX_SESSIONS
 def test_long_prompt_is_capped_at_600(tmp_path, monkeypatch):
     home = _claude_home_with_prompt(tmp_path, "word " * 400)
     monkeypatch.setenv("VIBEXRAY_CLAUDE_HOME", str(home))
@@ -143,6 +149,7 @@ def test_long_prompt_is_capped_at_600(tmp_path, monkeypatch):
     assert 0 < len(h.prompts[0].text) <= 600
 
 
+@POSIX_SESSIONS
 def test_injected_text_inside_a_prompt_is_stripped(tmp_path, monkeypatch):
     home = _claude_home_with_prompt(
         tmp_path,
@@ -179,6 +186,7 @@ def test_prompts_that_ask_for_vibexray_are_not_build_chat(tmp_path, monkeypatch)
     assert read_history(ROOT, "auto").prompts == []
 
 
+@POSIX_SESSIONS
 def test_key_block_pasted_in_a_prompt_is_hidden_across_its_lines(tmp_path, monkeypatch):
     begin, end = "-----BEGIN " + "PRIVATE KEY-----", "-----END " + "PRIVATE KEY-----"
     body = "QUJDREVGR0hJSktMTU5PUFFSU1RVVldY"
@@ -209,6 +217,7 @@ def _claude_home_with_records(tmp_path, changes):
     return tmp_path / "claude"
 
 
+@POSIX_SESSIONS
 def test_a_folder_with_the_same_claude_folder_name_reads_nothing(homes):
     # Claude Code names both /home/pm/sample-bot and /home/pm/sample_bot "-home-pm-sample-bot".
     # The records say cwd /home/pm/sample-bot, so a scan of sample_bot must not show them.
@@ -216,6 +225,7 @@ def test_a_folder_with_the_same_claude_folder_name_reads_nothing(homes):
     assert read_history(ROOT, "auto").prompts
 
 
+@POSIX_SESSIONS
 def test_summaries_and_shell_output_are_not_pm_words(tmp_path, monkeypatch):
     home = _claude_home_with_records(
         tmp_path,

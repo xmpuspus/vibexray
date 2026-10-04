@@ -3,6 +3,7 @@
 import dataclasses
 import json
 import re
+import sys
 from html import escape, unescape
 from pathlib import Path
 
@@ -31,6 +32,8 @@ def scan_fixture(name: str, tmp_path: Path):
 
 def with_history(result, monkeypatch, claude_home: Path = SESSIONS / "claude"):
     """Attach the real build chat from the session fixtures to a real scan."""
+    if sys.platform == "win32":
+        pytest.skip("the session fixtures hold POSIX paths")
     monkeypatch.setenv("VIBEXRAY_CLAUDE_HOME", str(claude_home))
     monkeypatch.setenv("VIBEXRAY_CODEX_HOME", str(SESSIONS / "codex"))
     history = read_history(ROOT, "auto")

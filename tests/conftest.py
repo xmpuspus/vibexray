@@ -36,3 +36,9 @@ def corpus_repo(name: str) -> Path:
     if not path.is_dir():
         pytest.skip(f"corpus repo {name} not fetched; run `make corpus`")
     return path
+
+
+# The recorded session files hold POSIX folders such as /home/pm/sample-bot.
+POSIX_SESSIONS = pytest.mark.skipif(
+    sys.platform == "win32", reason="the session fixtures hold POSIX paths"
+)

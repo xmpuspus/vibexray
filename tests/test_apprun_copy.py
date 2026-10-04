@@ -69,6 +69,7 @@ def test_unreadable_file_gives_a_plain_reason_not_a_crash(tmp_path):
     assert "copy" in run.reason
 
 
+@pytest.mark.skipif(not hasattr(os, "mkfifo"), reason="Windows has no named pipes on disk")
 def test_named_pipe_in_the_project_does_not_stop_the_copy(tmp_path):
     root = tmp_path / "app"
     _project(root)
@@ -78,6 +79,7 @@ def test_named_pipe_in_the_project_does_not_stop_the_copy(tmp_path):
     assert not (work / "logs.pipe").exists()
 
 
+@pytest.mark.skipif(sys.platform == "win32", reason="Windows has no POSIX stop signals")
 @pytest.mark.skipif(shutil.which("node") is None, reason="needs node")
 def test_stop_signal_cleans_up_the_server_and_the_copy(tmp_path):
     root = tmp_path / "app"

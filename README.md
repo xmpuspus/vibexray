@@ -96,7 +96,7 @@ The command line runs the pattern rules, the app run, and the build-chat reader.
 
 ## How a scan works
 
-1. **Pattern rules.** 71 rules look for known shapes, such as a mock data import. Run `vibexray rules` to list them.
+1. **Pattern rules.** 72 rules look for known shapes, such as a mock data import. Run `vibexray rules` to list them.
 2. **App run.** vibexray copies the prototype to a temporary folder, without your `.env` files. It reuses your installed packages through a copy-on-write clone, or installs them with `--ignore-scripts`. It starts the app, visits its pages, and stops every process it started.
 3. **Build chat.** vibexray reads the Claude Code and Codex chats for this folder on this computer. It keeps only the prompts you typed. If you said "refunds over 100 dollars need a manager's approval" and the code has no such check, the report asks about it.
 4. **AI review.** The host agent, Claude Code or Codex, reads the code with a fixed checklist and writes `review.json`. Each finding must quote the exact code on the cited line.

@@ -18,7 +18,7 @@ vibexray checks each review finding line by line. It keeps a finding only if the
 
 ## Steps
 
-1. Find the prototype folder. If the user did not name one, use the current folder.
+1. Find the prototype folder. If the user did not name one, use the current folder. Work in that folder itself. vibexray changes no app code, so it needs no worktree or copy.
 2. Run the bundled scanner. Resolve the script path from this skill folder.
 
    ```bash
@@ -30,7 +30,7 @@ vibexray checks each review finding line by line. It keeps a finding only if the
    Add `--no-run` only if the user says not to start the app. If the command exits with an error, show the error and stop. If the app did not start, for example because a sandbox blocked it, the scan is still valid. Go on to step 3.
 3. Read `<folder>/vibexray-report/vibexray.json`. Its `parts` list names every source file of the app. Its `findings` list holds the rule findings.
 4. Check each rule finding. Open its file and line. If the code shows that the rule is wrong there, write a reject entry with the reason. Keep the rule findings that hold.
-5. Read every file in the `parts` list. Also read the env examples, and the data or knowledge-base files that the app loads. Skip vendored UI library files, such as `components/ui/*` from shadcn. Then walk the checklist below one group at a time, over all the files:
+5. Read every file in the `parts` list. Also read the env examples, and the data or knowledge-base files that the app loads. Skip vendored UI library files, such as `components/ui/*` from shadcn. If you use helper agents, run them in the foreground, and write `review.json` only after every helper returns. Then walk the checklist below one group at a time, over all the files:
    1. fake data and fake actions,
    2. login, access, and database rules,
    3. secrets,

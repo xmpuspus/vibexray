@@ -104,10 +104,11 @@ def find_one(copy: Path, name: str) -> Path | None:
     preferred = copy / "vibexray-report" / name
     if preferred.is_file():
         return preferred
+    # A host that follows the repo's own instructions can write the report in a worktree.
     found = [
         p
         for p in copy.rglob(name)
-        if not p.relative_to(copy).as_posix().startswith((".claude/", ".agents/", ".git/"))
+        if not p.relative_to(copy).as_posix().startswith((".claude/skills/", ".agents/", ".git/"))
     ]
     return found[0] if found else None
 

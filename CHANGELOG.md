@@ -9,7 +9,7 @@ All notable changes to this project are in this file. The format follows [Keep a
 ### Added
 
 - The `vibexray` command line tool with the `scan`, `review`, and `rules` commands.
-- 71 pattern rules for fake data, fake actions, open access, database rules, secrets, and AI tools.
+- 72 pattern rules for fake data, fake actions, open access, database rules, secrets, and AI tools.
 - The app run: start the prototype in a temporary copy, visit up to 8 pages, and save screenshots.
 - The build-chat reader for Claude Code and Codex sessions of the scanned folder.
 - The PM report (`report.html`), the engineer handoff (`handoff.md`), and `vibexray.json`.

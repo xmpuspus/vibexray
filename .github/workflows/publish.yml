@@ -50,8 +50,11 @@ jobs:
           test -f /tmp/tiny-out/handoff.md
           test -f /tmp/tiny-out/vibexray.json
 
+  # Trusted publishing needs a PyPI publisher for this repo, workflow, and the pypi
+  # environment. Set the repo variable PYPI_TRUSTED_PUBLISHER to true after you add it.
   publish:
     needs: smoke
+    if: vars.PYPI_TRUSTED_PUBLISHER == 'true'
     runs-on: ubuntu-latest
     environment: pypi
     permissions:

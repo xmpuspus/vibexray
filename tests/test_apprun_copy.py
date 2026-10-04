@@ -51,7 +51,10 @@ def test_copy_gets_its_own_node_modules(tmp_path):
     assert not (root / "node_modules" / ".vite").exists()
 
 
-@pytest.mark.skipif(os.geteuid() == 0, reason="root can read any file")
+@pytest.mark.skipif(
+    not hasattr(os, "geteuid") or os.geteuid() == 0,
+    reason="Windows ignores chmod(0), and root can read any file",
+)
 def test_unreadable_file_gives_a_plain_reason_not_a_crash(tmp_path):
     root = tmp_path / "app"
     _project(root)

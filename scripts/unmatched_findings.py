@@ -3,13 +3,17 @@
 The output holds vibexray's findings only. It holds no label text, so the auditor never sees
 the labels. tests/corpus/audit/AUDIT.md tells the auditor what to do with each entry.
 
-    uv run python scripts/unmatched_findings.py OUT.json RUNS_DIR...
+    uv run python scripts/unmatched_findings.py OUT.json RUNS_DIR... [--sample 300]
+
+With --sample N and more than N findings, OUT holds a random sample of N, drawn with a fixed
+seed. OUT-all.json keeps the full list.
 """
 
 from __future__ import annotations
 
 import argparse
 import json
+import random
 import sys
 from collections import Counter
 from pathlib import Path
@@ -59,12 +63,23 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("out", type=Path)
     parser.add_argument("runs_dirs", type=Path, nargs="+")
+    parser.add_argument("--sample", type=int, help="Audit only this many, drawn at random")
+    parser.add_argument("--seed", type=int, default=20261004)
     args = parser.parse_args(argv)
     items = unmatched(args.runs_dirs)
-    args.out.write_text(json.dumps(items, indent=1) + "\n")
     print(
         f"{len(items)} unique unmatched findings in {len(Counter(i['repo'] for i in items))} repos"
     )
+    if args.sample and len(items) > args.sample:
+        args.out.with_name(args.out.stem + "-all.json").write_text(
+            json.dumps(items, indent=1) + "\n"
+        )
+        items = sorted(
+            random.Random(args.seed).sample(items, args.sample),
+            key=lambda x: (x["repo"], x["file"], x["line"]),
+        )
+        print(f"sampled {len(items)} with seed {args.seed}")
+    args.out.write_text(json.dumps(items, indent=1) + "\n")
     return 0
 
 

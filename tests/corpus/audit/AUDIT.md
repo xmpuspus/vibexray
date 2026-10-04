@@ -2,6 +2,12 @@
 
 This file fixed the sealed audit on 2026-10-04, before the sealed run. An auditor gets this text and a list of findings. The list holds only findings that matched no label.
 
+## The audit covers all unmatched findings, or a fixed sample of 300
+
+- If 300 or fewer unique findings match no label, auditors check all of them.
+- If more match no label, auditors check a random sample of 300, drawn with seed 20261004.
+- A sample result gives the share of real findings with its 95% interval.
+
 ## The auditor sees the code and the finding, never the labels
 
 - The auditor did not build vibexray. The auditor never sees vibexray's code, its skill, or the label files.

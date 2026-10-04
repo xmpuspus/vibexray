@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import argparse
 import filecmp
+import hashlib
 import json
 import os
 import shutil
@@ -74,8 +75,8 @@ CLAUDE_TOOLS = ",".join(
 )
 
 
-def bundle_is_fresh() -> bool:
-    src, dst = REPO / "src" / "vibexray", SKILL / "scripts" / "vibexray"
+def bundle_is_fresh(skill: Path = SKILL) -> bool:
+    src, dst = REPO / "src" / "vibexray", skill / "scripts" / "vibexray"
     return all(
         (dst / p.relative_to(src)).is_file()
         and filecmp.cmp(p, dst / p.relative_to(src), shallow=False)
@@ -151,14 +152,14 @@ def ratio(a: int, b: int) -> float:
 
 
 def one_run(args: argparse.Namespace, name: str, run: int) -> dict:
-    keep_dir = OUT / f"eval-review-{args.runtime}" / name / f"run-{run}"
+    keep_dir = OUT / args.name / name / f"run-{run}"
     if keep_dir.exists():
         shutil.rmtree(keep_dir)
     keep_dir.mkdir(parents=True)
     work = Path(tempfile.mkdtemp(prefix=f"vibexray-eval-{name[:24]}-"))
     copy = work / name
     shutil.copytree(args.corpus / name, copy, symlinks=True)
-    shutil.copytree(SKILL, copy / SKILL_HOME[args.runtime])
+    shutil.copytree(args.skill, copy / SKILL_HOME[args.runtime])
 
     env = {k: v for k, v in os.environ.items() if k not in KEY_VARS}
     env["NO_COLOR"] = "1"
@@ -230,6 +231,7 @@ def summarize(args: argparse.Namespace, repos: list[str], rows: list[dict]) -> d
     return {
         "runtime": args.runtime,
         "vibexray_commit": getattr(args, "commit", None),
+        "skill": getattr(args, "skill_label", None),
         "repos": repos,
         "runs": args.runs,
         "prompt": PROMPT,
@@ -257,6 +259,7 @@ def markdown(s: dict) -> str:
         f"- Review written in {s['reviews_written']} of {s['sessions']} sessions. "
         "A session with no review counts with the rule findings only.",
         f"- vibexray commit: {s.get('vibexray_commit') or 'not recorded'}",
+        f"- Skill: {s.get('skill') or 'not recorded'}",
         f"- Repos: {', '.join(s['repos'])}",
         f"- Runs per repo: {s['runs']}",
         f"- Recall: mean {s['recall_mean']:.2f}, minimum {s['recall_min']:.2f}",
@@ -340,6 +343,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--model", help="Model for the session (default: the CLI default)")
     parser.add_argument("--corpus", type=Path, default=CORPUS_DIR)
     parser.add_argument("--keep", action="store_true", help="Keep the temp copies")
+    parser.add_argument("--skill", type=Path, default=SKILL, help="Skill folder to install")
+    parser.add_argument("--name", help="Output name under tmp/ (default: eval-review-<runtime>)")
     parser.add_argument("--rescore", type=Path, help="Saved summary JSON to score again")
     parser.add_argument("--runs-dir", type=Path, help="Session folders of the saved summary")
     args = parser.parse_args(argv)
@@ -360,7 +365,8 @@ def main(argv: list[str] | None = None) -> int:
     missing = [n for n in repos if not (args.corpus / n).is_dir()]
     if missing:
         parser.error(f"not in {args.corpus}: {', '.join(missing)}")
-    if not bundle_is_fresh():
+    args.name = args.name or f"eval-review-{args.runtime}"
+    if not bundle_is_fresh(args.skill):
         parser.error("the skill bundle is stale; run `make bundle` first")
     changed = [n for n in repos if not pinned_and_clean(args.corpus / n)]
     if changed:
@@ -371,12 +377,14 @@ def main(argv: list[str] | None = None) -> int:
         )
 
     args.commit = this_commit()
+    digest = hashlib.sha1((args.skill / "SKILL.md").read_bytes()).hexdigest()[:10]
+    args.skill_label = f"{args.skill.resolve().relative_to(REPO)} (SKILL.md sha1 {digest})"
     jobs = [(n, run) for run in range(1, args.runs + 1) for n in repos]
     with ThreadPoolExecutor(max_workers=max(1, args.jobs)) as pool:
         rows = list(pool.map(lambda job: one_run(args, *job), jobs))
     summary = summarize(args, repos, rows)
     OUT.mkdir(exist_ok=True)
-    base = OUT / f"eval-review-{args.runtime}"
+    base = OUT / args.name
     base.with_suffix(".json").write_text(json.dumps(summary, indent=2) + "\n")
     base.with_suffix(".md").write_text(markdown(summary))
     print(markdown(summary).split("\n| Repo |")[0].rstrip())

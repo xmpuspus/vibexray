@@ -24,6 +24,11 @@ The labels miss some real problems, so this number is a floor. A third line can 
 - The audit covers only the round it judged. A new round needs a new audit.
 - The held-out audit of round 2 used an older form. Its auditors saw the labels and judged repeats against them.
 
+## F1 joins the two numbers into one
+
+- F1 is 2 x precision x recall / (precision + recall).
+- The README computes it from the pooled counts of all runs of a host.
+
 ## Each host runs three times, and failed runs stay in the average
 
 - The test runs Claude Code and Codex, each 3 times per repo, on the subscription login with no API keys.

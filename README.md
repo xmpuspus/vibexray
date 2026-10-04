@@ -102,22 +102,22 @@ The command line runs the pattern rules, the app run, and the build-chat reader.
 4. **AI review.** The host agent, Claude Code or Codex, reads the code with a fixed checklist and writes `review.json`. Each finding must quote the exact code on the cited line.
 5. **Line check.** `vibexray review` opens each cited file and line. It keeps a finding only if the quote is on that line. It drops the others, so an invented finding never reaches the report.
 
-## vibexray finds about half of the hand-labeled problems
+## On 19 unseen prototypes, vibexray finds about half of the labeled problems, and 3 in 4 findings match a label
 
-The test set holds 23 public prototypes built with AI tools. Reviewers who never saw vibexray labeled 320 problems by file and line. Seven prototypes built with Claude Code or Codex stayed out of all tuning. The table shows the results on those seven.
+The test set holds 19 public prototypes built with Claude Code or Codex. Nobody ran vibexray on them before the test. Two independent reviewers labeled the problems by file and line, with no access to vibexray. The test ran once, at commit `587a03a`.
 
-| Host | Labeled problems found | Findings that match a label | Findings that are real, after an audit |
+| Host | Labeled problems found (recall) | Findings that match a label (precision) | F1 |
 |---|---|---|---|
-| Claude Code | 53% | 54% | 65% |
-| Codex | 53% | 66% | 75% |
-| Pattern rules only | 6% | 33% | not audited |
+| Claude Code | 53% | 75% | 0.62 |
+| Codex | 48% | 76% | 0.59 |
+| Pattern rules only | 5% | 37% | 0.10 |
 
-- Each number is the mean of 3 runs. The runs differ by 5 points or less.
-- The line check dropped 0 of 662 AI findings. The AI cited a real file, line, and quote every time.
-- An auditor read the code at all 118 findings that matched no label. 19 showed problems the labelers missed, and 37 were wrong.
-- The audit column counts a finding as real only in the labeled category. A looser count gives 73% and 80%.
+- Each AI number pools 3 runs of each repo. All 114 sessions wrote a review.
+- The line check dropped 0 of 3,286 AI findings. Each one cited a real file, line, and quote.
+- The two reviewers agree with each other at F1 0.82 to 0.84 on these repos. That is the practical top score of this test.
+- The labels miss some real problems, so the precision column is a floor.
 - The Codex runs loaded the maintainer's own `AGENTS.md`. The Codex sandbox blocked the app run, so Codex read the code only.
-- Before the last checklist change, Claude found 51% of the problems on the same seven prototypes. The change used only the other 16.
+- [docs/results/sealed-1/](docs/results/sealed-1/) holds the full summaries. [docs/benchmark.md](docs/benchmark.md) defines the metric.
 
 [tests/corpus/README.md](tests/corpus/README.md) explains how to run the test again.
 

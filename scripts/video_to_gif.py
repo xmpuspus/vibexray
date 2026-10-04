@@ -4,7 +4,7 @@ The script can cut the still screen at the end of a recording, speed the video u
 target length, and hold the last frame so a reader can finish it. It uses ffmpeg palettegen
 and gifsicle. It never adds or edits frames.
 
-    uv run python scripts/video_to_gif.py tmp/hero/hero.mp4 docs/hero.gif \
+    uv run python scripts/video_to_gif.py tmp/hero/hero.mp4 docs/media/hero.gif \
         --trim-tail --seconds 45 --hold 8
 """
 

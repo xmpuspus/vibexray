@@ -4,7 +4,7 @@ The script opens report.html in Chromium and scrolls to each section in the orde
 reads it. Chromium's screencast streams every painted frame as a lossless PNG with its
 time. ffmpeg joins the frames with their real timing, and gifsicle makes the GIF small.
 
-    uv run python scripts/record_report.py docs/demo/report.html docs/report.gif
+    uv run python scripts/record_report.py tmp/hero/report/report.html docs/media/report.gif
 """
 
 from __future__ import annotations
@@ -47,13 +47,38 @@ def settle(page) -> None:
         page.wait_for_timeout(100)
 
 
-def record(report: Path, work: Path) -> Path:
+def walk_section(page, sid: str) -> None:
+    """Scroll into one section, hold, then scroll through it until its end is on screen."""
+    page.wait_for_timeout(800)
+    page.evaluate("id => document.getElementById(id).scrollIntoView({behavior: 'smooth'})", sid)
+    settle(page)
+    page.wait_for_timeout(2500)
+    for _ in range(4):
+        rest = page.evaluate(
+            "id => document.getElementById(id).getBoundingClientRect().bottom - innerHeight", sid
+        )
+        if rest <= 40:
+            break
+        page.evaluate("dy => window.scrollBy({top: dy, behavior: 'smooth'})", min(rest + 24, 480))
+        settle(page)
+        page.wait_for_timeout(2200)
+    page.wait_for_timeout(800)
+
+
+def record(report: Path, work: Path, section: str | None = None) -> Path:
     frames: list[tuple[float, bytes]] = []
     with sync_playwright() as p:
         browser = p.chromium.launch()
         page = browser.new_page(viewport=SIZE)
         page.goto(report.resolve().as_uri())
         page.wait_for_load_state("networkidle")
+        if section:
+            if not page.locator(f"#{section}").count():
+                raise SystemExit(f"{report} has no #{section} section")
+            # A feature GIF opens just above its own section, so the jump from the top stays out.
+            page.evaluate("id => document.getElementById(id).scrollIntoView()", section)
+            page.evaluate("window.scrollBy(0, -280)")
+            settle(page)
         cdp = page.context.new_cdp_session(page)
 
         def on_frame(params: dict) -> None:
@@ -62,7 +87,7 @@ def record(report: Path, work: Path) -> Path:
 
         cdp.on("Page.screencastFrame", on_frame)
         cdp.send("Page.startScreencast", {"format": "png", "everyNthFrame": 1})
-        for sid, seconds in STOPS:
+        for sid, seconds in [] if section else STOPS:
             if sid == "top":
                 page.evaluate("window.scrollTo({top: 0})")
             elif page.locator(f"#{sid}").count():
@@ -73,6 +98,8 @@ def record(report: Path, work: Path) -> Path:
                 continue
             settle(page)
             page.wait_for_timeout(int(seconds * 1000))
+        if section:
+            walk_section(page, section)
         end = time.time()
         cdp.send("Page.stopScreencast")
         browser.close()
@@ -99,6 +126,11 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("report", type=Path, help="report.html from a vibexray scan")
     parser.add_argument("gif", type=Path, help="Output GIF path")
+    parser.add_argument(
+        "--section",
+        choices=[sid for sid, _ in STOPS if sid != "top"],
+        help="Record one section only, for a feature GIF",
+    )
     args = parser.parse_args(argv)
     if not args.report.is_file():
         parser.error(f"{args.report} is not a file")
@@ -106,8 +138,9 @@ def main(argv: list[str] | None = None) -> int:
         if shutil.which(tool) is None:
             parser.error(f"{tool} is not installed")
     with tempfile.TemporaryDirectory() as tmp:
-        video = record(args.report, Path(tmp))
-        to_gif(video, args.gif, width=900, fps=8, lossy=30)
+        video = record(args.report, Path(tmp), args.section)
+        # The screencast sends no frame for a still screen, so the last frame needs its hold.
+        to_gif(video, args.gif, width=900, fps=8, lossy=30, hold=2.5 if args.section else 0.0)
     print(f"Wrote {args.gif} ({args.gif.stat().st_size // 1024} KB)")
     return 0
 

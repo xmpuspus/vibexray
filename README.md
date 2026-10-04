@@ -1,3 +1,5 @@
+<p align="center"><img src="https://raw.githubusercontent.com/xmpuspus/vibexray/main/docs/media/logo.svg" alt="vibexray logo: a page under a green scan line, with one line marked in coral" width="96"></p>
+
 <h1 align="center">vibexray</h1>
 <p align="center"><strong>See what is real and what is fake in an AI-built prototype, before the engineer builds it.</strong></p>
 <p align="center">
@@ -13,7 +15,7 @@ Every finding points to a file and a line.
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green" alt="License MIT"></a>
 </p>
 
-<p align="center"><img src="docs/hero.gif" alt="Claude Code runs /vibexray on a support bot and lists its fake parts and risks." width="900"></p>
+<p align="center"><img src="https://raw.githubusercontent.com/xmpuspus/vibexray/main/docs/media/hero.gif" alt="Claude Code runs /vibexray on a support bot and lists its fake parts and risks." width="900"></p>
 
 ```bash
 claude plugin marketplace add xmpuspus/vibexray
@@ -24,9 +26,11 @@ Then open your prototype folder in Claude Code and type `/vibexray`. That is the
 
 <p align="center">
 <a href="#install">Install</a> &middot;
+<a href="#features">Features</a> &middot;
 <a href="#how-a-scan-works">How a scan works</a> &middot;
 <a href="#on-19-unseen-prototypes-vibexray-finds-about-half-of-the-labeled-problems-and-3-in-4-findings-match-a-label">Results</a> &middot;
-<a href="#command-reference">Commands</a> &middot;
+<a href="#compared-with-other-tools">Compared</a> &middot;
+<a href="#fix-common-problems">Fix problems</a> &middot;
 <a href="CHANGELOG.md">Changelog</a>
 </p>
 
@@ -40,9 +44,21 @@ Product managers now build working prototypes with Claude Code and Codex. The pr
 
 vibexray tells the PM which is which before the handoff. The PM answers a few decisions, then sends the engineer a handoff that names every file and line.
 
+## Why vibexray
+
+- **A real-versus-fake ledger.** Each part of the app gets one label: keep, rewrite, throw away, or check.
+- **Every finding has a receipt.** It names a file and a line. The line check drops any quote that is not there.
+- **It starts the app.** It runs the prototype in a temporary copy and saves screenshots of up to 8 pages.
+- **It reads the build chat.** A rule that the PM typed, but the code lacks, becomes a question.
+- **Decisions in plain words.** Up to 10 questions for the PM, such as "Who may open /api/orders/[id]?"
+- **Two readers, two files.** The PM reads `report.html`. The engineer and their coding agent read `handoff.md`.
+- **It runs where the PM works.** One skill for Claude Code and Codex. The scan itself needs only Python.
+
+[Compared with other tools](#compared-with-other-tools) shows how the closest tools differ.
+
 ## The PM gets one page that answers four questions
 
-<p align="center"><img src="docs/report.gif" alt="A walk through report.html: the headline, the PM's decisions, the real and fake parts, the risks, and app screenshots." width="900"></p>
+<p align="center"><img src="https://raw.githubusercontent.com/xmpuspus/vibexray/main/docs/media/report.gif" alt="A walk through report.html: the headline, the PM's decisions, the real and fake parts, the risks, and app screenshots." width="900"></p>
 
 The scan writes three files to `vibexray-report/`:
 
@@ -65,6 +81,40 @@ Each file of the prototype gets one label:
 - **Rewrite**: the idea is real, but the code is not ready.
 - **Throw away**: demo only. Remove it before launch.
 - **Check**: vibexray is not sure. A person looks at it.
+
+## Features
+
+Every GIF below is a real recording of one report. vibexray made the report from a public support-bot prototype.
+
+### See the decisions that the PM must make
+
+The report opens with the questions that block the engineer, the most important first. Each question names the file and line that raised it.
+
+<p align="center"><img src="https://raw.githubusercontent.com/xmpuspus/vibexray/main/docs/media/decisions.gif" alt="The decisions section of a report lists five numbered questions for the PM, each with its source file and line." width="900"></p>
+
+### See which parts to keep, rewrite, or throw away
+
+A bar shows the share of each label. Each part lists the finding that decided its label.
+
+<p align="center"><img src="https://raw.githubusercontent.com/xmpuspus/vibexray/main/docs/media/parts.gif" alt="The parts section shows a bar of keep, rewrite, throw away, and check, then the files under each label." width="900"></p>
+
+### See what is fake
+
+Each card names one fake place, what the PM sees, and what the engineer must change. Open a card to see the code.
+
+<p align="center"><img src="https://raw.githubusercontent.com/xmpuspus/vibexray/main/docs/media/fake.gif" alt="The fake section shows cards for a keyword bot that poses as an AI and for invented store policies." width="900"></p>
+
+### See what can break
+
+Risks sort by priority. A high risk, such as an order page that any visitor can open, comes first.
+
+<p align="center"><img src="https://raw.githubusercontent.com/xmpuspus/vibexray/main/docs/media/risks.gif" alt="The risks section lists high risks first, such as ticket and order pages with no login check." width="900"></p>
+
+### See what the app does
+
+vibexray starts the app in a temporary copy and opens each page. The report shows each screenshot with its buttons, inputs, and browser errors.
+
+<p align="center"><img src="https://raw.githubusercontent.com/xmpuspus/vibexray/main/docs/media/app.gif" alt="The app section shows screenshots of seven pages, each with its buttons, inputs, and browser errors." width="900"></p>
 
 ## Install
 
@@ -106,6 +156,8 @@ vibexray scan ./my-prototype --open
 
 The command line runs the pattern rules, the app run, and the build-chat reader. It does not run the AI review, so it finds fewer problems than the skill.
 
+<p align="center"><img src="https://raw.githubusercontent.com/xmpuspus/vibexray/main/docs/media/cli.gif" alt="A terminal runs vibexray scan on the support-bot prototype, prints the summary, then lists the first ten pattern rules." width="900"></p>
+
 ## How a scan works
 
 1. **Pattern rules.** 72 rules look for known shapes, such as a mock data import. Run `vibexray rules` to list them.
@@ -133,6 +185,28 @@ The test set holds 19 public prototypes built with Claude Code or Codex. Nobody 
 
 [tests/corpus/README.md](tests/corpus/README.md) explains how to run the test again.
 
+## Compared with other tools
+
+We read the README or the docs page of each tool in the table on 3 October 2026. No other tool in the table has all six features. Three of them turn a codebase into a product spec. No page mentions an app run.
+
+A dot means that the page does not mention the feature. It does not prove that the tool lacks it.
+
+| Tool | Reads a finished repo | Lists fake parts | Lists security risks | Starts the app | Separate PM and engineer docs | Checks each cited line |
+|---|---|---|---|---|---|---|
+| **vibexray** | Yes | Yes | Yes | Yes, with screenshots | Yes | Yes |
+| [code-to-prd](https://github.com/alirezarezvani/claude-skills/tree/main/product-team/code-to-prd) | Yes | · | · | · | · | · |
+| [pm-ai-shipping](https://github.com/phuryn/pm-skills/tree/main/pm-ai-shipping) | Yes | · | Yes, as audits | · | · | · |
+| [code-to-prd-generator](https://mcpmarket.com/tools/skills/code-to-prd-generator-2) | Yes | Claims mock detection | · | · | · | · |
+| [Reverse_Spec_and_PRD](https://github.com/WindowHyun/Reverse_Spec_and_PRD) | Frontend code only | · | · | · | Yes | · |
+| [OpenLore](https://github.com/clay-good/OpenLore) | Yes | · | · | · | · | · |
+
+- **code-to-prd** writes a PRD folder with per-page docs, an API list, and a navigation map.
+- **pm-ai-shipping** writes system docs, a permissions matrix, a secrets list, and gap and security audits.
+- **code-to-prd-generator** writes a business PRD. Its listing claims mock detection. We did not read its source.
+- **Reverse_Spec_and_PRD** writes a spec for developers and a PRD for PMs, from frontend code.
+- **OpenLore** writes a code graph and `CODEBASE.md` for coding agents.
+- Lovable's own handoff guide exports the code to GitHub and writes no spec (Lovable blog, 19 March 2026).
+
 ## What vibexray never does
 
 - It never edits the prototype. The app runs in a temporary copy, and the copy goes when the scan ends.
@@ -141,6 +215,18 @@ The test set holds 19 public prototypes built with Claude Code or Codex. Nobody 
 - It never shows a secret. Key-shaped values show as `sk-pro...[hidden]` in every output.
 - It never passes your keys to the app. The copy leaves out your `.env` files, and the app starts with `PATH`, a temporary `HOME`, and `PORT` only.
 - It never reads another folder's chats. Use `--no-history` to skip the build chat.
+
+## Fix common problems
+
+- **"npm is not installed on this computer, so the app did not start":** install Node, or scan with `--no-run`. The message names the missing tool.
+- **"Install the run extra: pip install 'vibexray[run]'":** the app run needs Playwright. Install it, then run `playwright install chromium`.
+- **"The browser could not open the app":** run `playwright install chromium`.
+- **"The app did not answer within 90 seconds":** check if the app needs a database or keys. The copy leaves out `.env` files on purpose.
+- **"Installing the app's packages failed":** vibexray installs with `--ignore-scripts`, and some packages need their scripts. Scan with `--no-run`.
+- **Every Codex report says that the app did not start:** the Codex sandbox blocks local servers by default. The code review still runs.
+- **"vibexray.json not found. Run vibexray scan first.":** run `vibexray scan`, then pass its `--out` folder to `vibexray review`.
+- **"the scanned folder ... no longer exists":** the review reads each cited line from that folder. Run the review before you move it.
+- **A review finding is not in the report:** the line check dropped it. `review-result.json` lists each dropped finding.
 
 ## Command reference
 
@@ -168,6 +254,15 @@ make corpus   # clone the 42 pinned prototype repos
 make lint     # ruff check and ruff format --check
 make test     # unit and CLI tests
 make e2e      # corpus accuracy, app runs, and browser tests
+```
+
+Every GIF in this README is a real recording. These targets record them again:
+
+```bash
+make demo          # docs/media/hero.gif, from a live Claude Code session
+make gif           # docs/media/report.gif, a browser walk through the report
+make feature-gifs  # one GIF per report section
+make cli-gif       # docs/media/cli.gif, a real terminal scan
 ```
 
 [AGENTS.md](AGENTS.md) lists the repository contracts. [CONTRIBUTING.md](CONTRIBUTING.md) explains how to add a rule.

@@ -1,5 +1,5 @@
 {
-  "note": "dev is for tuning. heldout was the test set of rounds 1 and 2 on 2026-10-04. After round 2 it joined dev, so it is no longer a test set. sealed is the public test set. See docs/benchmark.md: it runs once, at one commit.",
+  "note": "dev is for tuning. heldout was the test set of rounds 1 and 2 on 2026-10-04 and then joined dev. sealed_1 was the public test set of v1 (run once at 587a03a, see docs/results/sealed-1). After that run it joined tuning. tune is dev plus sealed_1. sealed holds the next public test set, empty until it is chosen.",
   "dev": [
     "afhamahmed1__ai-support-agent",
     "ai-customer-support-agent",
@@ -34,7 +34,7 @@
     "laughingkid-sg__sg-remote-food-order",
     "gg-mo__agent-tea"
   ],
-  "sealed": [
+  "sealed_1": [
     "Allen-Saji__everdesk",
     "RTE404__Doctor-Appointment-Agent",
     "SIDEYS__intelligent-bistro",
@@ -54,5 +54,50 @@
     "OysterD3__tesboard",
     "mentee-global__mentee",
     "solusops__MyGPU"
-  ]
+  ],
+  "tune": [
+    "afhamahmed1__ai-support-agent",
+    "ai-customer-support-agent",
+    "gpt-realtime-2-customer-support-voice-agent",
+    "mj-deving__ai-support-agent",
+    "nexora-ai",
+    "resolve-webmcp",
+    "SliceIQ",
+    "Snodrod__ai-support-agent",
+    "EAA-Chapter-84-Connect",
+    "milk-me-not",
+    "my-wealth-view",
+    "yana-contabila",
+    "MIND-MIRROR",
+    "vocal-note-keeper-ai",
+    "cal-ai-clone",
+    "workfamilai",
+    "jawwad-ali__ai-customer-support-agent",
+    "gokapso__whatsapp-support-agent",
+    "IObert__twilio-conversations-eve-agent",
+    "Hesper-Labs__owly",
+    "suissa__redis-agents",
+    "laughingkid-sg__sg-remote-food-order",
+    "gg-mo__agent-tea",
+    "Allen-Saji__everdesk",
+    "RTE404__Doctor-Appointment-Agent",
+    "SIDEYS__intelligent-bistro",
+    "R3108__Customer_Support_Agent",
+    "klio-tech__customer_support_agent",
+    "mrnetwork0001__Nestor",
+    "perfectcse__refund-ai-customer-support-agent",
+    "thesolvers005__queuezeroai",
+    "trevhud__concier",
+    "vintasoftware__medplum-ai-concierge",
+    "harshadasari__ai-customer-support-agent",
+    "yedlurisrinu__reno-compass",
+    "Ali1raz__teamcomms",
+    "boffti__stardash",
+    "kupzed__catatz",
+    "SpaceSyt__watch-tracker",
+    "OysterD3__tesboard",
+    "mentee-global__mentee",
+    "solusops__MyGPU"
+  ],
+  "sealed": []
 }

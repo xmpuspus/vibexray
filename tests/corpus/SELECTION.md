@@ -32,3 +32,9 @@ These rules picked the repos of the `sealed` split. I wrote them on 2026-10-04, 
 - `scripts/merge_labels.py` joined them into 846 labels in `tests/corpus/labels/`.
 - `labels-raw/sealed/first/` and `labels-raw/sealed/second/` keep both raw sets for audit.
 - One second labeler used two helper agents on `mentee-global__mentee`. The helpers followed the same labeling prompt.
+
+## The first sealed set ran once and then joined tuning
+
+- vibexray v1 ran on the 19 repos once, at commit `587a03a`. [docs/results/sealed-1/](../../docs/results/sealed-1/) holds the result.
+- After that run, the 19 repos moved to the `sealed_1` and `tune` lists in `split.json`. Skill changes after `587a03a` can use them.
+- The next public test set follows the same rules, with 19 new repos and two new labelers.

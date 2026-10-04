@@ -46,6 +46,6 @@ The labels miss some real problems, so this number is a floor. A third line can 
 
 ```bash
 make corpus
-uv run python scripts/eval_review.py --split sealed --runtime claude --runs 3 --jobs 4
-uv run python scripts/eval_review.py --split sealed --runtime codex --runs 3 --jobs 3
+uv run python scripts/eval_review.py --split sealed_1 --runtime claude --runs 3 --jobs 4
+uv run python scripts/eval_review.py --split sealed_1 --runtime codex --runs 3 --jobs 3
 ```

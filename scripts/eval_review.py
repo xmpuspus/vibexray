@@ -229,6 +229,7 @@ def summarize(args: argparse.Namespace, repos: list[str], rows: list[dict]) -> d
     dropped = sum(r.get("dropped", 0) for r in rows)
     return {
         "runtime": args.runtime,
+        "vibexray_commit": getattr(args, "commit", None),
         "repos": repos,
         "runs": args.runs,
         "prompt": PROMPT,
@@ -255,6 +256,7 @@ def markdown(s: dict) -> str:
         "",
         f"- Review written in {s['reviews_written']} of {s['sessions']} sessions. "
         "A session with no review counts with the rule findings only.",
+        f"- vibexray commit: {s.get('vibexray_commit') or 'not recorded'}",
         f"- Repos: {', '.join(s['repos'])}",
         f"- Runs per repo: {s['runs']}",
         f"- Recall: mean {s['recall_mean']:.2f}, minimum {s['recall_min']:.2f}",
@@ -297,6 +299,18 @@ def pinned_and_clean(path: Path) -> bool:
     return head == pins.get(path.name) and not status.strip()
 
 
+def this_commit() -> str:
+    # A change to the package, the skill, or this harness makes the commit alone untrue.
+    git = ["git", "-C", str(REPO)]
+    head = subprocess.run([*git, "rev-parse", "--short", "HEAD"], capture_output=True, text=True)
+    dirty = subprocess.run(
+        [*git, "status", "--porcelain", "--", "src", "skills", "scripts"],
+        capture_output=True,
+        text=True,
+    ).stdout.strip()
+    return head.stdout.strip() + ("+uncommitted changes" if dirty else "")
+
+
 def rescore(summary_path: Path, runs_dir: Path) -> dict:
     """Score the saved sessions of an earlier round again with the current matching."""
     s = json.loads(summary_path.read_text())
@@ -307,7 +321,9 @@ def rescore(summary_path: Path, runs_dir: Path) -> dict:
             report = run_dir / "report" / "vibexray.json"
         r.update(score_parts(r["repo"], json.loads(report.read_text())["findings"]))
     return summarize(
-        SimpleNamespace(runtime=s["runtime"], runs=s["runs"]), s["repos"], s["per_repo_run"]
+        SimpleNamespace(runtime=s["runtime"], runs=s["runs"], commit=s.get("vibexray_commit")),
+        s["repos"],
+        s["per_repo_run"],
     )
 
 
@@ -354,6 +370,7 @@ def main(argv: list[str] | None = None) -> int:
             "or restore each repo with `git -C <repo> reset -q --hard <sha> && git -C <repo> clean -qfd`."
         )
 
+    args.commit = this_commit()
     jobs = [(n, run) for run in range(1, args.runs + 1) for n in repos]
     with ThreadPoolExecutor(max_workers=max(1, args.jobs)) as pool:
         rows = list(pool.map(lambda job: one_run(args, *job), jobs))

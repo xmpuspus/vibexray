@@ -1,7 +1,7 @@
 """Precision of saved sessions, with the independent audit of unmatched findings.
 
 The labels stay unchanged. A finding counts as correct when it matches a label, or when the
-auditor judged it labeler_missed, or duplicate with a label of the same category in the same
+auditor judged it real or labeler_missed, or duplicate with a label of the same category in the same
 file. --loose counts a duplicate when any file of the repo has a label of that category.
 
     uv run python scripts/audit_precision.py tmp/eval-rounds/heldout-claude-r2-runs
@@ -32,7 +32,7 @@ def accepted(audit: Path, loose: bool) -> set[tuple]:
         same = [lb for lb in labels if lb["category"] == x["category"]]
         if not loose:
             same = [lb for lb in same if lb["file"] == x["file"]]
-        if x["verdict"] == "labeler_missed" or (x["verdict"] == "duplicate" and same):
+        if x["verdict"] in ("labeler_missed", "real") or (x["verdict"] == "duplicate" and same):
             ok.add((x["repo"], x["file"], x["line"], x.get("end_line"), x["category"]))
     return ok
 

@@ -19,9 +19,10 @@ vibexray publishes two numbers together. One number alone is easy to game: a too
 The labels miss some real problems, so this number is a floor. A third line can add an independent audit:
 
 - An auditor who did not build vibexray reads the code at each finding that matched no label.
-- A finding counts as right when the auditor says the labelers missed a real problem of that category.
-- A repeat of a labeled problem also counts. The same file must hold a label of that category.
+- The auditor sees the code and the finding, but never the labels.
+- A finding counts as right when the auditor says that it is a real problem of that category.
 - The audit covers only the round it judged. A new round needs a new audit.
+- The held-out audit of round 2 used an older form. Its auditors saw the labels and judged repeats against them.
 
 ## Each host runs three times, and failed runs stay in the average
 

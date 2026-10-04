@@ -1,0 +1,70 @@
+name: Bug report
+description: Report a wrong finding, a crash, or a broken report
+labels: ["bug"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened
+      description: Describe the problem. For a wrong finding, give the rule ID or the review entry.
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to repeat
+      description: The command or prompt you ran, in order.
+      placeholder: |
+        1. Run `vibexray scan ./my-prototype --no-run`
+        2. Open `vibexray-report/report.html`
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected_actual
+    attributes:
+      label: Expected and actual result
+      description: What you expected, and what you got.
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: Output of `vibexray --version`
+      placeholder: "vibexray 0.1.0"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: host
+    attributes:
+      label: Host
+      options:
+        - Claude Code
+        - Codex
+        - Command line only
+    validations:
+      required: true
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      options:
+        - macOS
+        - Linux
+        - Windows
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or screenshots
+      description: Paste the terminal output. Remove any secret before you paste.
+    validations:
+      required: false

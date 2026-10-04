@@ -41,6 +41,7 @@ vibexray = "vibexray.cli:main"
 Homepage = "https://github.com/xmpuspus/vibexray"
 Repository = "https://github.com/xmpuspus/vibexray"
 "Bug Tracker" = "https://github.com/xmpuspus/vibexray/issues"
+Changelog = "https://github.com/xmpuspus/vibexray/blob/main/CHANGELOG.md"
 
 [tool.hatch.version]
 path = "src/vibexray/__init__.py"

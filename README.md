@@ -1,6 +1,10 @@
 <h1 align="center">vibexray</h1>
 <p align="center"><strong>See what is real and what is fake in an AI-built prototype, before the engineer builds it.</strong></p>
-<p align="center">A skill for Claude Code and Codex. It reads the prototype, starts it, and writes a report for the PM and a handoff for the engineer. Every finding points to a file and a line.</p>
+<p align="center">
+A skill for Claude Code and Codex. It reads the prototype and starts it.
+It writes a report for the PM and a handoff for the engineer.
+Every finding points to a file and a line.
+</p>
 
 <p align="center">
   <a href="https://github.com/xmpuspus/vibexray/actions/workflows/ci.yml"><img src="https://github.com/xmpuspus/vibexray/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
@@ -18,7 +22,15 @@ claude plugin install vibexray@vibexray
 
 Then open your prototype folder in Claude Code and type `/vibexray`. That is the whole loop.
 
-> **Note:** vibexray finds part of what a careful engineer finds, not all of it. The [measured results](#vibexray-finds-about-half-of-the-hand-labeled-problems) say how much. Use the report to start the handoff, not to skip the engineer's review.
+<p align="center">
+<a href="#install">Install</a> &middot;
+<a href="#how-a-scan-works">How a scan works</a> &middot;
+<a href="#on-19-unseen-prototypes-vibexray-finds-about-half-of-the-labeled-problems-and-3-in-4-findings-match-a-label">Results</a> &middot;
+<a href="#command-reference">Commands</a> &middot;
+<a href="CHANGELOG.md">Changelog</a>
+</p>
+
+> **Note:** vibexray finds part of what a careful engineer finds, not all of it. The [measured results](#on-19-unseen-prototypes-vibexray-finds-about-half-of-the-labeled-problems-and-3-in-4-findings-match-a-label) say how much. Use the report to start the handoff, not to skip the engineer's review.
 
 ## I built this to help product managers help me build their dreams
 
@@ -152,7 +164,7 @@ vibexray --version
 ```bash
 uv venv && uv pip install -e ".[dev]"
 uv run playwright install chromium
-make corpus   # clone the 23 pinned prototype repos
+make corpus   # clone the 42 pinned prototype repos
 make lint     # ruff check and ruff format --check
 make test     # unit and CLI tests
 make e2e      # corpus accuracy, app runs, and browser tests

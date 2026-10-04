@@ -1,0 +1,27 @@
+name: Feature request
+description: Suggest a new rule, a report change, or a new host
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: What you want
+      description: Describe the feature.
+    validations:
+      required: true
+
+  - type: textarea
+    id: use_case
+    attributes:
+      label: Problem it solves
+      description: What does the PM or the engineer miss today? For a new rule, link a public repo that shows the pattern.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed_solution
+    attributes:
+      label: Proposed behavior
+      description: The finding, flag, or report section you have in mind.
+    validations:
+      required: false

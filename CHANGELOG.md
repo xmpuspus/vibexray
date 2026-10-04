@@ -2,9 +2,9 @@
 
 All notable changes to this project are in this file. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The project follows [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## [0.1.0] - 2026-10-04
 
-## [0.1.0] - Unreleased
+First release.
 
 ### Added
 
@@ -16,8 +16,5 @@ All notable changes to this project are in this file. The format follows [Keep a
 - The AI review step: `vibexray review` keeps a host finding only if its quote is on the cited line.
 - The Agent Skill in `skills/vibexray/`, with a bundled copy of the package and a launcher.
 - Plugin manifests for Claude Code and Codex.
-- A corpus of 42 pinned public prototypes: 23 tuning repos with 320 labels, and 19 sealed repos with 846 labels from two independent labelers.
-- A sealed benchmark run at `587a03a`: Claude Code F1 0.62, Codex F1 0.59.
-- Real demo recordings: `docs/hero.gif` from a live Claude Code session and `docs/report.gif` from a browser.
-- CI on Linux, macOS, and Windows with Python 3.11 to 3.13.
-- A publish workflow with a fresh-venv smoke job.
+
+[0.1.0]: https://github.com/xmpuspus/vibexray/releases/tag/v0.1.0

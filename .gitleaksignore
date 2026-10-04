@@ -1,0 +1,5 @@
+# Fake keys that the redaction tests use as input. None is a real credential.
+7de76c024c16121768a41dc7f7c3b5bda6d8ad8b:tests/test_no_key_leaks.py:generic-api-key:17
+7de76c024c16121768a41dc7f7c3b5bda6d8ad8b:tests/test_no_key_leaks.py:generic-api-key:48
+a9a89c1369867b294d34e5544e428b5720132bc4:tests/test_redact.py:generic-api-key:25
+a9a89c1369867b294d34e5544e428b5720132bc4:tests/test_redact.py:stripe-access-token:26

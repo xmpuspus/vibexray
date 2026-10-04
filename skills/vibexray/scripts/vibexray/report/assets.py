@@ -1,10 +1,10 @@
 """Inline CSS and JS for report.html. The report loads nothing from the network."""
 
-# One accent: rust marks what is fake or risky. Navy is real code and structure. Tan and
-# cream are context. Rust #A65E46 is 4.9:1 on white, so it also works as text.
+# One accent: crimson marks what is fake or risky. Navy is real code and structure. Steel
+# and mist are context. Crimson #B3261E is 6.6:1 on white, so it also works as text.
 CSS = """
-:root{--navy:#07203F;--rust:#A65E46;--tan:#D9AA90;--cream:#EBDED4;
---ink:#02000D;--muted:#5B6470;--line:#E3DCD5;--panel:#F7F2ED}
+:root{--navy:#0B2545;--red:#B3261E;--steel:#4A6FA5;--mist:#C9D3DF;
+--ink:#1B1F24;--muted:#5B6470;--line:#DDE3EA;--panel:#F3F5F8}
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
 body{margin:0;background:#fff;color:var(--ink);
@@ -31,7 +31,7 @@ border-top:2px solid var(--navy);border-bottom:1px solid var(--line)}
 .stat+.stat{padding-left:20px;border-left:1px solid var(--line)}
 .stat .n{font-size:56px;line-height:1;font-weight:700;color:var(--navy);
 font-variant-numeric:tabular-nums}
-.stat .n.risk{color:var(--rust)}
+.stat .n.risk{color:var(--red)}
 .stat .n.zero{color:var(--muted)}
 .stat .l{font-size:17px;font-weight:700;color:var(--ink);margin-top:8px}
 .stat .d{font-size:14px;color:var(--muted);margin-top:2px}
@@ -58,17 +58,17 @@ border-bottom:1px solid var(--line)}
 .bar{display:flex;height:16px;margin:4px 0 10px;border-radius:2px;overflow:hidden;
 background:var(--line)}
 .bar span{display:block;min-width:4px}
-.b-keep{background:var(--navy)}.b-rewrite{background:var(--tan)}
-.b-throwaway{background:var(--rust)}.b-check{background:var(--cream)}
+.b-keep{background:var(--navy)}.b-rewrite{background:var(--steel)}
+.b-throwaway{background:var(--red)}.b-check{background:var(--mist)}
 .legend{display:flex;flex-wrap:wrap;gap:4px 22px;margin:0 0 26px;font-size:15px}
 .legend i{display:inline-block;width:10px;height:10px;margin-right:6px;border-radius:2px}
 .lab{min-width:0;border-top:4px solid var(--line);padding-top:12px;margin:0 0 30px}
 .lab .files{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:32px}
-.lab.keep{border-color:var(--navy)}.lab.rewrite{border-color:var(--tan)}
-.lab.throwaway{border-color:var(--rust)}.lab.check{border-color:var(--cream)}
+.lab.keep{border-color:var(--navy)}.lab.rewrite{border-color:var(--steel)}
+.lab.throwaway{border-color:var(--red)}.lab.check{border-color:var(--mist)}
 .lab h3{margin:0;display:flex;align-items:baseline;gap:10px}
 .lab h3 .c{font-size:30px;font-variant-numeric:tabular-nums}
-.lab.keep h3 .c{color:var(--navy)}.lab.throwaway h3 .c{color:var(--rust)}
+.lab.keep h3 .c{color:var(--navy)}.lab.throwaway h3 .c{color:var(--red)}
 .lab p.m{margin:4px 0 12px;color:var(--muted)}
 .files li{padding:7px 0;border-top:1px solid var(--line);min-width:0}
 .files code{font-size:13.5px}
@@ -77,14 +77,14 @@ details.more{margin-top:4px}
 details.more>summary,.locs summary{cursor:pointer;color:var(--navy);font-size:15px}
 details.more>summary{padding:8px 0}
 .card{border-left:3px solid var(--line);padding:4px 0 4px 18px;margin:0 0 28px;min-width:0}
-.card.high{border-left-color:var(--rust)}.card.medium{border-left-color:var(--tan)}
+.card.high{border-left-color:var(--red)}.card.medium{border-left-color:var(--steel)}
 .tags{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;font-size:14px}
 .tag{display:inline-block;color:var(--navy);font-weight:700;text-transform:uppercase;
 letter-spacing:.04em;font-size:12.5px}
-.tag.high{color:var(--rust)}
+.tag.high{color:var(--red)}
 .tags .cnt{color:var(--muted)}
 .tags .src{color:var(--muted)}
-.tags .src.unchecked{color:var(--rust);font-weight:700}
+.tags .src.unchecked{color:var(--red);font-weight:700}
 .ct{font-size:19px;line-height:1.35;color:var(--ink);margin:8px 0 6px;overflow-wrap:anywhere}
 .fix{margin:0 0 10px;color:var(--muted);font-size:15px}
 .fix b{color:var(--ink)}
@@ -108,7 +108,7 @@ letter-spacing:.04em;font-size:12.5px}
 .chips{display:flex;flex-wrap:wrap;gap:6px}
 .chips li{background:var(--panel);border-radius:3px;padding:2px 8px;font-size:14px;
 overflow-wrap:anywhere;min-width:0}
-.errs li{color:var(--rust);font-size:14px;overflow-wrap:anywhere}
+.errs li{color:var(--red);font-size:14px;overflow-wrap:anywhere}
 .none{color:var(--muted);font-size:14px;margin:0}
 .chat li{display:grid;grid-template-columns:110px minmax(0,1fr);gap:4px 16px;padding:12px 0;
 border-top:1px solid var(--line)}

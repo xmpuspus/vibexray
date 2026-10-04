@@ -8,7 +8,7 @@
 
 Output tmp/cli/cli.mp4
 
-Set Theme "Catppuccin Mocha"
+Set Theme "Github"
 Set FontSize 15
 Set Width 1600
 Set Height 720

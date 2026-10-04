@@ -1,4 +1,4 @@
-<p align="center"><img src="https://raw.githubusercontent.com/xmpuspus/vibexray/main/docs/media/logo.svg" alt="vibexray logo, a page under a scan line with one line marked in rust" width="96"></p>
+<p align="center"><img src="https://raw.githubusercontent.com/xmpuspus/vibexray/main/docs/media/logo.svg" alt="vibexray logo, a page under a scan line with one line marked in red" width="96"></p>
 
 <h1 align="center">vibexray</h1>
 <p align="center"><strong>See what is real and what is fake in an AI-built prototype, before the engineer builds it.</strong></p>
@@ -10,12 +10,12 @@ Every finding points to a file and a line.
 
 <p align="center">
   <a href="https://github.com/xmpuspus/vibexray/actions/workflows/ci.yml"><img src="https://github.com/xmpuspus/vibexray/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
-  <img src="https://img.shields.io/badge/python-3.11%20%7C%203.12%20%7C%203.13-07203F" alt="Python 3.11 to 3.13">
-  <img src="https://img.shields.io/badge/runs%20in-Claude%20Code%20%7C%20Codex-07203F" alt="Runs in Claude Code and Codex">
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-07203F" alt="License MIT"></a>
+  <img src="https://img.shields.io/badge/python-3.11%20%7C%203.12%20%7C%203.13-0B2545" alt="Python 3.11 to 3.13">
+  <img src="https://img.shields.io/badge/runs%20in-Claude%20Code%20%7C%20Codex-0B2545" alt="Runs in Claude Code and Codex">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-0B2545" alt="License MIT"></a>
 </p>
 
-<p align="center"><img src="https://raw.githubusercontent.com/xmpuspus/vibexray/main/docs/media/hero.gif" alt="Claude Code runs /vibexray on a support bot and lists its fake parts and risks." width="900"></p>
+<p align="center"><img src="https://raw.githubusercontent.com/xmpuspus/vibexray/main/docs/media/report.gif" alt="A walk through report.html, from the headline and the PM's decisions to the risks and app screenshots." width="900"></p>
 
 ```bash
 claude plugin marketplace add xmpuspus/vibexray
@@ -57,8 +57,6 @@ vibexray tells the PM which is which before the handoff. The PM answers up to 10
 [Compared with other tools](#compared-with-other-tools) shows how the closest tools differ.
 
 ## The PM gets one page that answers four questions
-
-<p align="center"><img src="https://raw.githubusercontent.com/xmpuspus/vibexray/main/docs/media/report.gif" alt="A walk through report.html, from the headline and the PM's decisions to the risks and app screenshots." width="900"></p>
 
 The scan writes three files to `vibexray-report/`.
 
@@ -262,7 +260,6 @@ make e2e      # corpus accuracy, app runs, and browser tests
 Every GIF in this README is a real recording. These targets record them again.
 
 ```bash
-make demo          # docs/media/hero.gif, from a live Claude Code session
 make gif           # docs/media/report.gif, a browser walk through the report
 make feature-gifs  # one GIF per report section
 make cli-gif       # docs/media/cli.gif, a real terminal scan

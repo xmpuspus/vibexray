@@ -1,6 +1,6 @@
 # vibexray reports two numbers, and both come from a sealed test set
 
-vibexray publishes two numbers together. One number alone is easy to game: a tool that flags every line finds every problem. This file fixed both definitions on 2026-10-04, before the sealed set existed. The scoring code in `tests/test_corpus_accuracy.py` and `scripts/eval_review.py` follows it.
+vibexray publishes two numbers together. One number alone is easy to game. A tool that flags every line finds every problem. This file fixed both definitions on 2026-10-04, before the sealed set existed. The scoring code in `tests/test_corpus_accuracy.py` and `scripts/eval_review.py` follows it.
 
 ## The first number is the share of labeled problems that vibexray finds
 
@@ -8,7 +8,7 @@ vibexray publishes two numbers together. One number alone is easy to game: a too
 - Two labelers labeled each sealed repo on their own. `scripts/merge_labels.py` joins their files. A problem that both labelers marked counts once.
 - A label counts unless its confidence is `low` or its category is `note_public_key`.
 - A finding finds a label when both have the same category, in the same file.
-- Their line spans must overlap, with 3 lines of slack on each side of the label. A finding on the label's related file and line also counts.
+- Their line spans must overlap, with 3 lines of slack on each side of the label. A finding on the label's related file and line counts too.
 
 ## The second number is the share of findings that match a label
 
@@ -16,7 +16,7 @@ vibexray publishes two numbers together. One number alone is easy to game: a too
 - The labelers had no `ai_no_tests` or `ai_no_cost_limit` category, so findings in those two categories do not count.
 - A finding is right when it finds any label of the repo, low-confidence labels included.
 
-The labels miss some real problems, so this number is a floor. A third line can add an independent audit:
+The labels miss some real problems, so this number is a floor. A third line can add an independent audit, with these rules.
 
 - An auditor who did not build vibexray reads the code at each finding that matched no label.
 - The auditor sees the code and the finding, but never the labels.

@@ -5,7 +5,7 @@ These rules picked the repos of the `sealed` split. I wrote them on 2026-10-04, 
 ## A repo qualifies when it meets every rule
 
 1. It is public on GitHub, and its license is MIT or Apache-2.0.
-2. It shows that Claude Code or Codex built it. Accepted evidence: a `CLAUDE.md`, `AGENTS.md`, `.claude/` folder, or `.codex/` folder, or commit trailers that name Claude or Codex.
+2. It shows that Claude Code or Codex built it. The evidence can be a `CLAUDE.md`, `AGENTS.md`, `.claude/` folder, or `.codex/` folder, or commit trailers that name Claude or Codex.
 3. It is a web app prototype in JavaScript, TypeScript, or Python, with between 15 and 400 source files of its own.
 4. Its last push is in 2025 or 2026.
 5. It is not a fork. It is not one of the 23 earlier corpus repos, and it is not a near copy of one.

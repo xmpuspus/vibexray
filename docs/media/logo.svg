@@ -1,12 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120" role="img" aria-labelledby="title">
-  <title id="title">vibexray logo: a page under a green scan line, with one line marked in coral</title>
-  <rect x="4" y="4" width="112" height="112" rx="24" fill="#1b2a41"/>
-  <path d="M38 22h30l16 16v58a4 4 0 0 1-4 4H38a4 4 0 0 1-4-4V26a4 4 0 0 1 4-4z" fill="#26384f" stroke="#dbe4ee" stroke-width="4" stroke-linejoin="round"/>
-  <path d="M68 22v16h16" fill="none" stroke="#dbe4ee" stroke-width="4" stroke-linejoin="round"/>
-  <line x1="44" y1="50" x2="74" y2="50" stroke="#dbe4ee" stroke-width="4" stroke-linecap="round"/>
-  <line x1="44" y1="60" x2="74" y2="60" stroke="#ff6b4a" stroke-width="4" stroke-linecap="round"/>
-  <line x1="44" y1="80" x2="66" y2="80" stroke="#dbe4ee" stroke-width="4" stroke-linecap="round"/>
-  <line x1="44" y1="90" x2="70" y2="90" stroke="#dbe4ee" stroke-width="4" stroke-linecap="round"/>
-  <rect x="16" y="66" width="88" height="8" rx="4" fill="#3fd68a" opacity="0.25"/>
-  <line x1="18" y1="70" x2="102" y2="70" stroke="#3fd68a" stroke-width="3" stroke-linecap="round"/>
+  <title id="title">vibexray logo: a page under a scan line, with one line marked in rust</title>
+  <rect x="4" y="4" width="112" height="112" rx="24" fill="#07203F"/>
+  <path d="M38 22h30l16 16v58a4 4 0 0 1-4 4H38a4 4 0 0 1-4-4V26a4 4 0 0 1 4-4z" fill="#EBDED4" stroke="#EBDED4" stroke-width="4" stroke-linejoin="round"/>
+  <path d="M68 22v16h16z" fill="#D9AA90" stroke="#D9AA90" stroke-width="2" stroke-linejoin="round"/>
+  <line x1="44" y1="50" x2="74" y2="50" stroke="#07203F" stroke-width="4" stroke-linecap="round"/>
+  <line x1="44" y1="60" x2="74" y2="60" stroke="#A65E46" stroke-width="5" stroke-linecap="round"/>
+  <line x1="44" y1="80" x2="66" y2="80" stroke="#07203F" stroke-width="4" stroke-linecap="round"/>
+  <line x1="44" y1="90" x2="70" y2="90" stroke="#07203F" stroke-width="4" stroke-linecap="round"/>
+  <line x1="18" y1="70" x2="102" y2="70" stroke="#D9AA90" stroke-width="3" stroke-linecap="round"/>
 </svg>

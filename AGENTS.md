@@ -6,14 +6,14 @@ vibexray reads an AI-built prototype and writes a handoff. The PM reads `report.
 
 ## Layout
 
-- `src/vibexray/`: the package. `cli.py` runs the stages in order.
-- `src/vibexray/rules/`: detection rules. Each rule returns findings with a file and a line.
-- `src/vibexray/report/`: the HTML report, the markdown handoff, and the JSON output.
-- `skills/vibexray/`: the Agent Skill for Claude Code and Codex.
-- `tests/`: unit tests, CLI tests, corpus tests, and browser tests.
-- `tests/corpus/`: the pinned list of real prototype repos and their hand labels.
-- `scripts/`: corpus fetch, skill bundle, and demo recording.
-- `docs/`: GIFs, screenshots, and their recipes.
+- `src/vibexray/` holds the package. `cli.py` runs the stages in order.
+- `src/vibexray/rules/` holds the detection rules. Each rule returns findings with a file and a line.
+- `src/vibexray/report/` makes the HTML report, the markdown handoff, and the JSON output.
+- `skills/vibexray/` holds the Agent Skill for Claude Code and Codex.
+- `tests/` holds unit tests, CLI tests, corpus tests, and browser tests.
+- `tests/corpus/` holds the pinned list of real prototype repos and their hand labels.
+- `scripts/` holds the corpus fetch, skill bundle, and demo recording scripts.
+- `docs/` holds the GIFs, the logo, and their recipes.
 
 ## Setup
 

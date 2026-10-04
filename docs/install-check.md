@@ -4,7 +4,7 @@ Checked on 2026-10-03 with `claude` 2.1.288 and `codex-cli` 0.160.0. No command 
 
 ## Claude Code validation passes
 
-Command: `claude plugin validate <worktree>` (exit 0).
+The check ran `claude plugin validate <worktree>`, and it exited 0.
 
 ```text
 Validating marketplace manifest: <worktree>/.claude-plugin/marketplace.json

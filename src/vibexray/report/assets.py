@@ -1,17 +1,16 @@
 """Inline CSS and JS for report.html. The report loads nothing from the network."""
 
-# Coral #E07A5F is 2.9:1 on white, so it only fills bars and borders.
-# Text that signals risk uses the darker coral #B5472E (5.4:1).
+# One accent: rust marks what is fake or risky. Navy is real code and structure. Tan and
+# cream are context. Rust #A65E46 is 4.9:1 on white, so it also works as text.
 CSS = """
-:root{--navy:#1F3A5F;--steel:#4A6FA5;--coral:#E07A5F;--coral-ink:#B5472E;
---coral-wash:#FBEDE8;--green:#5E9C76;--green-ink:#2F6B45;--grey-bar:#A9B1BC;
---ink:#2B2F36;--muted:#5B6470;--line:#DDE2E8;--panel:#F4F6F9}
+:root{--navy:#07203F;--rust:#A65E46;--tan:#D9AA90;--cream:#EBDED4;
+--ink:#02000D;--muted:#5B6470;--line:#E3DCD5;--panel:#F7F2ED}
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
 body{margin:0;background:#fff;color:var(--ink);
 font:17px/1.55 "Helvetica Neue",Helvetica,Arial,sans-serif}
 .wrap{max-width:1080px;margin:0 auto;padding:0 32px}
-a{color:var(--steel)}
+a{color:var(--navy)}
 code,pre{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px}
 code{overflow-wrap:anywhere;word-break:break-word}
 pre{margin:8px 0 4px;padding:12px 14px;background:var(--panel);border:1px solid var(--line);
@@ -32,7 +31,7 @@ border-top:2px solid var(--navy);border-bottom:1px solid var(--line)}
 .stat+.stat{padding-left:20px;border-left:1px solid var(--line)}
 .stat .n{font-size:56px;line-height:1;font-weight:700;color:var(--navy);
 font-variant-numeric:tabular-nums}
-.stat .n.risk{color:var(--coral-ink)}
+.stat .n.risk{color:var(--rust)}
 .stat .n.zero{color:var(--muted)}
 .stat .l{font-size:17px;font-weight:700;color:var(--ink);margin-top:8px}
 .stat .d{font-size:14px;color:var(--muted);margin-top:2px}
@@ -51,7 +50,7 @@ ul,ol{padding:0;margin:0;list-style:none}
 .qs .q{display:grid;grid-template-columns:44px minmax(0,1fr);gap:4px 14px;padding:16px 0;
 border-bottom:1px solid var(--line)}
 .qs .q:first-child{border-top:1px solid var(--line)}
-.qn{font-size:26px;line-height:1.1;font-weight:700;color:var(--steel)}
+.qn{font-size:26px;line-height:1.1;font-weight:700;color:var(--navy)}
 .qt{margin:0;font-size:19px;font-weight:700;color:var(--ink);min-width:0;overflow-wrap:anywhere}
 .qw{margin:4px 0 0;color:var(--ink)}
 .qf{margin:6px 0 0;color:var(--muted);font-size:14px}
@@ -59,34 +58,33 @@ border-bottom:1px solid var(--line)}
 .bar{display:flex;height:16px;margin:4px 0 10px;border-radius:2px;overflow:hidden;
 background:var(--line)}
 .bar span{display:block;min-width:4px}
-.b-keep{background:var(--green)}.b-rewrite{background:var(--steel)}
-.b-throwaway{background:var(--coral)}.b-check{background:var(--grey-bar)}
+.b-keep{background:var(--navy)}.b-rewrite{background:var(--tan)}
+.b-throwaway{background:var(--rust)}.b-check{background:var(--cream)}
 .legend{display:flex;flex-wrap:wrap;gap:4px 22px;margin:0 0 26px;font-size:15px}
 .legend i{display:inline-block;width:10px;height:10px;margin-right:6px;border-radius:2px}
 .lab{min-width:0;border-top:4px solid var(--line);padding-top:12px;margin:0 0 30px}
 .lab .files{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:32px}
-.lab.keep{border-color:var(--green)}.lab.rewrite{border-color:var(--steel)}
-.lab.throwaway{border-color:var(--coral)}.lab.check{border-color:var(--grey-bar)}
+.lab.keep{border-color:var(--navy)}.lab.rewrite{border-color:var(--tan)}
+.lab.throwaway{border-color:var(--rust)}.lab.check{border-color:var(--cream)}
 .lab h3{margin:0;display:flex;align-items:baseline;gap:10px}
 .lab h3 .c{font-size:30px;font-variant-numeric:tabular-nums}
-.lab.keep h3 .c{color:var(--green-ink)}.lab.throwaway h3 .c{color:var(--coral-ink)}
+.lab.keep h3 .c{color:var(--navy)}.lab.throwaway h3 .c{color:var(--rust)}
 .lab p.m{margin:4px 0 12px;color:var(--muted)}
 .files li{padding:7px 0;border-top:1px solid var(--line);min-width:0}
 .files code{font-size:13.5px}
 .files .why{display:block;font-size:14px;color:var(--muted)}
 details.more{margin-top:4px}
-details.more>summary,.locs summary{cursor:pointer;color:var(--steel);font-size:15px}
+details.more>summary,.locs summary{cursor:pointer;color:var(--navy);font-size:15px}
 details.more>summary{padding:8px 0}
-.card{border:1px solid var(--line);border-left:4px solid var(--grey-bar);border-radius:4px;
-padding:16px 18px;margin:0 0 16px;min-width:0}
-.card.high{border-left-color:var(--coral)}.card.medium{border-left-color:var(--steel)}
+.card{border-left:3px solid var(--line);padding:4px 0 4px 18px;margin:0 0 28px;min-width:0}
+.card.high{border-left-color:var(--rust)}.card.medium{border-left-color:var(--tan)}
 .tags{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;font-size:14px}
-.tag{display:inline-block;padding:1px 8px;border-radius:3px;background:var(--panel);
-color:var(--navy);font-weight:700}
-.tag.high{background:var(--coral-wash);color:var(--coral-ink)}
+.tag{display:inline-block;color:var(--navy);font-weight:700;text-transform:uppercase;
+letter-spacing:.04em;font-size:12.5px}
+.tag.high{color:var(--rust)}
 .tags .cnt{color:var(--muted)}
 .tags .src{color:var(--muted)}
-.tags .src.unchecked{color:var(--coral-ink);font-weight:700}
+.tags .src.unchecked{color:var(--rust);font-weight:700}
 .ct{font-size:19px;line-height:1.35;color:var(--ink);margin:8px 0 6px;overflow-wrap:anywhere}
 .fix{margin:0 0 10px;color:var(--muted);font-size:15px}
 .fix b{color:var(--ink)}
@@ -110,7 +108,7 @@ color:var(--navy);font-weight:700}
 .chips{display:flex;flex-wrap:wrap;gap:6px}
 .chips li{background:var(--panel);border-radius:3px;padding:2px 8px;font-size:14px;
 overflow-wrap:anywhere;min-width:0}
-.errs li{color:var(--coral-ink);font-size:14px;overflow-wrap:anywhere}
+.errs li{color:var(--rust);font-size:14px;overflow-wrap:anywhere}
 .none{color:var(--muted);font-size:14px;margin:0}
 .chat li{display:grid;grid-template-columns:110px minmax(0,1fr);gap:4px 16px;padding:12px 0;
 border-top:1px solid var(--line)}

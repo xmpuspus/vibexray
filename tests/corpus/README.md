@@ -7,11 +7,11 @@
 
 ## split.json names five lists
 
-- `dev`: 23 repos with 320 labels from one labeler each. Tuning uses them. The 7 repos of `heldout` are among them.
-- `heldout`: the test set of the first two rounds. It joined `dev` after round 2.
-- `sealed_1`: the 19 repos of the v1 public test, with 846 labels from two labelers. [SELECTION.md](SELECTION.md) gives the rules. It joined tuning after its one run.
-- `tune`: `dev` plus `sealed_1`, 42 repos.
-- `sealed`: the next public test set. It stays empty until the maintainer picks its repos.
+- `dev` holds 23 repos with 320 labels from one labeler each. Tuning uses them. The 7 repos of `heldout` are among them.
+- `heldout` is the test set of the first two rounds. It joined `dev` after round 2.
+- `sealed_1` holds the 19 repos of the v1 public test, with 846 labels from two labelers. [SELECTION.md](SELECTION.md) gives the rules. It joined tuning after its one run.
+- `tune` is `dev` plus `sealed_1`, 42 repos.
+- `sealed` is the next public test set. It stays empty until the maintainer picks its repos.
 
 ## The audits judge findings that match no label
 
@@ -22,7 +22,7 @@
 
 ## Run the review test again
 
-The review test runs real Claude Code or Codex sessions on your subscription login. It strips API keys from the session environment. These commands repeat the v1 public test:
+The review test runs real Claude Code or Codex sessions on your subscription login. It strips API keys from the session environment. These commands repeat the v1 public test.
 
 ```bash
 make corpus
@@ -35,7 +35,7 @@ Each command writes `tmp/eval-review-<runtime>.md` and keeps each session's file
 
 To test a skill variant from another folder, add `--skill <folder> --name <output name>`.
 
-To add an audit to a saved round, run:
+This command adds an audit to a saved round.
 
 ```bash
 uv run python scripts/unmatched_findings.py tmp/unmatched.json tmp/eval-review-claude --sample 300

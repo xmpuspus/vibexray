@@ -15,4 +15,4 @@ Only the latest release gets fixes.
 - The scan reads files in the folder that you name. It sends nothing over the network.
 - The scan runs no code from the scanned folder. An app run happens only when you do not pass `--no-run`.
 - An app run installs with `--ignore-scripts` and a clean environment.
-- The report never shows a secret value. It shows the file and the line only.
+- The report hides the secret values that it recognizes, such as API keys and passwords. It shows the file and the line.

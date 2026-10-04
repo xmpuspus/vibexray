@@ -22,10 +22,12 @@ import filecmp
 import hashlib
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
 import tempfile
+import threading
 import time
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
@@ -55,6 +57,9 @@ PROMPT = (
 )
 SKILL_HOME = {"claude": ".claude/skills/vibexray", "codex": ".agents/skills/vibexray"}
 # A key in the environment switches the CLI from the subscription login to API billing.
+# A session that hits the plan limit ends at once. Scored as rules only, it hides the gap.
+LIMIT_TEXT = re.compile(r"hit your (?:session |usage |weekly )?limit", re.I)
+LIMIT_HIT = threading.Event()
 KEY_VARS = ("ANTHROPIC_API_KEY", "ANTHROPIC_AUTH_TOKEN", "OPENAI_API_KEY", "CODEX_API_KEY")
 CLAUDE_TOOLS = ",".join(
     [
@@ -99,6 +104,24 @@ def command(runtime: str, copy: Path, max_turns: int, model: str | None) -> list
     if model:
         cmd[2:2] = ["--model", model]
     return cmd
+
+
+def hit_limit(runtime: str, stdout: str) -> bool:
+    for line in reversed(stdout.strip().splitlines()):
+        try:
+            event = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if runtime == "claude":
+            # A finding text can name a usage limit, so trust only an error result.
+            return bool(event.get("is_error")) and bool(LIMIT_TEXT.search(str(event.get("result"))))
+        if event.get("type") in ("error", "turn.failed") and LIMIT_TEXT.search(line):
+            return True
+    return False
+
+
+def complete(row: dict) -> bool:
+    return row.get("exit_code") == 0 and not row.get("limit_hit")
 
 
 def find_one(copy: Path, name: str) -> Path | None:
@@ -152,6 +175,8 @@ def ratio(a: int, b: int) -> float:
 
 
 def one_run(args: argparse.Namespace, name: str, run: int) -> dict:
+    if LIMIT_HIT.is_set():
+        return {"repo": name, "run": run, "limit_hit": True}
     keep_dir = OUT / args.name / name / f"run-{run}"
     if keep_dir.exists():
         shutil.rmtree(keep_dir)
@@ -178,6 +203,10 @@ def one_run(args: argparse.Namespace, name: str, run: int) -> dict:
         (keep_dir / "session.out").write_text(proc.stdout)
         (keep_dir / "session.err").write_text(proc.stderr)
         row["exit_code"] = proc.returncode
+        if hit_limit(args.runtime, proc.stdout):
+            LIMIT_HIT.set()
+            shutil.rmtree(work, ignore_errors=True)
+            return {**row, "limit_hit": True}
     except subprocess.TimeoutExpired:
         row["exit_code"] = "timeout"
     row["minutes"] = round((time.monotonic() - started) / 60, 1)
@@ -220,6 +249,8 @@ def pooled(rows: list[dict], key: str) -> dict:
 
 
 def summarize(args: argparse.Namespace, repos: list[str], rows: list[dict]) -> dict:
+    not_run = [{"repo": r["repo"], "run": r["run"]} for r in rows if r.get("limit_hit")]
+    rows = [r for r in rows if not r.get("limit_hit")]
     per_run = []
     for run in range(1, args.runs + 1):
         mine = [r for r in rows if r["run"] == run]
@@ -242,6 +273,7 @@ def summarize(args: argparse.Namespace, repos: list[str], rows: list[dict]) -> d
         # A run with no review scores the rules alone. Show the count first so it never hides.
         "reviews_written": sum(1 for r in rows if r["review_written"]),
         "sessions": len(rows),
+        "not_run": not_run,
         "citation_drop_rate": ratio(dropped, entries) if entries else None,
         "review_entries": entries,
         "review_dropped": dropped,
@@ -252,8 +284,10 @@ def summarize(args: argparse.Namespace, repos: list[str], rows: list[dict]) -> d
 
 def markdown(s: dict) -> str:
     drop = s["citation_drop_rate"]
+    missing = len(s.get("not_run") or [])
     lines = [
-        f"# Rules plus {s['runtime']} review: recall {s['recall_mean']:.2f} mean, "
+        f"# {f'INCOMPLETE ({missing} sessions hit the plan limit): ' if missing else ''}"
+        f"Rules plus {s['runtime']} review: recall {s['recall_mean']:.2f} mean, "
         f"precision {s['precision_mean']:.2f} mean",
         "",
         f"- Review written in {s['reviews_written']} of {s['sessions']} sessions. "
@@ -345,6 +379,11 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--keep", action="store_true", help="Keep the temp copies")
     parser.add_argument("--skill", type=Path, default=SKILL, help="Skill folder to install")
     parser.add_argument("--name", help="Output name under tmp/ (default: eval-review-<runtime>)")
+    parser.add_argument(
+        "--resume",
+        action="store_true",
+        help="Keep the finished sessions in tmp/<name>.json and run only the rest",
+    )
     parser.add_argument("--rescore", type=Path, help="Saved summary JSON to score again")
     parser.add_argument("--runs-dir", type=Path, help="Session folders of the saved summary")
     args = parser.parse_args(argv)
@@ -366,7 +405,13 @@ def main(argv: list[str] | None = None) -> int:
     if missing:
         parser.error(f"not in {args.corpus}: {', '.join(missing)}")
     args.name = args.name or f"eval-review-{args.runtime}"
-    if not bundle_is_fresh(args.skill):
+    saved = None
+    if args.resume:
+        saved_path = OUT / f"{args.name}.json"
+        if not saved_path.is_file():
+            parser.error(f"--resume needs {saved_path}")
+        saved = json.loads(saved_path.read_text())
+    elif not bundle_is_fresh(args.skill):
         parser.error("the skill bundle is stale; run `make bundle` first")
     changed = [n for n in repos if not pinned_and_clean(args.corpus / n)]
     if changed:
@@ -380,8 +425,21 @@ def main(argv: list[str] | None = None) -> int:
     digest = hashlib.sha1((args.skill / "SKILL.md").read_bytes()).hexdigest()[:10]
     args.skill_label = f"{args.skill.resolve().relative_to(REPO)} (SKILL.md sha1 {digest})"
     jobs = [(n, run) for run in range(1, args.runs + 1) for n in repos]
+    done: dict = {}
+    if saved:
+        # The sessions run the skill folder's own bundle, so the same SKILL.md and repos keep
+        # the input fixed even when src moved on. The summary records both commits.
+        if saved["skill"] != args.skill_label or saved["runtime"] != args.runtime:
+            parser.error(f"saved run used {saved['runtime']} {saved['skill']}, not this skill")
+        if set(repos) - set(saved["repos"]):
+            parser.error("--resume cannot add repos to the saved run")
+        done = {(r["repo"], r["run"]): r for r in saved["per_repo_run"] if complete(r)}
+        args.commit = f"{saved['vibexray_commit']}, resumed at {args.commit}"
+    todo = [j for j in jobs if j not in done]
+    print(f"{len(todo)} sessions to run, {len(jobs) - len(todo)} kept", flush=True)
     with ThreadPoolExecutor(max_workers=max(1, args.jobs)) as pool:
-        rows = list(pool.map(lambda job: one_run(args, *job), jobs))
+        new = dict(zip(todo, pool.map(lambda job: one_run(args, *job), todo), strict=True))
+    rows = [done.get(j) or new[j] for j in jobs]
     summary = summarize(args, repos, rows)
     OUT.mkdir(exist_ok=True)
     base = OUT / args.name
@@ -389,6 +447,9 @@ def main(argv: list[str] | None = None) -> int:
     base.with_suffix(".md").write_text(markdown(summary))
     print(markdown(summary).split("\n| Repo |")[0].rstrip())
     print(f"\nWrote {base.with_suffix('.json')} and {base.with_suffix('.md')}")
+    if summary["not_run"]:
+        print(f"{len(summary['not_run'])} sessions hit the plan limit. Rerun with --resume.")
+        return 2
     return 0
 
 

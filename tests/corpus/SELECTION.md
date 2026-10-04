@@ -23,6 +23,8 @@ These rules picked the repos of the `sealed` split. I wrote them on 2026-10-04, 
 - The second labelers started after the first labels landed and before any vibexray run on the set. They never read the first labels.
 - After both labels land, nobody reads them, changes them, or checks which of them vibexray missed.
 - vibexray runs on the set once, at one commit, and the README publishes the result as it comes out.
+- Before that run, one crash check scans each repo with no AI review. It keeps only the exit code and run time. Nobody opens its findings.
+- If the crash check finds a crash, the fix goes into the changelog with the repo name.
 
 ## The two labelers gave 846 labels after the merge
 

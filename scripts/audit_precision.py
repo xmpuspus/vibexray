@@ -1,10 +1,11 @@
-"""Precision of saved held-out sessions, with the independent audit of unmatched findings.
+"""Precision of saved sessions, with the independent audit of unmatched findings.
 
 The labels stay unchanged. A finding counts as correct when it matches a label, or when the
 auditor judged it labeler_missed, or duplicate with a label of the same category in the same
 file. --loose counts a duplicate when any file of the repo has a label of that category.
 
     uv run python scripts/audit_precision.py tmp/eval-rounds/heldout-claude-r2-runs
+    uv run python scripts/audit_precision.py RUNS --audit tests/corpus/audit/sealed-review-audit.json
 """
 
 from __future__ import annotations
@@ -24,9 +25,9 @@ from test_corpus_accuracy import LABELS_DIR, UNLABELED, hits, reviewed_files  # 
 AUDIT = REPO / "tests" / "corpus" / "audit" / "heldout-review-audit.json"
 
 
-def accepted(loose: bool) -> set[tuple]:
+def accepted(audit: Path, loose: bool) -> set[tuple]:
     ok = set()
-    for x in json.loads(AUDIT.read_text()):
+    for x in json.loads(audit.read_text()):
         labels = json.loads((LABELS_DIR / f"{x['repo']}.json").read_text())["labels"]
         same = [lb for lb in labels if lb["category"] == x["category"]]
         if not loose:
@@ -39,9 +40,10 @@ def accepted(loose: bool) -> set[tuple]:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("runs_dir", type=Path, help="Session folders of one saved round")
+    parser.add_argument("--audit", type=Path, default=AUDIT, help="Audit verdicts of this round")
     parser.add_argument("--loose", action="store_true")
     args = parser.parse_args(argv)
-    ok = accepted(args.loose)
+    ok = accepted(args.audit, args.loose)
     total, labeled, right = Counter(), Counter(), Counter()
     for repo_dir in sorted(p for p in args.runs_dir.iterdir() if p.is_dir()):
         data = json.loads((LABELS_DIR / f"{repo_dir.name}.json").read_text())

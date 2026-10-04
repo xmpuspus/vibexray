@@ -1,4 +1,4 @@
-<p align="center"><img src="https://raw.githubusercontent.com/xmpuspus/vibexray/main/docs/media/logo.svg" alt="vibexray logo, a page under a scan line with one line marked in red" width="96"></p>
+<p align="center"><img src="docs/media/logo.svg" alt="vibexray logo, a page under a scan line with one line marked in red" width="96"></p>
 
 <h1 align="center">vibexray</h1>
 <p align="center"><strong>See what is real and what is fake in an AI-built prototype, before the engineer builds it.</strong></p>
@@ -15,7 +15,7 @@ Every finding points to a file and a line.
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-0B2545" alt="License MIT"></a>
 </p>
 
-<p align="center"><img src="https://raw.githubusercontent.com/xmpuspus/vibexray/main/docs/media/report.gif" alt="A walk through report.html, from the headline and the PM's decisions to the risks and app screenshots." width="900"></p>
+<p align="center"><img src="docs/media/report.gif" alt="A walk through report.html, from the headline and the PM's decisions to the risks and app screenshots." width="900"></p>
 
 ```bash
 claude plugin marketplace add xmpuspus/vibexray
@@ -88,31 +88,31 @@ Every GIF below is a real recording of one report. vibexray made the report from
 
 The report opens with the questions that block the engineer, the most important first. Each question names the file and line that raised it.
 
-<p align="center"><img src="https://raw.githubusercontent.com/xmpuspus/vibexray/main/docs/media/decisions.gif" alt="The decisions section of a report lists five numbered questions for the PM, each with its source file and line." width="900"></p>
+<p align="center"><img src="docs/media/decisions.gif" alt="The decisions section of a report lists five numbered questions for the PM, each with its source file and line." width="900"></p>
 
 ### A label for each part of the app
 
 A bar shows the share of each label. Each part lists the finding that decided its label.
 
-<p align="center"><img src="https://raw.githubusercontent.com/xmpuspus/vibexray/main/docs/media/parts.gif" alt="The parts section shows a bar of keep, rewrite, throw away, and check, then the files under each label." width="900"></p>
+<p align="center"><img src="docs/media/parts.gif" alt="The parts section shows a bar of keep, rewrite, throw away, and check, then the files under each label." width="900"></p>
 
 ### What is fake
 
 Each card names one fake place. It says what the PM sees and what the engineer must change. Open a card to see the code.
 
-<p align="center"><img src="https://raw.githubusercontent.com/xmpuspus/vibexray/main/docs/media/fake.gif" alt="The fake section shows cards for a keyword bot that poses as an AI and for invented store policies." width="900"></p>
+<p align="center"><img src="docs/media/fake.gif" alt="The fake section shows cards for a keyword bot that poses as an AI and for invented store policies." width="900"></p>
 
 ### What can break
 
 Risks sort by priority. A high risk, such as an order page that any visitor can open, comes first.
 
-<p align="center"><img src="https://raw.githubusercontent.com/xmpuspus/vibexray/main/docs/media/risks.gif" alt="The risks section lists high risks first, such as ticket and order pages with no login check." width="900"></p>
+<p align="center"><img src="docs/media/risks.gif" alt="The risks section lists high risks first, such as ticket and order pages with no login check." width="900"></p>
 
 ### What the app does
 
 vibexray starts the app in a temporary copy and opens each page. The report shows each screenshot with its buttons, inputs, and browser errors.
 
-<p align="center"><img src="https://raw.githubusercontent.com/xmpuspus/vibexray/main/docs/media/app.gif" alt="The app section shows screenshots of seven pages, each with its buttons, inputs, and browser errors." width="900"></p>
+<p align="center"><img src="docs/media/app.gif" alt="The app section shows screenshots of seven pages, each with its buttons, inputs, and browser errors." width="900"></p>
 
 ## Install
 
@@ -154,7 +154,7 @@ vibexray scan ./my-prototype --open
 
 The command line runs the pattern rules, the app run, and the build-chat reader. It does not run the AI review, so it finds fewer problems than the skill.
 
-<p align="center"><img src="https://raw.githubusercontent.com/xmpuspus/vibexray/main/docs/media/cli.gif" alt="A terminal runs vibexray scan on the support-bot prototype, prints the summary, then lists the first ten pattern rules." width="900"></p>
+<p align="center"><img src="docs/media/cli.gif" alt="A terminal runs vibexray scan on the support-bot prototype, prints the summary, then lists the first ten pattern rules." width="900"></p>
 
 ## How a scan works
 

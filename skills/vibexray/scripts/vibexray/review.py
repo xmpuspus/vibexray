@@ -85,6 +85,7 @@ def load_result(data: dict) -> ScanResult:
         stack=data.get("stack") or [],
         findings=[Finding(**f) for f in data.get("findings") or []],
         parts=[Part(**p) for p in data.get("parts") or []],
+        context_files=data.get("context_files") or [],
         app_run=AppRun(**run),
         history=History(**history),
         questions=[Question(**q) for q in data.get("questions") or []],

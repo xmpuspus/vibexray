@@ -25,6 +25,45 @@ APP_SUFFIXES = (
 )
 SKIP_PARTS = ("components/ui/", "test", "spec", ".config.", "vite-env.d.ts")
 
+# Prompt, knowledge-base, and data files hold problems too: invented policies, sample records.
+CONTEXT_SUFFIXES = (".md", ".mdx", ".json", ".yaml", ".yml", ".html")
+CONTEXT_DIRS = ("knowledge", "kb", "prompt", "data", "seed", "fixture", "mock", "faq", "polic")
+NOT_CONTEXT_NAMES = (
+    "package.json",
+    "tsconfig",
+    "jsconfig",
+    "components.json",
+    "readme",
+    "changelog",
+    "license",
+    "contributing",
+    "agents.md",
+    "claude.md",
+    "gemini.md",
+    "index.html",
+    "manifest.json",
+    "vercel.json",
+    ".eslintrc",
+)
+MAX_CONTEXT = 60
+
+
+def context_files(files: list[SourceFile]) -> list[str]:
+    code = "\n".join(src.text for src in files if src.path.endswith(APP_SUFFIXES))
+    out = []
+    for src in files:
+        low = src.path.lower()
+        name = low.rsplit("/", 1)[-1]
+        # Dot folders hold the coding agent's instructions and tool configs, not the app.
+        if not low.endswith(CONTEXT_SUFFIXES) or low.startswith((".", "docs/")) or "test" in low:
+            continue
+        if any(n in name for n in NOT_CONTEXT_NAMES):
+            continue
+        in_data_dir = any(d in part for part in low.split("/")[:-1] for d in CONTEXT_DIRS)
+        if in_data_dir or src.path.rsplit("/", 1)[-1] in code:
+            out.append(src.path)
+    return out[:MAX_CONTEXT]
+
 
 def build_parts(files: list[SourceFile], findings: list[Finding]) -> list[Part]:
     by_file: dict[str, list[Finding]] = defaultdict(list)

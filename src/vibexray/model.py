@@ -137,6 +137,7 @@ class ScanResult:
     stack: list[str] = field(default_factory=list)
     findings: list[Finding] = field(default_factory=list)
     parts: list[Part] = field(default_factory=list)
+    context_files: list[str] = field(default_factory=list)
     app_run: AppRun = field(default_factory=AppRun)
     history: History = field(default_factory=History)
     questions: list[Question] = field(default_factory=list)

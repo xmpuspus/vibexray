@@ -13,7 +13,7 @@ from vibexray import __version__
 from vibexray.apprun import run_app
 from vibexray.history import read_history
 from vibexray.model import ScanResult
-from vibexray.parts import build_parts
+from vibexray.parts import build_parts, context_files
 from vibexray.questions import build_questions
 from vibexray.report import write_reports
 from vibexray.report.common import app_line, headline, parts_with, plural
@@ -42,6 +42,7 @@ def scan(target: Path, out_dir: Path, run: bool, history_mode: str) -> ScanResul
         stack=detect_stack(target, files),
         findings=findings,
         parts=build_parts(files, findings),
+        context_files=context_files(files),
         app_run=app_run,
         history=history,
         questions=build_questions(findings, history),

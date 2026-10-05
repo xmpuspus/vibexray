@@ -93,9 +93,11 @@ def _hero(r: ScanResult) -> str:
         step = "Run vibexray again on the folder that holds the app code."
     else:
         lede = (
-            f"vibexray read {plural(r.files_scanned, 'file')} "
-            f"and flagged {plural(len(r.findings), 'place')} to fix."
+            f"vibexray read {plural(r.files_scanned, 'file')} of {e(r.app_name)} on "
+            f"{e(r.generated_at)} and flagged {plural(len(r.findings), 'place')} to fix."
         )
+        if r.stack:
+            lede += f" The app uses {e(', '.join(r.stack))}."
         step = "Send <code>handoff.md</code> to your engineer. vibexray has no questions for you."
         if n_q:
             step = (
@@ -146,7 +148,7 @@ def _hero(r: ScanResult) -> str:
     return (
         f'<div class="hero"><h1>{_h1(r)}</h1><p class="lede">{lede}</p>'
         f'<div class="stats">{stats}</div>'
-        f'<p class="next"><b>Next step.</b> {step}</p><ul class="toc">{toc}</ul></div>'
+        f'<p class="next">{step}</p><ul class="toc">{toc}</ul></div>'
     )
 
 
@@ -163,12 +165,11 @@ def _decisions(r: ScanResult) -> str:
         src = f"From <code>{_where(q.file, q.line)}</code>" if q.file else "From your build chat"
         items.append(
             f'<li class="q"><span class="qn">{i}</span><div><p class="qt">{e(q.text)}</p>'
-            f'<p class="qw">{e(q.why)}</p><p class="qf">{src}</p></div></li>'
+            f'<p class="qw">{e(q.why)} <span class="qf">{src}.</span></p></div></li>'
         )
     n = len(r.questions)
     title = f"You have {plural(n, 'decision')} to make"
-    sub = "Answer these before your engineer starts. The most important come first."
-    return _section("decisions", title, f'<ol class="qs">{"".join(items)}</ol>', sub)
+    return _section("decisions", title, f'<ol class="qs">{"".join(items)}</ol>')
 
 
 def _parts(r: ScanResult) -> str:
@@ -239,21 +240,20 @@ def _location(f: Finding, show_fix: bool) -> str:
 def _card(fs: list[Finding], words: dict[str, str], heading: str) -> str:
     first = fs[0]
     same_fix = len({f.engineer_text for f in fs}) == 1
-    fix = (
-        f'<p class="fix"><b>For the engineer:</b> {e(first.engineer_text)}</p>' if same_fix else ""
-    )
     files = len({f.file for f in fs})
-    count = plural(len(fs), "place")
-    if files > 1:
-        count += f" in {files:,} files"
     sev = first.severity if first.severity in words else "low"
+    lead = words[sev]
+    if len(fs) > 1:
+        lead += f", {plural(len(fs), 'place')}"
+        if files > 1:
+            lead += f" in {files:,} files"
     src_cls = "unchecked" if found_by(first).endswith("not checked") else ""
+    fix = f" {e(first.engineer_text)}" if same_fix else ""
     locs = [_location(f, not same_fix) for f in fs]
     return (
-        f'<article class="card {sev}"><div class="tags"><span class="tag {sev}">'
-        f'{words[sev]}</span><span class="cnt">{count}</span>'
-        f'<span class="src {src_cls}">{found_by(first)}</span></div>'
-        f'<{heading} class="ct">{e(first.pm_text)}</{heading}>{fix}'
+        f'<article class="card {sev}"><{heading} class="ct">{e(first.pm_text)}</{heading}>'
+        f'<p class="fix"><b class="pri {sev}">{lead}.</b>{fix} '
+        f'<span class="src {src_cls}">{found_by(first)}.</span></p>'
         f"{_more(locs, SHOWN, cls='locs')}</article>"
     )
 
@@ -274,10 +274,7 @@ def _fake(r: ScanResult) -> str:
     files = len({f.file for f in found})
     verb = "is" if len(found) == 1 else "are"
     title = f"{plural(len(found), 'place')} in {plural(files, 'part')} {verb} fake"
-    sub = (
-        "Each place shows sample data, fakes an action, or fixes a value in the code. "
-        "Open a place to see the code."
-    )
+    sub = "Each place shows sample data, fakes an action, or fixes a value in the code."
     return _section("fake", title, "".join(_card(c, PRIORITY, "h3") for c in cards(found)), sub)
 
 
@@ -414,7 +411,7 @@ def _chat(r: ScanResult) -> str:
         rep = f'<p class="rep">You sent this {times} times.</p>' if times > 1 else ""
         rows.append(f"<li><time>{e(when or 'No date')}</time><div><p>{e(text)}</p>{rep}</div></li>")
     title = f"You sent {plural(len(h.prompts), 'prompt')} in {plural(h.sessions, 'build chat')}"
-    sub = f"From {e(chat_source(h.source))}. These are your own words, oldest first."
+    sub = f"Your own prompts in {e(chat_source(h.source))}, oldest first."
     return _section("chat", title, _more(rows, SHOWN_PROMPTS, "ol", "chat"), sub)
 
 
@@ -440,30 +437,22 @@ def _engineer(r: ScanResult) -> str:
         "folder as this report. It lists every file and line, how to fix each one, and your "
         "open questions. A coding agent can read it too.</p>"
         f'<h3>What the handoff asks for</h3><ul class="todo">{todo}</ul>'
-        '<p class="sub after">The file <code>vibexray.json</code> holds the same data for other tools.</p>'
+        '<p class="sub after">The file <code>vibexray.json</code> holds the same data for other tools. '
+        "A scan reads code, so it cannot prove that the app is safe.</p>"
     )
     return _section("engineer", "Your engineer starts from handoff.md", body)
 
 
 def render_html(result: ScanResult, base: Path | None = None) -> str:
     r = result
-    stack = ", ".join(r.stack) if r.stack else "Stack not found"
-    meta = f"{e(r.app_name)} · {e(r.generated_at)} · {e(stack)}"
     sections = (
         _decisions(r) + _parts(r) + _fake(r) + _risks(r) + _app(r, base) + _chat(r) + _engineer(r)
-    )
-    foot = (
-        f"vibexray {e(r.version)} read {e(r.app_name)} on {e(r.generated_at)}. "
-        "A scan reads code. It cannot prove that an app is safe."
     )
     return (
         '<!doctype html><html lang="en"><head><meta charset="utf-8">'
         '<meta name="viewport" content="width=device-width, initial-scale=1">'
         '<link rel="icon" href="data:,">'
         f"<title>vibexray: {e(r.app_name)}</title><style>{CSS}</style></head><body>"
-        f'<header class="top"><div class="wrap"><span class="brand">vibexray report</span>'
-        f'<span class="meta">{meta}</span></div></header>'
         f'<main class="wrap">{_hero(r)}{sections}</main>'
-        f'<footer class="foot"><div class="wrap">{foot}</div></footer>'
         f"<script>{JS}</script></body></html>\n"
     )

@@ -1,4 +1,4 @@
-.PHONY: install lint fmt test e2e browser corpus bundle check demo gif feature-gifs cli-gif clean
+.PHONY: install lint fmt test e2e browser corpus bundle check demo gif feature-gifs cli-gif showcase clean
 
 PY ?= uv run
 
@@ -47,6 +47,10 @@ feature-gifs:
 	for s in decisions parts fake risks app; do \
 		$(PY) python scripts/record_report.py tmp/hero/report/report.html docs/media/$$s.gif --section $$s; \
 	done
+
+# A square GIF for a LinkedIn post: title card, each report section with a caption, install card.
+showcase:
+	$(PY) --with pillow python scripts/record_showcase.py tmp/hero/report/report.html
 
 # The command line demo scans a fresh copy of the pinned support-bot prototype.
 cli-gif:

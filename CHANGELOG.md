@@ -2,6 +2,13 @@
 
 All notable changes to this project are in this file. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The project follows [Semantic Versioning](https://semver.org/).
 
+## [0.1.1] - 2026-10-05
+
+### Changed
+
+- The report drops its divider lines, top bar, footer, and label rows. Each finding reads as a title and one paragraph, with its file and line below.
+- The report uses navy, steel blue, and one crimson accent.
+
 ## [0.1.0] - 2026-10-04
 
 First release.
@@ -17,4 +24,5 @@ First release.
 - The Agent Skill in `skills/vibexray/`, with a bundled copy of the package and a launcher.
 - Plugin manifests for Claude Code and Codex.
 
+[0.1.1]: https://github.com/xmpuspus/vibexray/releases/tag/v0.1.1
 [0.1.0]: https://github.com/xmpuspus/vibexray/releases/tag/v0.1.0

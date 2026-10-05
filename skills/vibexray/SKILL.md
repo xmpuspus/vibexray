@@ -4,7 +4,7 @@ description: X-rays a prototype built with AI and writes a PM report, an enginee
 license: MIT
 compatibility: The scan needs Python 3.11 or newer and no network. The app run is optional. It needs Node, Playwright, and network access to install packages.
 metadata:
-  version: "0.1.0"
+  version: "0.1.1"
   repository: https://github.com/xmpuspus/vibexray
 ---
 
